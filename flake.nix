@@ -29,6 +29,42 @@
             };
             # append = "boot.debugtrace";
           };
+
+          qemu-example-service = self.lib.runQemu {
+            inherit system;
+            nixos = nixpkgs.lib.nixosSystem {
+              inherit system;
+              modules = [ (
+                { modulesPath, ... }:
+
+                {
+                  imports = [
+                    (modulesPath + "/profiles/minimal.nix")
+                  ];
+
+                  boot.isContainer = true;
+                  networking.hostName = "microvm-service";
+                  networking.firewall.enable = false;
+                  users.users.root.password = "";
+
+                  fileSystems."/var" = {
+                    device = "var";
+                    fsType = "9p";
+                    options = [ "trans=virtio" "version=9p2000.L" "cache=loose" "msize=65536" ];
+                    neededForBoot = true;
+                  };
+                }
+              ) ];
+            };
+            preStart = ''
+              mkdir -p ./var
+            '';
+            shared = [ {
+              id = "var";
+              writable = true;
+              path = "./var";
+            } ];
+          };
         };
 
       }

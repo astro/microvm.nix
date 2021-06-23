@@ -8,6 +8,8 @@
             , append ? ""
             , user ? null
             , interfaces ? [ { id = "eth0"; type = "user"; } ]
+            , shared ? []
+            , preStart ? ""
             }:
     let
       pkgs = nixpkgs.legacyPackages.${system};
@@ -46,14 +48,25 @@
         "-sandbox" "on"
       ] ++
       (if user != null then [ "-user" user ] else []) ++
-      (builtins.concatMap ({ id }: [
+      (builtins.concatMap ({ type, id }: [
         "-netdev" "${type},id=${id}"
         "-device" "virtio-net-device,netdev=${id}"
-      ]) interfaces)
+      ]) interfaces) ++
+      (builtins.concatMap ({ id
+                           , tag ? id
+                           , path
+                           , writable ? false
+                           , security ? (if writable then "mapped-xattr" else "passthrough")
+                           }: [
+        "-fsdev" "local,id=${id},path=${path},security_model=${security},readonly=${if writable then "off" else "on"}"
+        "-device" "virtio-9p-device,fsdev=${id},mount_tag=${tag}"
+      ]) shared)
       );
     in
       pkgs.writeScriptBin "run-qemu" ''
         #! ${pkgs.runtimeShell} -e
+
+        ${preStart}
 
         exec ${qemuCommand}
       '';

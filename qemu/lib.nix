@@ -23,16 +23,6 @@
       rootfs = nixos.config.system.build.toplevel;
       vmTools = pkgs.callPackage ../vmtools.nix { rootModules = []; };
       initrd = "${vmTools.initrd}/initrd"; #nixos.config.system.boot.loader.initrdFile;
-      _initrd = pkgs.makeInitrd {
-        contents = [ {
-          symlink = "/init";
-          object = pkgs.writeScript "microvm-run-stage1" ''
-            #! ${pkgs.initrdUtils}/bin/ash -e
-
-            exec ash
-          '';
-        } ];
-      };
       qemuCommand = nixpkgs.lib.escapeShellArgs ([
         "${pkgs.qemu}/bin/qemu-system-${arch}"
         "-M" "microvm,x-option-roms=off,isa-serial=off,rtc=off"

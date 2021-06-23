@@ -81,10 +81,10 @@ rec {
       esac
     done
 
-    echo "loading kernel modules..."
-    for i in $(cat ${modulesClosure}/insmod-list); do
-      insmod $i || echo "warning: unable to load $i"
-    done
+    # echo "loading kernel modules..."
+    # for i in $(cat ${modulesClosure}/insmod-list); do
+    #   insmod $i || echo "warning: unable to load $i"
+    # done
 
     mount -t devtmpfs devtmpfs /dev
 
@@ -144,119 +144,6 @@ rec {
       }
     ];
   };
-
-
-  stage2Init = writeScript "vm-run-stage2" ''
-    #! ${bash}/bin/sh
-    # source /tmp/xchg/saved-env
-
-    # Set the system time from the hardware clock.  Works around an
-    # apparent KVM > 1.5.2 bug.
-    ${pkgs.util-linux}/bin/hwclock -s
-
-    export NIX_STORE=${storeDir}
-    export NIX_BUILD_TOP=/tmp
-    export TMPDIR=/tmp
-    export PATH=/empty
-    out="$1"
-    cd "$NIX_BUILD_TOP"
-
-    if ! test -e /bin/sh; then
-      ${coreutils}/bin/mkdir -p /bin
-      ${coreutils}/bin/ln -s ${bash}/bin/sh /bin/sh
-    fi
-
-    # Set up automatic kernel module loading.
-    export MODULE_DIR=${kernel}/lib/modules/
-    ${coreutils}/bin/cat <<EOF > /run/modprobe
-    #! ${bash}/bin/sh
-    export MODULE_DIR=$MODULE_DIR
-    exec ${kmod}/bin/modprobe "\$@"
-    EOF
-    ${coreutils}/bin/chmod 755 /run/modprobe
-    echo /run/modprobe > /proc/sys/kernel/modprobe
-
-    # For debugging: if this is the second time this image is run,
-    # then don't start the build again, but instead drop the user into
-    # an interactive shell.
-    if test -n "$origBuilder" -a ! -e /.debug; then
-      exec < /dev/null
-      ${coreutils}/bin/touch /.debug
-      $origBuilder $origArgs
-      # echo $? > /tmp/xchg/in-vm-exit
-
-      ${busybox}/bin/mount -o remount,ro dummy /
-
-      ${busybox}/bin/poweroff -f
-    else
-      export PATH=/bin:/usr/bin:${coreutils}/bin
-      echo "Starting interactive shell..."
-      echo "(To run the original builder: \$origBuilder \$origArgs)"
-      exec ${busybox}/bin/setsid ${bashInteractive}/bin/bash < /dev/${qemuSerialDevice} &> /dev/${qemuSerialDevice}
-    fi
-  '';
-
-
-  qemuCommandLinux = ''
-    ${qemuBinary qemu} \
-      -nographic -no-reboot \
-      -device virtio-rng-pci \
-      -virtfs local,path=${storeDir},security_model=none,mount_tag=store \
-      -virtfs local,path=$TMPDIR/xchg,security_model=none,mount_tag=xchg \
-      ''${diskImage:+-drive file=$diskImage,if=virtio,cache=unsafe,werror=report} \
-      -kernel ${kernel}/${img} \
-      -initrd ${initrd}/initrd \
-      -append "console=${qemuSerialDevice} panic=1 command=${stage2Init} out=$out mountDisk=$mountDisk loglevel=4" \
-      $QEMU_OPTS
-  '';
-
-
-  vmRunCommand = qemuCommand: writeText "vm-run" ''
-    export > saved-env
-
-    PATH=${coreutils}/bin
-    mkdir xchg
-    mv saved-env xchg/
-
-    eval "$preVM"
-
-    if [ "$enableParallelBuilding" = 1 ]; then
-      if [ ''${NIX_BUILD_CORES:-0} = 0 ]; then
-        QEMU_OPTS+=" -smp cpus=$(nproc)"
-      else
-        QEMU_OPTS+=" -smp cpus=$NIX_BUILD_CORES"
-      fi
-    fi
-
-    # Write the command to start the VM to a file so that the user can
-    # debug inside the VM if the build fails (when Nix is called with
-    # the -K option to preserve the temporary build directory).
-    cat > ./run-vm <<EOF
-    #! ${bash}/bin/sh
-    ''${diskImage:+diskImage=$diskImage}
-    TMPDIR=$TMPDIR
-    cd $TMPDIR
-    ${qemuCommand}
-    EOF
-
-    mkdir -p -m 0700 $out
-
-    chmod +x ./run-vm
-    source ./run-vm
-
-    if ! test -e xchg/in-vm-exit; then
-      echo "Virtual machine didn't produce an exit code."
-      exit 1
-    fi
-
-    exitCode="$(cat xchg/in-vm-exit)"
-    if [ "$exitCode" != "0" ]; then
-      exit "$exitCode"
-    fi
-
-    eval "$postVM"
-  '';
-
 
   createEmptyImage = {size, fullName}: ''
     mkdir $out

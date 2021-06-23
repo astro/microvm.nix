@@ -6,6 +6,7 @@
             , mem ? 512
             , nixos
             , append ? ""
+            , user ? null
             }:
     let
       pkgs = nixpkgs.legacyPackages.${system};
@@ -31,7 +32,7 @@
           '';
         } ];
       };
-      qemuCommand = nixpkgs.lib.escapeShellArgs [
+      qemuCommand = nixpkgs.lib.escapeShellArgs ([
         "${pkgs.qemu}/bin/qemu-system-${arch}"
         "-M" "microvm,x-option-roms=off,isa-serial=off,rtc=off"
         "-m" (builtins.toString mem)
@@ -53,7 +54,10 @@
         "-append" "console=hvc0 acpi=off reboot=t panic=-1 quiet rootfstype=9p rootflags=trans=virtio ro init=/init command=${rootfs}/init ${append}"
         # "-netdev" "user,id=mynet0,hostfwd=tcp:127.0.0.1:8080-10.0.2.15:80"
         # "-device" "virtio-net-device,netdev=mynet0"
-      ];
+        "-sandbox" "on"
+      ] ++
+      (if user != null then [ "-user" user ] else [])
+      );
     in
       pkgs.writeScriptBin "run-qemu" ''
         #! ${pkgs.runtimeShell} -e

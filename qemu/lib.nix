@@ -7,6 +7,7 @@
             , nixos
             , append ? ""
             , user ? null
+            , interfaces ? [ { id = "eth0"; type = "user"; } ]
             }:
     let
       pkgs = nixpkgs.legacyPackages.${system};
@@ -52,11 +53,13 @@
         "-fsdev" "local,id=store,path=/nix/store,security_model=passthrough,readonly=on"
         "-device" "virtio-9p-device,fsdev=store,mount_tag=store"
         "-append" "console=hvc0 acpi=off reboot=t panic=-1 quiet rootfstype=9p rootflags=trans=virtio ro init=/init command=${rootfs}/init ${append}"
-        # "-netdev" "user,id=mynet0,hostfwd=tcp:127.0.0.1:8080-10.0.2.15:80"
-        # "-device" "virtio-net-device,netdev=mynet0"
         "-sandbox" "on"
       ] ++
-      (if user != null then [ "-user" user ] else [])
+      (if user != null then [ "-user" user ] else []) ++
+      (builtins.concatMap ({ id }: [
+        "-netdev" "${type},id=${id}"
+        "-device" "virtio-net-device,netdev=${id}"
+      ]) interfaces)
       );
     in
       pkgs.writeScriptBin "run-qemu" ''

@@ -14,9 +14,8 @@
     let
       pkgs = nixpkgs.legacyPackages.${system};
       arch = builtins.head (builtins.split "-" system);
-      kernel = pkgs.linuxPackages.kernel;
       customKernel = pkgs.linuxPackages_custom {
-        inherit (kernel) version src;
+        inherit (pkgs.linuxPackages.kernel) version src;
         configfile = builtins.fetchurl {
           url = "https://mergeboard.com/files/blog/qemu-microvm/defconfig";
           sha256 = "0ml8v19ir3vmhd948n7c0k9gw8br4d70fd02bfxv9yzwl6r1gvd9";
@@ -63,7 +62,7 @@
       ]) shared)
       );
     in
-      pkgs.writeScriptBin "run-qemu" ''
+      pkgs.writeScriptBin "run-qemu-${nixos.config.networking.hostName}" ''
         #! ${pkgs.runtimeShell} -e
 
         ${preStart}

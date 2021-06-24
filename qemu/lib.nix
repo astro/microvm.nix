@@ -4,7 +4,7 @@
   runQemu = { system
             , vcpu ? 1
             , mem ? 512
-            , nixos
+            , nixosConfig
             , append ? ""
             , user ? null
             , interfaces ? [ { id = "eth0"; type = "user"; mac = "00:23:de:ad:be:ef"; } ]
@@ -12,12 +12,28 @@
             , preStart ? ""
             }:
     let
+      nixos = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [ (
+          { modulesPath, config, ... }:
+          {
+            imports = [
+              (modulesPath + "/profiles/minimal.nix")
+            ];
+
+            boot.isContainer = true;
+            systemd.services.nix-daemon.enable = false;
+            systemd.sockets.nix-daemon.enable = false;
+            # TODO: generate fileSystems for shared
+          }
+        ) nixosConfig ];
+      };
       inherit (nixos.config.networking) hostName;
       pkgs = nixpkgs.legacyPackages.${system};
       arch = builtins.head (builtins.split "-" system);
       rootfs = nixos.config.system.build.toplevel;
       vmTools = pkgs.callPackage ../vmtools.nix { rootModules = []; };
-      initrd = "${vmTools.initrd}/initrd"; #nixos.config.system.boot.loader.initrdFile;
+      initrd = "${vmTools.initrd}/initrd";
       qemuCommand = nixpkgs.lib.escapeShellArgs ([
         "${pkgs.qemu}/bin/qemu-system-${arch}"
         "-name" "qemu-${hostName}"

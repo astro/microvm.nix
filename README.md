@@ -1,6 +1,7 @@
 # TODO
 
-* Firecracker
-* Cloud-Hypervisor
-* Kata
-* lxc
+- [x] qemu
+- [x] Firecracker
+- [ ] Cloud-Hypervisor
+- [ ] crosvm
+- [ ] lxc

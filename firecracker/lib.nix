@@ -46,16 +46,8 @@
         ) nixosConfig ];
       };
       pkgs = nixpkgs.legacyPackages.${system};
-      customKernel = pkgs.linuxPackages_custom {
-        inherit (pkgs.linuxPackages.kernel) version src;
-        configfile = builtins.fetchurl {
-          url = "https://mergeboard.com/files/blog/qemu-microvm/defconfig";
-          sha256 = "0ml8v19ir3vmhd948n7c0k9gw8br4d70fd02bfxv9yzwl6r1gvd9";
-        };
-      };
       inherit (nixos.config.networking) hostName;
       rootfs = nixos.config.system.build.toplevel;
-      kernel = "${customKernel.kernel.dev}/vmlinux";
       rootDrive = pkgs.runCommandLocal "rootfs-${hostName}.img" {
         buildInputs = [ pkgs.libguestfs-with-appliance ];
       } ''

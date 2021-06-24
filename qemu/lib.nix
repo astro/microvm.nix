@@ -15,13 +15,6 @@
       inherit (nixos.config.networking) hostName;
       pkgs = nixpkgs.legacyPackages.${system};
       arch = builtins.head (builtins.split "-" system);
-      customKernel = pkgs.linuxPackages_custom {
-        inherit (pkgs.linuxPackages.kernel) version src;
-        configfile = builtins.fetchurl {
-          url = "https://mergeboard.com/files/blog/qemu-microvm/defconfig";
-          sha256 = "0ml8v19ir3vmhd948n7c0k9gw8br4d70fd02bfxv9yzwl6r1gvd9";
-        };
-      };
       rootfs = nixos.config.system.build.toplevel;
       vmTools = pkgs.callPackage ../vmtools.nix { rootModules = []; };
       initrd = "${vmTools.initrd}/initrd"; #nixos.config.system.boot.loader.initrdFile;
@@ -39,7 +32,7 @@
         "-chardev" "stdio,id=virtiocon0"
         "-device" "virtconsole,chardev=virtiocon0"
         "-device" "virtio-rng-device"
-        "-kernel" "${customKernel.kernel}/bzImage"
+        "-kernel" "${self.packages.${system}.virtioKernel}/bzImage"
         "-initrd" "${initrd}"
         "-fsdev" "local,id=root,path=${rootfs},security_model=passthrough,readonly=on"
         "-device" "virtio-9p-device,fsdev=root,mount_tag=/dev/root"

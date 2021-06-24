@@ -64,7 +64,7 @@
         "--firecracker-binary=${pkgs.firecracker}/bin/firecracker"
         "-m" (builtins.toString mem)
         "-c" (builtins.toString vcpu)
-        "--kernel=${kernel}"
+        "--kernel=${self.packages.${system}.virtioKernel.dev}/vmlinux"
         "--root-drive=${rootDrive}"
         "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off nomodules ro quiet init=${nixos.config.system.build.toplevel}/init ${append}"
       ] ++

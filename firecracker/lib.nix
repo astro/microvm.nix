@@ -13,6 +13,16 @@
                    , rootReserve ? "64M"
                    }:
     let
+      writablePaths = [
+        "/etc"
+        "/tmp"
+        "/bin"
+        "/usr"
+        "/nix/var"
+        "/home"
+        "/root"
+        "/var"
+      ];
       nixos = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [ (
@@ -25,38 +35,13 @@
             boot.isContainer = true;
             systemd.services.nix-daemon.enable = false;
             systemd.sockets.nix-daemon.enable = false;
-            boot.specialFileSystems."/etc" = {
-              device = "etc";
-              fsType = "tmpfs";
-            };
-            boot.specialFileSystems."/tmp" = {
-              device = "tmp";
-              fsType = "tmpfs";
-            };
-            boot.specialFileSystems."/bin" = {
-              device = "bin";
-              fsType = "tmpfs";
-            };
-            boot.specialFileSystems."/usr" = {
-              device = "usr";
-              fsType = "tmpfs";
-            };
-            boot.specialFileSystems."/nix/var" = {
-              device = "nix/var";
-              fsType = "tmpfs";
-            };
-            boot.specialFileSystems."/home" = {
-              device = "home";
-              fsType = "tmpfs";
-            };
-            boot.specialFileSystems."/root" = {
-              device = "root";
-              fsType = "tmpfs";
-            };
-            boot.specialFileSystems."/var" = {
-              device = "var";
-              fsType = "tmpfs";
-            };
+            boot.specialFileSystems =
+              builtins.foldl' (result: path: result // {
+                "${path}" = {
+                  device = path;
+                  fsType = "tmpfs";
+                };
+              }) {} writablePaths;
           }
         ) nixosConfig ];
       };

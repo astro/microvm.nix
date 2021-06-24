@@ -17,5 +17,8 @@
         $(cat ${pkgs.writeReferencesToFile nixos.config.system.build.toplevel}) \
         rootfs/
       virt-make-fs --size=+${rootReserve} --type=ext4 rootfs $out
+
+      # add padding to sector size
+      dd if=/dev/zero of=$out seek=$(($(stat -c %s $out) / 512 + 1)) count=1 bs=512
     '';
 }

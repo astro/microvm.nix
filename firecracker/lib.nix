@@ -7,7 +7,7 @@
                    , nixosConfig
                    , append ? ""
                    , user ? null
-                   #, interfaces ? [ { id = "eth0"; type = "user"; } ]
+                   , interfaces ? []
                    #, shared ? []
                    , preStart ? ""
                    , rootReserve ? "64M"
@@ -81,7 +81,12 @@
         "--kernel=${kernel}"
         "--root-drive=${rootDrive}"
         "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off nomodules ro quiet init=${nixos.config.system.build.toplevel}/init ${append}"
-      ]
+      ] ++
+      map ({ type ? "tap", id, mac }:
+        if type == "tap"
+        then "--tap-device=${id}/${mac}"
+        else throw "Unsupported interface type ${type} for Firecracker"
+      ) interfaces
       );
     in
       pkgs.writeScriptBin "run-firecracker" ''

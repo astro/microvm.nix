@@ -12,6 +12,7 @@
             , preStart ? ""
             }:
     let
+      inherit (nixos.config.networking) hostName;
       pkgs = nixpkgs.legacyPackages.${system};
       arch = builtins.head (builtins.split "-" system);
       customKernel = pkgs.linuxPackages_custom {
@@ -26,6 +27,7 @@
       initrd = "${vmTools.initrd}/initrd"; #nixos.config.system.boot.loader.initrdFile;
       qemuCommand = nixpkgs.lib.escapeShellArgs ([
         "${pkgs.qemu}/bin/qemu-system-${arch}"
+        "-name" "qemu-${hostName}"
         "-M" "microvm,x-option-roms=off,isa-serial=off,rtc=off"
         "-m" (builtins.toString mem)
         "-cpu" "host"
@@ -62,7 +64,7 @@
       ]) shared)
       );
     in
-      pkgs.writeScriptBin "run-qemu-${nixos.config.networking.hostName}" ''
+      pkgs.writeScriptBin "run-qemu-${hostName}" ''
         #! ${pkgs.runtimeShell} -e
 
         ${preStart}

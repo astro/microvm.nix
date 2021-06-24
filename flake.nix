@@ -65,6 +65,9 @@
       }
       ) // {
         lib = {
+          inherit (import ./lib/disk-image.nix {
+            inherit self nixpkgs;
+          }) mkDiskImage;
           inherit (import ./qemu/lib.nix {
             inherit self nixpkgs;
           }) runQemu;

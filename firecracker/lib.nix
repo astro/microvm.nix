@@ -48,15 +48,9 @@
       pkgs = nixpkgs.legacyPackages.${system};
       inherit (nixos.config.networking) hostName;
       rootfs = nixos.config.system.build.toplevel;
-      rootDrive = pkgs.runCommandLocal "rootfs-${hostName}.img" {
-        buildInputs = [ pkgs.libguestfs-with-appliance ];
-      } ''
-        mkdir -p rootfs/{bin,etc,dev,home,nix/var/nix/gcroots,proc,root,run,sys,tmp,usr,var}
-        cp -a --no-preserve=xattr --parents \
-          $(cat ${pkgs.writeReferencesToFile nixos.config.system.build.toplevel}) \
-          rootfs/
-        virt-make-fs --size=+${rootReserve} --type=ext4 rootfs $out
-      '';
+      rootDrive = self.lib.mkDiskImage {
+        inherit system hostName nixos rootReserve;
+      };
       firectl = pkgs.firectl.overrideAttrs (oa: {
         # allow read-only root-drive
         postPatch = ''

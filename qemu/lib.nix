@@ -24,7 +24,15 @@
             boot.isContainer = true;
             systemd.services.nix-daemon.enable = false;
             systemd.sockets.nix-daemon.enable = false;
-            # TODO: generate fileSystems for shared
+
+            fileSystems =
+              builtins.foldl' (result: { id, tag ? id, mountpoint, ... }: result // {
+                "${mountpoint}" = {
+                  device = tag;
+                  fsType = "9p";
+                  options = [ "trans=virtio" "version=9p2000.L" "cache=loose" "msize=65536" ];
+                };
+              }) {} shared;
           }
         ) nixosConfig ];
       };
@@ -67,6 +75,7 @@
                            , path
                            , writable ? false
                            , security ? (if writable then "mapped-xattr" else "passthrough")
+                           , ...
                            }: [
         "-fsdev" "local,id=${id},path=${path},security_model=${security},readonly=${if writable then "off" else "on"}"
         "-device" "virtio-9p-device,fsdev=${id},mount_tag=${tag}"

@@ -47,7 +47,6 @@
       };
       pkgs = nixpkgs.legacyPackages.${system};
       inherit (nixos.config.networking) hostName;
-      rootfs = nixos.config.system.build.toplevel;
       rootDrive = self.lib.mkDiskImage {
         inherit system hostName nixos rootReserve;
       };
@@ -62,8 +61,8 @@
       command = nixpkgs.lib.escapeShellArgs ([
         "${firectl}/bin/firectl"
         "--firecracker-binary=${pkgs.firecracker}/bin/firecracker"
-        "-m" (builtins.toString mem)
-        "-c" (builtins.toString vcpu)
+        "-m" (toString mem)
+        "-c" (toString vcpu)
         "--kernel=${self.packages.${system}.virtioKernel.dev}/vmlinux"
         "--root-drive=${rootDrive}"
         "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off nomodules ro quiet init=${nixos.config.system.build.toplevel}/init ${append}"

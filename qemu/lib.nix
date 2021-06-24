@@ -46,9 +46,9 @@
         "${pkgs.qemu}/bin/qemu-system-${arch}"
         "-name" "qemu-${hostName}"
         "-M" "microvm,x-option-roms=off,isa-serial=off,rtc=off"
-        "-m" (builtins.toString mem)
+        "-m" (toString mem)
         "-cpu" "host"
-        "-smp" (builtins.toString vcpu)
+        "-smp" (toString vcpu)
         "-no-acpi" "-enable-kvm"
         "-nodefaults" "-no-user-config"
         "-nographic"

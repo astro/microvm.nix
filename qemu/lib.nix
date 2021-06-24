@@ -7,7 +7,7 @@
             , nixos
             , append ? ""
             , user ? null
-            , interfaces ? [ { id = "eth0"; type = "user"; } ]
+            , interfaces ? [ { id = "eth0"; type = "user"; mac = "00:23:de:ad:be:ef"; } ]
             , shared ? []
             , preStart ? ""
             }:

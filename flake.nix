@@ -68,22 +68,10 @@
 
         firecracker-example = self.lib.runFirecracker {
           inherit system;
-          nixos = nixpkgs.lib.nixosSystem {
-            inherit system;
-            modules = [ (
-              { modulesPath, ... }:
-
-              {
-                imports = [
-                  (modulesPath + "/profiles/minimal.nix")
-                ];
-
-                boot.isContainer = true;
+          nixosConfig = {
                 networking.hostName = "microvm";
                 networking.firewall.enable = false;
                 users.users.root.password = "";
-              }
-            ) ];
           };
           append = "boot.debugtrace";
         };

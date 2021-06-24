@@ -49,9 +49,9 @@
         "-sandbox" "on"
       ] ++
       (if user != null then [ "-user" user ] else []) ++
-      (builtins.concatMap ({ type, id }: [
+      (builtins.concatMap ({ type, id, mac }: [
         "-netdev" "${type},id=${id}"
-        "-device" "virtio-net-device,netdev=${id}"
+        "-device" "virtio-net-device,netdev=${id},mac=${mac}"
       ]) interfaces) ++
       (builtins.concatMap ({ id
                            , tag ? id

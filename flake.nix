@@ -94,8 +94,33 @@
 
         };
 
-      }
-      ) // {
+        checks =
+            builtins.foldl' (result: hypervisor: result // {
+              "microvm-${hypervisor}-test-startup-shutdown" =
+                let
+                  runner = self.lib.run hypervisor {
+                    inherit system;
+                    nixosConfig = {
+                      networking.hostName = "microvm-test";
+                      networking.useDHCP = false;
+                      systemd.services.poweroff-again = {
+                        wantedBy = [ "multi-user.target" ];
+                        serviceConfig.Type = "idle";
+                        script = {
+                          qemu = "reboot";
+                          firecracker = "reboot";
+                          cloud-hypervisor = "poweroff";
+                          crosvm = "reboot";
+                        }.${hypervisor};
+                      };
+                    };
+                  };
+                in nixpkgs.legacyPackages.${system}.runCommandNoCCLocal "microvm-${hypervisor}-test-startup-shutdown-runner" {} ''
+                  ${runner}/bin/${runner.name} > $out
+                '';
+            }) {} self.lib.hypervisors;
+
+      }) // {
         lib = {
           defaultFsType = "ext4";
 
@@ -131,6 +156,15 @@
           inherit (import ./crosvm/lib.nix {
             inherit self nixpkgs;
           }) runCrosvm;
+
+          runners = {
+            qemu = self.lib.runQemu;
+            firecracker = self.lib.runFirecracker;
+            cloud-hypervisor = self.lib.runCloudHypervisor;
+            crosvm = self.lib.runCrosvm;
+          };
+          hypervisors = builtins.attrNames self.lib.runners;
+          run = hypervisor: self.lib.runners.${hypervisor};
         };
       };
 }

@@ -51,7 +51,7 @@
         "-smp" (toString vcpu)
         "-no-acpi" "-enable-kvm"
         "-nodefaults" "-no-user-config"
-        "-nographic"
+        "-nographic" "-no-reboot"
         "-device" "virtio-serial-device"
         "-chardev" "stdio,id=virtiocon0"
         "-device" "virtconsole,chardev=virtiocon0"

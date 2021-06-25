@@ -94,25 +94,40 @@
             builtins.foldl' (result: hypervisor: result // {
               "microvm-${hypervisor}-test-startup-shutdown" =
                 let
+                  pkgs = nixpkgs.legacyPackages.${system};
                   runner = self.lib.run hypervisor {
                     inherit system;
-                    nixosConfig = {
+                    nixosConfig = { pkgs, ... }: {
                       networking.hostName = "microvm-test";
                       networking.useDHCP = false;
                       systemd.services.poweroff-again = {
                         wantedBy = [ "multi-user.target" ];
                         serviceConfig.Type = "idle";
-                        script = {
-                          qemu = "reboot";
-                          firecracker = "reboot";
-                          cloud-hypervisor = "poweroff";
-                          crosvm = "reboot";
-                        }.${hypervisor};
+                        script =
+                          let
+                            exit = {
+                              qemu = "reboot";
+                              firecracker = "reboot";
+                              cloud-hypervisor = "poweroff";
+                              crosvm = "reboot";
+                            }.${hypervisor};
+                          in ''
+                            ${pkgs.util-linux}/bin/dmesg > /var/OK
+                            ${exit}
+                          '';
                       };
                     };
+                    volumes = [ {
+                      mountpoint = "/var";
+                      image = "var.img";
+                      size = 32;
+                    } ];
                   };
-                in nixpkgs.legacyPackages.${system}.runCommandNoCCLocal "microvm-${hypervisor}-test-startup-shutdown-runner" {} ''
+                in pkgs.runCommandNoCCLocal "microvm-${hypervisor}-test-startup-shutdown-runner" {} ''
                   ${runner}/bin/${runner.name} > $out
+
+                  ${pkgs.p7zip}/bin/7z e var.img OK
+                  mv OK $out
                 '';
             }) {} self.lib.hypervisors;
 

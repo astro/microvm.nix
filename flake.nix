@@ -60,6 +60,35 @@
             } ];
           };
 
+          cloud-hypervisor-example = self.lib.runCloudHypervisor {
+            inherit system;
+            nixosConfig = {
+              networking.hostName = "microvm";
+              networking.firewall.enable = false;
+              networking.useDHCP = false;
+              users.users.root.password = "";
+            };
+            append = "boot.debugtrace";
+            # interfaces = [ {
+            #   id = "qemu";
+            #   mac = "00:00:23:42:24:32";
+            # } ];
+          };
+
+          crosvm-example = self.lib.runCrosvm {
+            inherit system;
+            nixosConfig = {
+              networking.hostName = "microvm";
+              networking.firewall.enable = false;
+              users.users.root.password = "";
+            };
+            append = "boot.debugtrace";
+            # interfaces = [ {
+            #   id = "qemu";
+            #   mac = "00:00:23:42:24:32";
+            # } ];
+          };
+
         };
 
       }
@@ -74,6 +103,12 @@
           inherit (import ./firecracker/lib.nix {
             inherit self nixpkgs;
           }) runFirecracker;
+          inherit (import ./cloud-hypervisor/lib.nix {
+            inherit self nixpkgs;
+          }) runCloudHypervisor;
+          inherit (import ./crosvm/lib.nix {
+            inherit self nixpkgs;
+          }) runCrosvm;
         };
       };
 }

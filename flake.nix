@@ -129,12 +129,15 @@
               nixpkgs.lib.drop offset nixpkgs.lib.strings.lowerChars
             ));
 
-          createVolumesScript = nixpkgs.lib.concatMapStringsSep "\n" ({ image, size, fsType ? self.lib.defaultFsType, ... }: ''
-            if [ ! -e ${image} ]; then
-              dd if=/dev/zero of=${image} bs=1M count=1 seek=${toString (size - 1)}
-              mkfs.${fsType} ${image}
-            fi
-          '');
+          createVolumesScript = pkgs: nixpkgs.lib.concatMapStringsSep "\n" (
+              { image, size, fsType ? self.lib.defaultFsType, ... }: ''
+                PATH=$PATH:${with pkgs; lib.makeBinPath [ e2fsprogs ]}
+
+                if [ ! -e ${image} ]; then
+                  dd if=/dev/zero of=${image} bs=1M count=1 seek=${toString (size - 1)}
+                  mkfs.${fsType} ${image}
+                fi
+              '');
 
           inherit (import ./lib/disk-image.nix {
             inherit self nixpkgs;

@@ -88,7 +88,7 @@
       pkgs.writeScriptBin "run-firecracker" ''
         #! ${pkgs.runtimeShell} -e
 
-        ${self.lib.createVolumesScript volumes}
+        ${self.lib.createVolumesScript pkgs volumes}
         ${preStart}
 
         exec ${command}

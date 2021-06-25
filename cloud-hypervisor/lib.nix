@@ -82,7 +82,7 @@
       pkgs.writeScriptBin "run-cloud-hypervisor-${hostName}" ''
         #! ${pkgs.runtimeShell} -e
 
-        ${self.lib.createVolumesScript volumes}
+        ${self.lib.createVolumesScript pkgs volumes}
         ${preStart}
 
         exec ${command}

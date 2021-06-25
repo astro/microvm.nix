@@ -79,7 +79,7 @@
       pkgs.writeScriptBin "run-crosvm-${hostName}" ''
         #! ${pkgs.runtimeShell} -e
 
-        ${self.lib.createVolumesScript volumes}
+        ${self.lib.createVolumesScript pkgs volumes}
         ${preStart}
 
         exec ${command}

@@ -7,7 +7,7 @@
                        , nixosConfig
                        , append ? ""
                        , user ? null
-                       # TODO: , interfaces ? []
+                       , interfaces ? []
                        # TODO: , shared ? []
                        , preStart ? ""
                        , rootReserve ? "64M"
@@ -60,12 +60,12 @@
         "--disk" "path=${rootDisk},readonly=on"
         "--cmdline" "console=hvc0 quiet reboot=t panic=-1 ro root=/dev/vda init=${nixos.config.system.build.toplevel}/init ${append}"
         "--seccomp" "true"
-      ]
-      # map ({ type ? "tap", id, mac }:
-      #   if type == "tap"
-      #   then "--tap-device=${id}/${mac}"
-      #   else throw "Unsupported interface type ${type} for Cloud-Hypervisor"
-      # ) interfaces
+      ] ++
+      builtins.concatMap ({ type ? "tap", id, mac }:
+        if type == "tap"
+        then [ "--net" "tap=${id},mac=${mac}" ]
+        else throw "Unsupported interface type ${type} for Cloud-Hypervisor"
+      ) interfaces
       );
     in
       pkgs.writeScriptBin "run-cloud-hypervisor-${hostName}" ''

@@ -65,14 +65,12 @@
             nixosConfig = {
               networking.hostName = "microvm";
               networking.firewall.enable = false;
-              networking.useDHCP = false;
               users.users.root.password = "";
             };
-            append = "boot.debugtrace";
-            # interfaces = [ {
-            #   id = "qemu";
-            #   mac = "00:00:23:42:24:32";
-            # } ];
+            interfaces = [ {
+              id = "qemu";
+              mac = "00:00:23:42:24:32";
+            } ];
           };
 
           crosvm-example = self.lib.runCrosvm {
@@ -80,13 +78,9 @@
             nixosConfig = {
               networking.hostName = "microvm";
               networking.firewall.enable = false;
+              networking.useDHCP = false;
               users.users.root.password = "";
             };
-            append = "boot.debugtrace";
-            # interfaces = [ {
-            #   id = "qemu";
-            #   mac = "00:00:23:42:24:32";
-            # } ];
           };
 
         };

@@ -7,7 +7,7 @@
               , nixosConfig
               , append ? ""
               , user ? null
-              # TODO: , interfaces ? []
+              , interfaces ? []
               # TODO: , shared ? []
               , preStart ? ""
               , rootReserve ? "64M"
@@ -59,12 +59,10 @@
         "--serial" "type=stdout,console=true,stdin=true"
         "-p" "quiet reboot=k panic=1 nomodules ro init=${nixos.config.system.build.toplevel}/init ${append}"
         "${self.packages.${system}.cloudHypervisorKernel}/bzImage"
-      ]
-      # map ({ type ? "tap", id, mac }:
-      #   if type == "tap"
-      #   then "--tap-device=${id}/${mac}"
-      #   else throw "Unsupported interface type ${type} for CrosVM"
-      # ) interfaces
+      ] ++
+      map (_:
+        throw "CrosVM networking is not configurable"
+      ) interfaces
       );
     in
       pkgs.writeScriptBin "run-crosvm-${hostName}" ''

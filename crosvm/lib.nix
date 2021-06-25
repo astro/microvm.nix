@@ -8,7 +8,7 @@
               , append ? ""
               , user ? null
               , interfaces ? []
-              # TODO: , shared ? []
+              , volumes ? []
               , preStart ? ""
               , rootReserve ? "64M"
               }:
@@ -35,13 +35,21 @@
             boot.isContainer = true;
             systemd.services.nix-daemon.enable = false;
             systemd.sockets.nix-daemon.enable = false;
-            boot.specialFileSystems =
+            boot.specialFileSystems = (
               builtins.foldl' (result: path: result // {
                 "${path}" = {
                   device = path;
                   fsType = "tmpfs";
                 };
-              }) {} writablePaths;
+              }) {} writablePaths
+            ) // (
+              builtins.foldl' (result: { mountpoint, letter, fsType ? self.lib.defaultFsType, ... }: result // {
+                "${mountpoint}" = {
+                  device = "/dev/vd${letter}";
+                  inherit fsType;
+                };
+              }) {} (self.lib.withDriveLetters 1 volumes)
+            );
           }
         ) nixosConfig ];
       };
@@ -57,9 +65,12 @@
         "-r" rootDisk
         "--shared-dir" "/nix/store/:store"
         "--serial" "type=stdout,console=true,stdin=true"
-        "-p" "quiet reboot=k panic=1 nomodules ro init=${nixos.config.system.build.toplevel}/init ${append}"
+        "-p" "console=ttyS0 verbose reboot=k panic=1 nomodules ro init=${nixos.config.system.build.toplevel}/init ${append}"
         "${self.packages.${system}.cloudHypervisorKernel}/bzImage"
       ] ++
+      builtins.concatMap ({ image, ... }:
+        [ "-d" image ]
+      ) volumes ++
       map (_:
         throw "CrosVM networking is not configurable"
       ) interfaces
@@ -68,6 +79,7 @@
       pkgs.writeScriptBin "run-crosvm-${hostName}" ''
         #! ${pkgs.runtimeShell} -e
 
+        ${self.lib.createVolumesScript volumes}
         ${preStart}
 
         exec ${command}

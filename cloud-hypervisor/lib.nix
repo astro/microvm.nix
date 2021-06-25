@@ -8,7 +8,7 @@
                        , append ? ""
                        , user ? null
                        , interfaces ? []
-                       # TODO: , shared ? []
+                       , volumes ? []
                        , preStart ? ""
                        , rootReserve ? "64M"
                        }:
@@ -35,13 +35,21 @@
             boot.isContainer = true;
             systemd.services.nix-daemon.enable = false;
             systemd.sockets.nix-daemon.enable = false;
-            boot.specialFileSystems =
+            boot.specialFileSystems = (
               builtins.foldl' (result: path: result // {
                 "${path}" = {
                   device = path;
                   fsType = "tmpfs";
                 };
-              }) {} writablePaths;
+              }) {} writablePaths
+            ) // (
+              builtins.foldl' (result: { mountpoint, letter, fsType ? self.lib.defaultFsType, ... }: result // {
+                "${mountpoint}" = {
+                  device = "/dev/vd${letter}";
+                  inherit fsType;
+                };
+              }) {} (self.lib.withDriveLetters 1 volumes)
+            );
           }
         ) nixosConfig ];
       };
@@ -57,10 +65,13 @@
         "--rng" "--watchdog"
         "--console" "tty"
         "--kernel" "${self.packages.${system}.cloudHypervisorKernel}/bzImage"
-        "--disk" "path=${rootDisk},readonly=on"
         "--cmdline" "console=hvc0 quiet reboot=t panic=-1 ro root=/dev/vda init=${nixos.config.system.build.toplevel}/init ${append}"
         "--seccomp" "true"
+        "--disk" "path=${rootDisk},readonly=on"
       ] ++
+      builtins.map ({ image, ... }:
+        "path=${image}"
+      ) volumes ++
       builtins.concatMap ({ type ? "tap", id, mac }:
         if type == "tap"
         then [ "--net" "tap=${id},mac=${mac}" ]
@@ -71,6 +82,7 @@
       pkgs.writeScriptBin "run-cloud-hypervisor-${hostName}" ''
         #! ${pkgs.runtimeShell} -e
 
+        ${self.lib.createVolumesScript volumes}
         ${preStart}
 
         exec ${command}

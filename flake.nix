@@ -86,6 +86,11 @@
               networking.useDHCP = false;
               users.users.root.password = "";
             };
+            volumes = [ {
+              mountpoint = "/var";
+              image = "var.img";
+              size = 256;
+            } ];
           };
 
         };

@@ -66,14 +66,14 @@
         "--shared-dir" "/nix/store/:store"
         "--serial" "type=stdout,console=true,stdin=true"
         "-p" "console=ttyS0 verbose reboot=k panic=1 nomodules ro init=${nixos.config.system.build.toplevel}/init ${append}"
-        "${self.packages.${system}.cloudHypervisorKernel}/bzImage"
       ] ++
       builtins.concatMap ({ image, ... }:
-        [ "-d" image ]
+        [ "--rwdisk" image ]
       ) volumes ++
       map (_:
         throw "CrosVM networking is not configurable"
-      ) interfaces
+      ) interfaces ++
+      [ "${self.packages.${system}.cloudHypervisorKernel}/bzImage" ]
       );
     in
       pkgs.writeScriptBin "run-crosvm-${hostName}" ''

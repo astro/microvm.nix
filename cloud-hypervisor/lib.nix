@@ -69,7 +69,7 @@
         "--seccomp" "true"
         "--disk" "path=${rootDisk},readonly=on"
       ] ++
-      builtins.map ({ image, ... }:
+      map ({ image, ... }:
         "path=${image}"
       ) volumes ++
       builtins.concatMap ({ type ? "tap", id, mac }:

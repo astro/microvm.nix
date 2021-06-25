@@ -35,14 +35,10 @@
               networking.firewall.enable = false;
               users.users.root.password = "";
             };
-            preStart = ''
-              mkdir -p ./var
-            '';
-            shared = [ {
-              id = "var";
-              writable = true;
-              path = "./var";
+            volumes = [ {
               mountpoint = "/var";
+              image = "var.img";
+              size = 256;
             } ];
           };
 

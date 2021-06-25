@@ -8,7 +8,7 @@
                    , append ? ""
                    , user ? null
                    , interfaces ? []
-                   #, shared ? []
+                   , volumes ? []
                    , preStart ? ""
                    , rootReserve ? "64M"
                    }:
@@ -35,13 +35,21 @@
             boot.isContainer = true;
             systemd.services.nix-daemon.enable = false;
             systemd.sockets.nix-daemon.enable = false;
-            boot.specialFileSystems =
+            boot.specialFileSystems = (
               builtins.foldl' (result: path: result // {
                 "${path}" = {
                   device = path;
                   fsType = "tmpfs";
                 };
-              }) {} writablePaths;
+              }) {} writablePaths
+            ) // (
+              builtins.foldl' (result: { mountpoint, letter, fsType ? self.lib.defaultFsType, ... }: result // {
+                "${mountpoint}" = {
+                  device = "/dev/vd${letter}";
+                  inherit fsType;
+                };
+              }) {} (self.lib.withDriveLetters 1 volumes)
+            );
           }
         ) nixosConfig ];
       };
@@ -67,6 +75,9 @@
         "--root-drive=${rootDrive}"
         "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off nomodules ro quiet init=${nixos.config.system.build.toplevel}/init ${append}"
       ] ++
+      map ({ image, ... }:
+        "--add-drive=${image}:rw"
+      ) volumes ++
       map ({ type ? "tap", id, mac }:
         if type == "tap"
         then "--tap-device=${id}/${mac}"
@@ -77,6 +88,7 @@
       pkgs.writeScriptBin "run-firecracker" ''
         #! ${pkgs.runtimeShell} -e
 
+        ${self.lib.createVolumesScript volumes}
         ${preStart}
 
         exec ${command}

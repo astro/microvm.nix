@@ -53,10 +53,14 @@
               networking.firewall.enable = false;
               users.users.root.password = "";
             };
-            append = "boot.debugtrace";
             interfaces = [ {
               id = "qemu";
               mac = "00:00:23:42:24:32";
+            } ];
+            volumes = [ {
+              mountpoint = "/var";
+              image = "var.img";
+              size = 256;
             } ];
           };
 

@@ -74,14 +74,14 @@
         "-chardev" "stdio,id=virtiocon0"
         "-device" "virtconsole,chardev=virtiocon0"
         "-device" "virtio-rng-device"
-        "-drive" "id=root,media=cdrom,file=${rootDisk},if=none" "-device" "virtio-blk-device,drive=root"
+        "-drive" "id=root,format=raw,media=cdrom,file=${rootDisk},if=none" "-device" "virtio-blk-device,drive=root"
         "-kernel" "${self.packages.${system}.virtioKernel}/bzImage"
         "-append" "console=hvc0 acpi=off reboot=t panic=-1 quiet ro root=/dev/vda init=${nixos.config.system.build.toplevel}/init ${append}"
         "-sandbox" "on"
       ] ++
       (if user != null then [ "-user" user ] else []) ++
       builtins.concatMap ({ image, letter, ... }:
-        [ "-drive" "id=vd${letter},file=${image},if=none" "-device" "virtio-blk-device,drive=vd${letter}" ]
+        [ "-drive" "id=vd${letter},format=raw,file=${image},if=none" "-device" "virtio-blk-device,drive=vd${letter}" ]
       ) (self.lib.withDriveLetters 1 volumes) ++
       (builtins.concatMap ({ type, id, mac }: [
         "-netdev" "${type},id=${id}"

@@ -117,7 +117,7 @@
                               crosvm = "reboot";
                             }.${hypervisor};
                           in ''
-                            ${pkgs.util-linux}/bin/dmesg > /var/OK
+                            ${pkgs.coreutils}/bin/uname > /var/OK
                             ${exit}
                           '';
                       };
@@ -137,6 +137,10 @@
                   ${runner.name} > $out
 
                   virt-cat -a var.img -m /dev/sda:/ /OK > $out
+                  if [ "$(cat $out)" != "Linux" ] ; then
+                    echo Output does not match
+                    exit 1
+                  fi
                 '';
             }) {} self.lib.hypervisors;
 

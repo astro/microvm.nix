@@ -128,11 +128,15 @@
                       size = 32;
                     } ];
                   };
-                in pkgs.runCommandNoCCLocal "microvm-${hypervisor}-test-startup-shutdown-runner" {} ''
-                  ${runner}/bin/${runner.name} > $out
+                in pkgs.runCommandNoCCLocal "microvm-${hypervisor}-test-startup-shutdown" {
+                  buildInputs = [
+                    runner
+                    pkgs.libguestfs-with-appliance
+                  ];
+                } ''
+                  ${runner.name} > $out
 
-                  ${pkgs.p7zip}/bin/7z e var.img OK
-                  mv OK $out
+                  virt-cat -a var.img -m /dev/sda:/ /OK > $out
                 '';
             }) {} self.lib.hypervisors;
 

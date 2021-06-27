@@ -171,16 +171,16 @@
             inherit self nixpkgs;
           }) mkDiskImage;
 
-          inherit (import ./qemu/lib.nix {
+          inherit (import ./lib/qemu.nix {
             inherit self nixpkgs;
           }) runQemu;
-          inherit (import ./firecracker/lib.nix {
+          inherit (import ./lib/firecracker.nix {
             inherit self nixpkgs;
           }) runFirecracker;
-          inherit (import ./cloud-hypervisor/lib.nix {
+          inherit (import ./lib/cloud-hypervisor.nix {
             inherit self nixpkgs;
           }) runCloudHypervisor;
-          inherit (import ./crosvm/lib.nix {
+          inherit (import ./lib/crosvm.nix {
             inherit self nixpkgs;
           }) runCrosvm;
 

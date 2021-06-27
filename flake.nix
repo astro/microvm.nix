@@ -18,7 +18,7 @@
             inherit self nixpkgs system;
           }
         ) // {
-          qemu-example = self.lib.runQemu {
+          qemu-example = self.lib.run "qemu" {
             inherit system;
             nixosConfig = {
               networking.hostName = "microvm";
@@ -28,7 +28,7 @@
             # append = "boot.debugtrace";
           };
 
-          qemu-example-service = self.lib.runQemu {
+          qemu-example-service = self.lib.run "qemu" {
             inherit system;
             nixosConfig = {
               networking.hostName = "microvm-service";
@@ -42,7 +42,7 @@
             } ];
           };
 
-          firecracker-example = self.lib.runFirecracker {
+          firecracker-example = self.lib.run "firecracker" {
             inherit system;
             nixosConfig = {
               networking.hostName = "microvm";
@@ -60,7 +60,7 @@
             } ];
           };
 
-          cloud-hypervisor-example = self.lib.runCloudHypervisor {
+          cloud-hypervisor-example = self.lib.run "cloud-hypervisor" {
             inherit system;
             nixosConfig = {
               networking.hostName = "microvm";
@@ -78,7 +78,7 @@
             } ];
           };
 
-          crosvm-example = self.lib.runCrosvm {
+          crosvm-example = self.lib.run "crosvm" {
             inherit system;
             nixosConfig = {
               networking.hostName = "microvm";
@@ -171,24 +171,15 @@
             inherit self nixpkgs;
           }) mkDiskImage;
 
-          inherit (import ./lib/qemu.nix {
-            inherit self nixpkgs;
-          }) runQemu;
-          inherit (import ./lib/firecracker.nix {
-            inherit self nixpkgs;
-          }) runFirecracker;
-          inherit (import ./lib/cloud-hypervisor.nix {
-            inherit self nixpkgs;
-          }) runCloudHypervisor;
-          inherit (import ./lib/crosvm.nix {
-            inherit self nixpkgs;
-          }) runCrosvm;
-
-          runners = {
-            qemu = self.lib.runQemu;
-            firecracker = self.lib.runFirecracker;
-            cloud-hypervisor = self.lib.runCloudHypervisor;
-            crosvm = self.lib.runCrosvm;
+          runners = builtins.mapAttrs (hypervisor: path: (
+            import path {
+              inherit self nixpkgs;
+            }
+          ).run) {
+            qemu = ./lib/qemu.nix;
+            firecracker = ./lib/firecracker.nix;
+            cloud-hypervisor = ./lib/cloud-hypervisor.nix;
+            crosvm = ./lib/crosvm.nix;
           };
           hypervisors = builtins.attrNames self.lib.runners;
           run = hypervisor: self.lib.runners.${hypervisor};

@@ -1,17 +1,17 @@
 { self, nixpkgs }:
 
 {
-  runQemu = { system
-            , vcpu ? 1
-            , mem ? 512
-            , nixosConfig
-            , append ? ""
-            , user ? null
-            , interfaces ? [ { id = "eth0"; type = "user"; mac = "00:23:de:ad:be:ef"; } ]
-            , volumes ? []
-            , preStart ? ""
-            , rootReserve ? "64M"
-            }:
+  run = { system
+        , vcpu ? 1
+        , mem ? 512
+        , nixosConfig
+        , append ? ""
+        , user ? null
+        , interfaces ? [ { id = "eth0"; type = "user"; mac = "00:23:de:ad:be:ef"; } ]
+        , volumes ? []
+        , preStart ? ""
+        , rootReserve ? "64M"
+        }:
     let
       writablePaths = [
         "/etc"

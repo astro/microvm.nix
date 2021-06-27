@@ -1,17 +1,17 @@
 { self, nixpkgs }:
 
 {
-  runFirecracker = { system
-                   , vcpu ? 1
-                   , mem ? 512
-                   , nixosConfig
-                   , append ? ""
-                   , user ? null
-                   , interfaces ? []
-                   , volumes ? []
-                   , preStart ? ""
-                   , rootReserve ? "64M"
-                   }:
+  run = { system
+        , vcpu ? 1
+        , mem ? 512
+        , nixosConfig
+        , append ? ""
+        , user ? null
+        , interfaces ? []
+        , volumes ? []
+        , preStart ? ""
+        , rootReserve ? "64M"
+        }:
     let
       writablePaths = [
         "/etc"

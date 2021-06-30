@@ -1,38 +1,24 @@
 { self, nixpkgs }:
 
 { system
-, vcpu ? 1
-, mem ? 512
-, nixosConfig
-, append ? ""
+, vcpu
+, mem
+, nixos
+, append
 , user ? null
 , interfaces ? [ { id = "eth0"; type = "user"; mac = "00:23:de:ad:be:ef"; } ]
-, volumes ? []
-, preStart ? ""
-, rootReserve ? "64M"
-}:
+, rootDisk
+, volumes
+, hostName
+, ...
+}@args:
 let
-  config = {
-    inherit system vcpu mem nixosConfig append user interfaces volumes preStart rootReserve;
+  config = args // {
+    inherit interfaces user;
   };
-  nixos = nixpkgs.lib.nixosSystem {
-    inherit system;
-    extraArgs = {
-      inherit (rootDisk.passthru) writablePaths;
-      microvm = config;
-    };
-    modules = [
-      self.nixosModules.microvm
-      nixosConfig
-    ];
-  };
-  inherit (nixos.config.networking) hostName;
   pkgs = nixpkgs.legacyPackages.${system};
   arch = builtins.head (builtins.split "-" system);
-  rootDisk = self.lib.mkDiskImage {
-    inherit system hostName nixos rootReserve;
-  };
-in config // rec {
+in config // {
   command = nixpkgs.lib.escapeShellArgs (
     [
       "${pkgs.qemu}/bin/qemu-system-${arch}"
@@ -56,18 +42,10 @@ in config // rec {
     (if user != null then [ "-user" user ] else []) ++
     builtins.concatMap ({ image, letter, ... }:
       [ "-drive" "id=vd${letter},format=raw,file=${image},if=none" "-device" "virtio-blk-device,drive=vd${letter}" ]
-    ) (self.lib.withDriveLetters 1 volumes) ++
+    ) (config.volumes) ++
     (builtins.concatMap ({ type, id, mac }: [
       "-netdev" "${type},id=${id}"
       "-device" "virtio-net-device,netdev=${id},mac=${mac}"
     ]) interfaces)
   );
-  run = pkgs.writeScriptBin "run-qemu-${hostName}" ''
-        #! ${pkgs.runtimeShell} -e
-
-        ${self.lib.createVolumesScript pkgs volumes}
-        ${preStart}
-
-        exec ${command}
-      '';
 }

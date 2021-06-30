@@ -142,7 +142,7 @@
                     exit 1
                   fi
                 '';
-            }) {} self.lib.hypervisors;
+            }) {} (builtins.attrNames self.lib.hypervisors);
 
       }) // {
         lib = (
@@ -165,8 +165,60 @@
             crosvm = ./lib/hypervisors/crosvm.nix;
           };
 
+          makeMicrovm =
+            hypervisor:
+            { system
+            , nixosConfig
+            , vcpu ? 1
+            , mem ? 512
+            , append ? ""
+            , rootReserve ? "64M"
+            , volumes ? []
+            , ... }@args:
+            let
+              pkgs = nixpkgs.legacyPackages.${system};
+
+              config = args // {
+                inherit vcpu mem append rootReserve;
+                inherit (config.nixos.config.networking) hostName;
+                volumes = map ({ letter, ... }@volume: volume // {
+                  device = "/dev/vd${letter}";
+                }) (self.lib.withDriveLetters 1 volumes);
+
+                rootDisk = self.lib.mkDiskImage {
+                  inherit (config) system rootReserve nixos hostName;
+                };
+
+                nixos = nixpkgs.lib.nixosSystem {
+                  inherit system;
+                  extraArgs = {
+                    inherit (config.rootDisk.passthru) writablePaths;
+                    microvm = config;
+                  };
+                  modules = [
+                    self.nixosModules.microvm
+                    nixosConfig
+                  ];
+                };
+              };
+
+              extend = { command, preStart ? "", hostName, volumes, ... }@args: args // {
+                run = pkgs.writeScriptBin "run-${hypervisor}-${hostName}" ''
+                  #! ${pkgs.runtimeShell} -e
+
+                  ${self.lib.createVolumesScript pkgs volumes}
+                  ${preStart}
+
+                  exec ${command}
+                '';
+              };
+            in
+              extend (
+                self.lib.hypervisors.${hypervisor} config
+              );
+
           run = hypervisor: args: (
-            self.lib.hypervisors.${hypervisor} args
+            self.lib.makeMicrovm hypervisor args
           ).run;
         };
 

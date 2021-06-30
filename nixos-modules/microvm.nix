@@ -23,10 +23,9 @@ in
     }) {} writablePaths
   ) // (
     # Volumes
-    builtins.foldl' (result: { mountpoint, letter, fsType ? lib.defaultFsType, ... }: result // {
+    builtins.foldl' (result: { mountpoint, device, fsType ? lib.defaultFsType, ... }: result // {
       "${mountpoint}" = {
-        device = "/dev/vd${letter}";
-        inherit fsType;
+        inherit device fsType;
       };
     }) {} (lib.withDriveLetters 1 microvm.volumes)
   );

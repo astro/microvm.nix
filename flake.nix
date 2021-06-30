@@ -18,7 +18,6 @@
             inherit system;
             nixosConfig = {
               networking.hostName = "microvm";
-              networking.firewall.enable = false;
               users.users.root.password = "";
             };
             # append = "boot.debugtrace";
@@ -28,7 +27,6 @@
             inherit system;
             nixosConfig = {
               networking.hostName = "microvm-service";
-              networking.firewall.enable = false;
               users.users.root.password = "";
             };
             volumes = [ {
@@ -42,13 +40,12 @@
             inherit system;
             nixosConfig = {
               networking.hostName = "microvm";
-              networking.firewall.enable = false;
               users.users.root.password = "";
             };
-            interfaces = [ {
-              id = "qemu";
-              mac = "00:00:23:42:24:32";
-            } ];
+            # interfaces = [ {
+            #   id = "qemu";
+            #   mac = "00:00:23:42:24:32";
+            # } ];
             volumes = [ {
               mountpoint = "/var";
               image = "var.img";
@@ -60,13 +57,12 @@
             inherit system;
             nixosConfig = {
               networking.hostName = "microvm";
-              networking.firewall.enable = false;
               users.users.root.password = "";
             };
-            interfaces = [ {
-              id = "qemu";
-              mac = "00:00:23:42:24:32";
-            } ];
+            # interfaces = [ {
+            #   id = "qemu";
+            #   mac = "00:00:23:42:24:32";
+            # } ];
             volumes = [ {
               mountpoint = "/var";
               image = "var.img";
@@ -78,7 +74,6 @@
             inherit system;
             nixosConfig = {
               networking.hostName = "microvm";
-              networking.firewall.enable = false;
               networking.useDHCP = false;
               users.users.root.password = "";
             };

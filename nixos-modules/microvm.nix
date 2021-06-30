@@ -9,9 +9,15 @@ in
     (modulesPath + "/profiles/minimal.nix")
   ];
 
-  boot.isContainer = true;
   systemd.services.nix-daemon.enable = false;
   systemd.sockets.nix-daemon.enable = false;
+
+  boot.loader.grub.enable = false;
+  fileSystems."/" = {
+    device = "/dev/vda";
+    fsType = "ext4";
+    options = [ "ro" ];
+  };
 
   boot.specialFileSystems = (
     # writablePaths

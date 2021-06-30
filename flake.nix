@@ -166,8 +166,8 @@
           };
 
           makeMicrovm =
-            hypervisor:
-            { system
+            { hypervisor
+            , system
             , nixosConfig
             , vcpu ? 1
             , mem ? 512
@@ -218,7 +218,9 @@
               );
 
           run = hypervisor: args: (
-            self.lib.makeMicrovm hypervisor args
+            self.lib.makeMicrovm (args // {
+              inherit hypervisor;
+            })
           ).run;
         };
 

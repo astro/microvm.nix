@@ -176,10 +176,10 @@
               inherit self nixpkgs;
             }
           ).run) {
-            qemu = ./lib/qemu.nix;
-            firecracker = ./lib/firecracker.nix;
-            cloud-hypervisor = ./lib/cloud-hypervisor.nix;
-            crosvm = ./lib/crosvm.nix;
+            qemu = ./lib/hypervisors/qemu.nix;
+            firecracker = ./lib/hypervisors/firecracker.nix;
+            cloud-hypervisor = ./lib/hypervisors/cloud-hypervisor.nix;
+            crosvm = ./lib/hypervisors/crosvm.nix;
           };
           hypervisors = builtins.attrNames self.lib.runners;
           run = hypervisor: self.lib.runners.${hypervisor};

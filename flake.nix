@@ -145,44 +145,33 @@
             }) {} self.lib.hypervisors;
 
       }) // {
-        lib = {
-          defaultFsType = "ext4";
-
-          withDriveLetters = offset: list:
-            map ({ fst, snd }:
-              fst // {
-                letter = snd;
-              }
-            ) (nixpkgs.lib.zipLists list (
-              nixpkgs.lib.drop offset nixpkgs.lib.strings.lowerChars
-            ));
-
-          createVolumesScript = pkgs: nixpkgs.lib.concatMapStringsSep "\n" (
-              { image, size, fsType ? self.lib.defaultFsType, ... }: ''
-                PATH=$PATH:${with pkgs; lib.makeBinPath [ e2fsprogs ]}
-
-                if [ ! -e ${image} ]; then
-                  dd if=/dev/zero of=${image} bs=1M count=1 seek=${toString (size - 1)}
-                  mkfs.${fsType} ${image}
-                fi
-              '');
-
+        lib = (
+          import ./lib {
+            nixpkgs-lib = nixpkgs.lib;
+          }
+        ) // {
           inherit (import ./lib/disk-image.nix {
             inherit self nixpkgs;
           }) mkDiskImage;
 
-          runners = builtins.mapAttrs (hypervisor: path: (
+          hypervisors = builtins.mapAttrs (hypervisor: path: (
             import path {
               inherit self nixpkgs;
             }
-          ).run) {
+          )) {
             qemu = ./lib/hypervisors/qemu.nix;
             firecracker = ./lib/hypervisors/firecracker.nix;
             cloud-hypervisor = ./lib/hypervisors/cloud-hypervisor.nix;
             crosvm = ./lib/hypervisors/crosvm.nix;
           };
-          hypervisors = builtins.attrNames self.lib.runners;
-          run = hypervisor: self.lib.runners.${hypervisor};
+
+          run = hypervisor: args: (
+            self.lib.hypervisors.${hypervisor} args
+          ).run;
+        };
+
+        nixosModules = {
+          microvm = import ./nixos-modules/microvm.nix;
         };
       };
 }

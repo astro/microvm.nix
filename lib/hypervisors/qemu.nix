@@ -13,16 +13,6 @@
         , rootReserve ? "64M"
         }:
     let
-      writablePaths = [
-        "/etc"
-        "/tmp"
-        "/bin"
-        "/usr"
-        "/nix/var"
-        "/home"
-        "/root"
-        "/var"
-      ];
       nixos = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [ (
@@ -42,7 +32,7 @@
                   device = path;
                   fsType = "tmpfs";
                 };
-              }) {} writablePaths
+              }) {} rootDisk.writablePaths
             ) // (
               builtins.foldl' (result: { mountpoint, letter, fsType ? self.lib.defaultFsType, ... }: result // {
                 "${mountpoint}" = {

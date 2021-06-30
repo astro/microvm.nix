@@ -1,6 +1,17 @@
 { self, nixpkgs }:
 
-{
+rec {
+  writablePaths = [
+    "/bin"
+    "/etc"
+    "/home"
+    "/nix/var"
+    "/root"
+    "/usr"
+    "/var"
+    "/tmp"
+  ];
+
   mkDiskImage = { system
                 , hostName
                 , nixos
@@ -11,8 +22,16 @@
     in                
     pkgs.runCommandLocal "rootfs-${hostName}.img" {
       buildInputs = [ pkgs.libguestfs-with-appliance ];
+      passthru = {
+        inherit writablePaths;
+      };
     } ''
-      mkdir -p rootfs/{bin,etc,dev,home,nix/var/nix/gcroots,proc,root,run,sys,tmp,usr,var}
+      mkdir -p ${builtins.concatStringsSep " " (
+        map (path:
+          "rootfs${path}"
+        ) (writablePaths ++ [ "/dev" "/nix/var/nix/gcroots" "/proc" "/run" "/sys" ])
+      )}
+
       cp -a --no-preserve=xattr --parents \
         $(cat ${pkgs.writeReferencesToFile nixos.config.system.build.toplevel}) \
         rootfs/

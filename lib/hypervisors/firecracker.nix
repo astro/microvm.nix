@@ -31,9 +31,9 @@ in config // {
       "--firecracker-binary=${pkgs.firecracker}/bin/firecracker"
       "-m" (toString mem)
       "-c" (toString vcpu)
-      "--kernel=${self.packages.${system}.virtioKernel.dev}/vmlinux"
-      "--root-drive=${rootDisk}"
+      "--kernel=${nixos.config.system.build.kernel.dev}/vmlinux"
       "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off nomodules ro quiet init=${nixos.config.system.build.toplevel}/init ${append}"
+      "--root-drive=${rootDisk}"
     ] ++
     map ({ image, ... }:
       "--add-drive=${image}:rw"

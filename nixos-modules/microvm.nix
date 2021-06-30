@@ -1,4 +1,4 @@
-{ modulesPath, writablePaths, config, microvm, ... }@args:
+{ modulesPath, writablePaths, config, pkgs, microvm, ... }@args:
 let
   lib = import ../lib {
     nixpkgs-lib = args.lib;
@@ -13,6 +13,29 @@ in
   systemd.sockets.nix-daemon.enable = false;
 
   boot.loader.grub.enable = false;
+  boot.kernelPackages = pkgs.linuxPackages_latest.extend (self: super: {
+    kernel = super.kernel.override {
+      extraConfig = ''
+        PVH y
+        PARAVIRT y
+        PARAVIRT_TIME_ACCOUNTING y
+        HAVE_VIRT_CPU_ACCOUNTING_GEN y
+        VIRT_DRIVERS y
+        VIRTIO_BLK y
+        BLK_MQ_VIRTIO y
+        VIRTIO_NET y
+        VIRTIO_BALLOON y
+        VIRTIO_CONSOLE y
+        VIRTIO_MMIO y
+        VIRTIO_MMIO_CMDLINE_DEVICES y
+        VIRTIO_PCI y
+        VIRTIO_PCI_LIB y
+        VIRTIO_VSOCKETS m
+        EXT4_FS y
+      '';
+    };
+  });
+
   fileSystems."/" = {
     device = "/dev/vda";
     fsType = "ext4";

@@ -24,7 +24,7 @@ in config // {
       "--cpus" "boot=${toString vcpu}"
       "--rng" "--watchdog"
       "--console" "tty"
-      "--kernel" "${self.packages.${system}.cloudHypervisorKernel}/bzImage"
+      "--kernel" "${nixos.config.system.build.kernel.dev}/vmlinux"
       "--cmdline" "console=hvc0 quiet reboot=t panic=-1 ro root=/dev/vda init=${nixos.config.system.build.toplevel}/init ${append}"
       "--seccomp" "true"
       "--disk" "path=${rootDisk},readonly=on"

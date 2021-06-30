@@ -25,7 +25,7 @@ in config // {
       "-r" rootDisk
       "--shared-dir" "/nix/store/:store"
       "--serial" "type=stdout,console=true,stdin=true"
-      "-p" "console=ttyS0 verbose reboot=k panic=1 nomodules ro init=${nixos.config.system.build.toplevel}/init ${append}"
+      "-p" "console=ttyS0 quiet reboot=k panic=1 nomodules ro init=${nixos.config.system.build.toplevel}/init ${append}"
     ] ++
     builtins.concatMap ({ image, ... }:
       [ "--rwdisk" image ]
@@ -33,6 +33,6 @@ in config // {
     map (_:
       throw "CrosVM networking is not configurable"
     ) interfaces ++
-    [ "${self.packages.${system}.cloudHypervisorKernel}/bzImage" ]
+    [ "${nixos.config.system.build.kernel.dev}/vmlinux" ]
   );
 }

@@ -13,11 +13,7 @@
     in
       flake-utils.lib.eachSystem systems (system: {
         
-        packages = (
-          import ./pkgs/kernel.nix {
-            inherit self nixpkgs system;
-          }
-        ) // {
+        packages = {
           qemu-example = self.lib.run "qemu" {
             inherit system;
             nixosConfig = {

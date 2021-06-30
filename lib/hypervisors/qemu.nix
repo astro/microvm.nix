@@ -35,8 +35,8 @@ in config // {
       "-device" "virtconsole,chardev=virtiocon0"
       "-device" "virtio-rng-device"
       "-drive" "id=root,format=raw,media=cdrom,file=${rootDisk},if=none" "-device" "virtio-blk-device,drive=root"
-      "-kernel" "${self.packages.${system}.virtioKernel}/bzImage"
-      "-append" "console=hvc0 acpi=off reboot=t panic=-1 quiet ro root=/dev/vda init=${nixos.config.system.build.toplevel}/init ${append}"
+      "-kernel" "${nixos.config.system.build.kernel.dev}/vmlinux"
+      "-append" "console=hvc0 acpi=off reboot=t panic=-1 verbose ro root=/dev/vda init=${nixos.config.system.build.toplevel}/init ${append}"
       "-sandbox" "on"
     ] ++
     (if user != null then [ "-user" user ] else []) ++

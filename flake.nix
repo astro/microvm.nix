@@ -21,16 +21,6 @@
               networking.hostName = "microvm";
               users.users.root.password = "";
             };
-            # append = "boot.debugtrace";
-          };
-
-          qemu-example-service = self.lib.runner {
-            inherit system;
-            hypervisor = "qemu";
-            nixosConfig = {
-              networking.hostName = "microvm-service";
-              users.users.root.password = "";
-            };
             volumes = [ {
               mountpoint = "/var";
               image = "var.img";
@@ -45,10 +35,6 @@
               networking.hostName = "microvm";
               users.users.root.password = "";
             };
-            # interfaces = [ {
-            #   id = "qemu";
-            #   mac = "00:00:23:42:24:32";
-            # } ];
             volumes = [ {
               mountpoint = "/var";
               image = "var.img";
@@ -63,10 +49,6 @@
               networking.hostName = "microvm";
               users.users.root.password = "";
             };
-            # interfaces = [ {
-            #   id = "qemu";
-            #   mac = "00:00:23:42:24:32";
-            # } ];
             volumes = [ {
               mountpoint = "/var";
               image = "var.img";
@@ -88,7 +70,6 @@
               size = 256;
             } ];
           };
-
         };
 
         checks =

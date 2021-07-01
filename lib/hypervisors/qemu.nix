@@ -10,6 +10,7 @@
 , rootDisk
 , volumes
 , hostName
+, socket ? "/tmp/microvm-${hostName}.qmp"
 , ...
 }@args:
 let
@@ -31,6 +32,7 @@ in config // {
       "-nodefaults" "-no-user-config"
       "-nographic" "-no-reboot"
       "-device" "virtio-serial-device"
+      "-device" "i8042"
       "-chardev" "stdio,id=virtiocon0"
       "-device" "virtconsole,chardev=virtiocon0"
       "-device" "virtio-rng-device"
@@ -40,6 +42,7 @@ in config // {
       "-sandbox" "on"
     ] ++
     (if user != null then [ "-user" user ] else []) ++
+    (if socket != null then [ "-qmp" "unix:${socket},server,nowait" ] else []) ++
     builtins.concatMap ({ image, letter, ... }:
       [ "-drive" "id=vd${letter},format=raw,file=${image},if=none" "-device" "virtio-blk-device,drive=vd${letter}" ]
     ) (config.volumes) ++
@@ -48,4 +51,52 @@ in config // {
       "-device" "virtio-net-device,netdev=${id},mac=${mac}"
     ]) interfaces)
   );
+
+  canShutdown = socket != null;
+
+  shutdownCommand =
+    if socket != null
+    then
+      let
+        writeQmp = data: ''
+          echo '${builtins.toJSON data}'
+        '';
+      in ''
+        (
+          ${writeQmp { execute = "qmp_capabilities"; }}
+          ${writeQmp {
+            execute = "input-send-event";
+            arguments.events = [ {
+              type = "key";
+              data = {
+                down = true;
+                key = {
+                  type = "qcode";
+                  data = "ctrl";
+                };
+              };
+            } {
+              type = "key";
+              data = {
+                down = true;
+                key = {
+                  type = "qcode";
+                  data = "alt";
+                };
+              };
+            } {
+              type = "key";
+              data = {
+                down = true;
+                key = {
+                  type = "qcode";
+                  data = "delete";
+                };
+              };
+            } ];
+          }}
+      ) | \
+        ${pkgs.socat}/bin/socat STDIO UNIX:${socket}
+    ''
+    else throw "Cannot shutdown without socket";
 }

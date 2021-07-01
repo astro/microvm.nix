@@ -32,6 +32,10 @@ in
         VIRTIO_PCI_LIB y
         VIRTIO_VSOCKETS m
         EXT4_FS y
+
+        # for Firecracker SendCtrlAltDel
+        SERIO_I8042 y
+        KEYBOARD_ATKBD y
       '';
     };
   });

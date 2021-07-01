@@ -87,54 +87,77 @@
         };
 
         checks =
-            builtins.foldl' (result: hypervisor: result // {
-              "microvm-${hypervisor}-test-startup-shutdown" =
-                let
-                  pkgs = nixpkgs.legacyPackages.${system};
-                  runner = self.lib.run hypervisor {
-                    inherit system;
-                    nixosConfig = { pkgs, ... }: {
-                      networking.hostName = "microvm-test";
-                      networking.useDHCP = false;
-                      systemd.services.poweroff-again = {
-                        wantedBy = [ "multi-user.target" ];
-                        serviceConfig.Type = "idle";
-                        script =
-                          let
-                            exit = {
-                              qemu = "reboot";
-                              firecracker = "reboot";
-                              cloud-hypervisor = "poweroff";
-                              crosvm = "reboot";
-                            }.${hypervisor};
-                          in ''
-                            ${pkgs.coreutils}/bin/uname > /var/OK
-                            ${exit}
-                          '';
-                      };
+          builtins.foldl' (result: hypervisor: result // {
+            "microvm-${hypervisor}-test-startup-shutdown" =
+              let
+                pkgs = nixpkgs.legacyPackages.${system};
+                runner = self.lib.run hypervisor {
+                  inherit system;
+                  nixosConfig = { pkgs, ... }: {
+                    networking.hostName = "microvm-test";
+                    networking.useDHCP = false;
+                    systemd.services.poweroff-again = {
+                      wantedBy = [ "multi-user.target" ];
+                      serviceConfig.Type = "idle";
+                      script =
+                        let
+                          exit = {
+                            qemu = "reboot";
+                            firecracker = "reboot";
+                            cloud-hypervisor = "poweroff";
+                            crosvm = "reboot";
+                          }.${hypervisor};
+                        in ''
+                          ${pkgs.coreutils}/bin/uname > /var/OK
+                          ${exit}
+                        '';
                     };
-                    volumes = [ {
-                      mountpoint = "/var";
-                      image = "var.img";
-                      size = 32;
-                    } ];
                   };
-                in pkgs.runCommandNoCCLocal "microvm-${hypervisor}-test-startup-shutdown" {
-                  buildInputs = [
-                    runner
-                    pkgs.libguestfs-with-appliance
-                  ];
+                  volumes = [ {
+                    mountpoint = "/var";
+                    image = "var.img";
+                    size = 32;
+                  } ];
+                };
+              in pkgs.runCommandNoCCLocal "microvm-${hypervisor}-test-startup-shutdown" {
+                buildInputs = [
+                  runner
+                  pkgs.libguestfs-with-appliance
+                ];
+              } ''
+                ${runner.name}
+
+                virt-cat -a var.img -m /dev/sda:/ /OK > $out
+                if [ "$(cat $out)" != "Linux" ] ; then
+                  echo Output does not match
+                  exit 1
+                fi
+              '';
+          } // (
+            let
+              pkgs = nixpkgs.legacyPackages.${system};
+              microvm = self.lib.makeMicrovm {
+                inherit system hypervisor;
+                nixosConfig = {
+                  networking.hostName = "microvm-test";
+                  networking.useDHCP = false;
+                };
+                socket = "/tmp/microvm.sock";
+              };
+            in nixpkgs.lib.optionalAttrs microvm.canShutdown {
+              "microvm-${hypervisor}-test-shutdown-command" =
+                pkgs.runCommandNoCCLocal "microvm-${hypervisor}-test-shutdown-command" {
                 } ''
-                  ${runner.name} > $out
+                  set -m
+                  ${microvm.runScript} > $out &
 
-                  virt-cat -a var.img -m /dev/sda:/ /OK > $out
-                  if [ "$(cat $out)" != "Linux" ] ; then
-                    echo Output does not match
-                    exit 1
-                  fi
+                  sleep 10
+                  echo Now shutting down
+                  ${microvm.shutdownCommand}
+                  fg
                 '';
-            }) {} (builtins.attrNames self.lib.hypervisors);
-
+            }
+          )) {} (builtins.attrNames self.lib.hypervisors);
       }) // {
         lib = (
           import ./lib {
@@ -191,10 +214,15 @@
                     nixosConfig
                   ];
                 };
+
+                canShutdown = false;
+                shutdownCommand = throw "Shutdown not implemented for ${hypervisor}";
               };
 
-              extend = { command, preStart ? "", hostName, volumes, ... }@args: args // {
-                run = pkgs.writeScriptBin "run-${hypervisor}-${hostName}" ''
+              extend = { command, preStart ? "", hostName, volumes, ... }@args: args // rec {
+                runScript = pkgs.writeScript "run-${hypervisor}-${hostName}" script;
+                runScriptBin = pkgs.writeScriptBin "run-${hypervisor}-${hostName}" script;
+                script = ''
                   #! ${pkgs.runtimeShell} -e
 
                   ${self.lib.createVolumesScript pkgs volumes}
@@ -212,7 +240,7 @@
             self.lib.makeMicrovm (args // {
               inherit hypervisor;
             })
-          ).run;
+          ).runScriptBin;
         };
 
         nixosModules = {

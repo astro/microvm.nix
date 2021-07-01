@@ -35,4 +35,8 @@ in config // {
     ) interfaces ++
     [ "${nixos.config.system.build.kernel.dev}/vmlinux" ]
   );
+
+  canShutdown = false;
+  shutdownCommand =
+    throw "'crosvm stop' is not graceful";
 }

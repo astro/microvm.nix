@@ -14,8 +14,9 @@
       flake-utils.lib.eachSystem systems (system: {
         
         packages = {
-          qemu-example = self.lib.runner "qemu" {
+          qemu-example = self.lib.runner {
             inherit system;
+            hypervisor = "qemu";
             nixosConfig = {
               networking.hostName = "microvm";
               users.users.root.password = "";
@@ -23,8 +24,9 @@
             # append = "boot.debugtrace";
           };
 
-          qemu-example-service = self.lib.runner "qemu" {
+          qemu-example-service = self.lib.runner {
             inherit system;
+            hypervisor = "qemu";
             nixosConfig = {
               networking.hostName = "microvm-service";
               users.users.root.password = "";
@@ -36,8 +38,9 @@
             } ];
           };
 
-          firecracker-example = self.lib.runner "firecracker" {
+          firecracker-example = self.lib.runner {
             inherit system;
+            hypervisor = "firecracker";
             nixosConfig = {
               networking.hostName = "microvm";
               users.users.root.password = "";
@@ -53,8 +56,9 @@
             } ];
           };
 
-          cloud-hypervisor-example = self.lib.runner "cloud-hypervisor" {
+          cloud-hypervisor-example = self.lib.runner {
             inherit system;
+            hypervisor = "cloud-hypervisor";
             nixosConfig = {
               networking.hostName = "microvm";
               users.users.root.password = "";
@@ -70,8 +74,9 @@
             } ];
           };
 
-          crosvm-example = self.lib.runner "crosvm" {
+          crosvm-example = self.lib.runner {
             inherit system;
+            hypervisor = "crosvm";
             nixosConfig = {
               networking.hostName = "microvm";
               networking.useDHCP = false;
@@ -91,8 +96,8 @@
             "microvm-${hypervisor}-test-startup-shutdown" =
               let
                 pkgs = nixpkgs.legacyPackages.${system};
-                runner = self.lib.runner hypervisor {
-                  inherit system;
+                microvm = self.lib.makeMicrovm {
+                  inherit system hypervisor;
                   nixosConfig = { pkgs, ... }: {
                     networking.hostName = "microvm-test";
                     networking.useDHCP = false;
@@ -121,11 +126,11 @@
                 };
               in pkgs.runCommandNoCCLocal "microvm-${hypervisor}-test-startup-shutdown" {
                 buildInputs = [
-                  runner
+                  microvm.runner
                   pkgs.libguestfs-with-appliance
                 ];
               } ''
-                ${runner.name}
+                ${microvm.runner.name}
 
                 virt-cat -a var.img -m /dev/sda:/ /OK > $out
                 if [ "$(cat $out)" != "Linux" ] ; then
@@ -219,7 +224,15 @@
                 shutdownCommand = throw "Shutdown not implemented for ${hypervisor}";
               };
 
-              extend = { command, preStart ? "", hostName, volumes, shutdownCommand, ... }@args: args // rec {
+              extend = { command, preStart ? "", hostName, volumes, canShutdown, shutdownCommand, ... }@args: args // rec {
+                runner = nixpkgs.legacyPackages.${system}.buildEnv {
+                  inherit (runScriptBin) name;
+                  paths = [
+                    runScriptBin
+                  ] ++ nixpkgs.lib.optional canShutdown shutdownScriptBin;
+                  pathsToLink = [ "/bin" ];
+                };
+
                 run = ''
                   #! ${pkgs.runtimeShell} -e
 
@@ -244,19 +257,9 @@
                 self.lib.hypervisors.${hypervisor} config
               );
 
-          runner = hypervisor: { system, ... }@args:
-            let
-              microvm = self.lib.makeMicrovm (args // {
-                inherit hypervisor;
-              });
-            in
-              nixpkgs.legacyPackages.${system}.buildEnv {
-                inherit (microvm.runScriptBin) name;
-                paths = with microvm; [
-                  runScriptBin
-                ] ++ nixpkgs.lib.optional canShutdown shutdownScriptBin;
-                pathsToLink = [ "/bin" ];
-              };
+          runner = args: (
+            self.lib.makeMicrovm args
+          ).runner;
         };
 
         nixosModules = {

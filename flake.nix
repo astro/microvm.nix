@@ -254,8 +254,7 @@
                 inherit (microvm.runScriptBin) name;
                 paths = with microvm; [
                   runScriptBin
-                  shutdownScriptBin
-                ];
+                ] ++ nixpkgs.lib.optional canShutdown shutdownScriptBin;
                 pathsToLink = [ "/bin" ];
               };
         };

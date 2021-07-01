@@ -9,7 +9,7 @@
 , rootDisk
 , volumes
 , hostName
-, socket ? null
+, socket ? "/tmp/microvm-${hostName}.firecracker"
 , ...
 }@args:
 let

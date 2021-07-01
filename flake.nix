@@ -12,8 +12,12 @@
       ];
     in
       flake-utils.lib.eachSystem systems (system: {
-        
+
         packages = {
+          microvm = import ./pkgs/microvm-command.nix {
+            inherit self nixpkgs system;
+          };
+
           qemu-example = self.lib.runner {
             inherit system;
             hypervisor = "qemu";

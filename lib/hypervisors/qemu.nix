@@ -23,9 +23,9 @@ in config // {
     [
       "${pkgs.qemu}/bin/qemu-system-${arch}"
       "-name" "qemu-${hostName}"
-      "-M" "microvm,x-option-roms=off,isa-serial=off,rtc=off"
+      "-M" "microvm,x-option-roms=off,isa-serial=off,pit=off,pic=off,rtc=off"
       "-m" (toString mem)
-      "-cpu" "host"
+      "-cpu" "host,+x2apic"
       "-smp" (toString vcpu)
       "-no-acpi" "-enable-kvm"
       "-nodefaults" "-no-user-config"

@@ -36,6 +36,10 @@ in
         # for Firecracker SendCtrlAltDel
         SERIO_I8042 y
         KEYBOARD_ATKBD y
+        # for Cloud-Hypervisor shutdown
+        ACPI_BUTTON y
+        EXPERT y
+        ACPI_REDUCED_HARDWARE_ONLY y
       '';
     };
   });

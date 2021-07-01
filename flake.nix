@@ -15,7 +15,7 @@
 
         packages = {
           microvm = import ./pkgs/microvm-command.nix {
-            inherit self nixpkgs system;
+            pkgs = nixpkgs.legacyPackages.${system};
           };
 
           qemu-example = self.lib.runner {
@@ -249,6 +249,39 @@
 
         nixosModules = {
           microvm = import ./nixos-modules/microvm.nix;
+          host = import ./nixos-modules/host.nix;
+        };
+
+        nixosConfigurations.microvms-host = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            self.nixosModules.host
+            ({ pkgs, lib, options, ... }: {
+              networking.hostName = "microvms-host";
+              users.users.root.password = "";
+              nix = {
+                package = pkgs.nixFlakes;
+                extraOptions = "experimental-features = nix-command flakes";
+                registry = {
+                  nixpkgs.flake = nixpkgs;
+                  microvm.flake = self;
+                };
+              };
+              virtualisation = lib.optionalAttrs (options.virtualisation ? qemu) {
+                # larger than the defaults
+                memorySize = 8192;
+                cores = 12;
+                diskSize = 8192;
+                # 9P performance optimization that quelches a qemu warning
+                msize = 65536;
+                # allow building packages
+                writableStore = true;
+                # # keep the store paths built inside the VM across reboots
+                # writableStoreUseTmpfs = false;
+                qemu.options = [ "-enable-kvm" ];
+              };
+            })
+          ];
         };
       };
 }

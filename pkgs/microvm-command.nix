@@ -1,6 +1,6 @@
-{ self, nixpkgs, system }:
+{ pkgs }:
 
-with nixpkgs.legacyPackages.${system};
+with pkgs;
 
 writeScriptBin "microvm" ''
   #! ${pkgs.runtimeShell} -e
@@ -103,7 +103,7 @@ EOF
 }
 EOF
       git add flake.nix
-      nix flake update . --override-flake microvm ${self}
+      nix flake update . --override-flake microvm ${./..}
       git add flake.lock
       build .
 
@@ -113,6 +113,9 @@ EOF
         exit 1
       fi
       mv $TEMP $DIR
+      chown :kvm -R $DIR
+      chmod -R a+rX -R $DIR
+      chmod g+w $DIR
       ;;
 
     update)

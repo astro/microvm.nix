@@ -115,7 +115,7 @@
                   pkgs.libguestfs-with-appliance
                 ];
               } ''
-                ${microvm.runner.name}
+                microvm-run
 
                 virt-cat -a var.img -m /dev/sda:/ /OK > $out
                 if [ "$(cat $out)" != "Linux" ] ; then
@@ -209,34 +209,35 @@
                 shutdownCommand = throw "Shutdown not implemented for ${hypervisor}";
               };
 
-              extend = { command, preStart ? "", hostName, volumes, canShutdown, shutdownCommand, ... }@args: args // rec {
-                runner = nixpkgs.legacyPackages.${system}.buildEnv {
-                  inherit (runScriptBin) name;
-                  paths = [
-                    runScriptBin
-                  ] ++ nixpkgs.lib.optional canShutdown shutdownScriptBin;
-                  pathsToLink = [ "/bin" ];
+              extend = { command, preStart ? "", hostName, volumes, canShutdown, shutdownCommand, ... }@args:
+                args // rec {
+                  run = ''
+                    #! ${pkgs.runtimeShell} -e
+
+                    ${self.lib.createVolumesScript pkgs volumes}
+                    ${preStart}
+
+                    exec ${command}
+                  '';
+                  runScript = pkgs.writeScript "run-${hypervisor}-${hostName}" run;
+                  runScriptBin = pkgs.writeScriptBin "microvm-run" run;
+
+                  shutdown = ''
+                    #! ${pkgs.runtimeShell} -e
+
+                    ${shutdownCommand}
+                  '';
+                  shutdownScript = pkgs.writeScript "shutdown-${hypervisor}-${hostName}" shutdown;
+                  shutdownScriptBin = pkgs.writeScriptBin "microvm-shutdown" shutdown;
+
+                  runner = nixpkgs.legacyPackages.${system}.runCommand "microvm-run" {} ''
+                    mkdir -p $out/bin
+                    ls -l ${runScriptBin} ${shutdownScriptBin}
+
+                    ln -s ${runScriptBin}/bin/microvm-run $out/bin/microvm-run
+                    ln -s ${shutdownScriptBin}/bin/microvm-shutdown $out/bin/microvm-shutdown
+                  '';
                 };
-
-                run = ''
-                  #! ${pkgs.runtimeShell} -e
-
-                  ${self.lib.createVolumesScript pkgs volumes}
-                  ${preStart}
-
-                  exec ${command}
-                '';
-                runScript = pkgs.writeScript "run-${hypervisor}-${hostName}" run;
-                runScriptBin = pkgs.writeScriptBin "run-${hypervisor}-${hostName}" run;
-
-                shutdown = ''
-                  #! ${pkgs.runtimeShell} -e
-
-                  ${shutdownCommand}
-                '';
-                shutdownScript = pkgs.writeScript "shutdown-${hypervisor}-${hostName}" shutdown;
-                shutdownScriptBin = pkgs.writeScriptBin "shutdown-${hypervisor}-${hostName}" shutdown;
-              };
             in
               extend (
                 self.lib.hypervisors.${hypervisor} config
@@ -267,6 +268,10 @@
                   microvm.flake = self;
                 };
               };
+              # HACK: include a prebuilt microvm kernel in the system
+              environment.systemPackages = [
+                self.packages.${pkgs.system}.qemu-example
+              ];
               virtualisation = lib.optionalAttrs (options.virtualisation ? qemu) {
                 # larger than the defaults
                 memorySize = 8192;

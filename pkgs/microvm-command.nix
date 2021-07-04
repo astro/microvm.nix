@@ -3,14 +3,16 @@
 with pkgs;
 
 writeScriptBin "microvm" ''
-  #! ${pkgs.runtimeShell} -e
+  #! ${pkgs.runtimeShell}
+  set -e
 
-  PATH=$PATH:${lib.makeBinPath [ git nixFlakes ]}
+  PATH=$PATH:${lib.makeBinPath [ git nixFlakes jq ]}
   STATE_DIR=/var/lib/microvms
   ACTION=help
+  FLAKE=git+file:///etc/nixos
 
   OPTERR=1
-  while getopts ":c:u:r:s:" arg; do
+  while getopts ":c:f:u:r:s:" arg; do
     case $arg in
       c)
         ACTION=create
@@ -29,6 +31,10 @@ writeScriptBin "microvm" ''
         NAME=$OPTARG
         ;;
 
+      f)
+        FLAKE=$OPTARG
+        ;;
+
       ?)
         ACTION=help
         ;;
@@ -37,75 +43,39 @@ writeScriptBin "microvm" ''
   DIR=$STATE_DIR/$NAME
 
   build() {
+    NAME=$1
+    FLAKE=$(cat flake)
+
+    echo "Building $FLAKE#$NAME"
+
     TMP=$(mktemp -d)
-    nix build -o $TMP/run $1#microvm.runScript
-    nix build -o $TMP/shutdown $1#microvm.shutdownScript
-    mv $TMP/* $1/
+    nix build -o $TMP/output $FLAKE#$NAME
+    OUTPUT=$(readlink $TMP/output)
+    rm $TMP/output
     rmdir $TMP
+    ln -s $OUTPUT/bin/microvm-run .
+    ln -s $OUTPUT/bin/microvm-shutdown .
   }
 
   case $ACTION in
     help)
       echo Help:
       cat << EOF
-Usage: $0 <action> [flags...]
+Usage: $0 <action>
 
 Actions:
           -c <name>  Create a MicroVM
           -u <name>  Rebuild a MicroVM
           -r <name>  Run a MicroVM in foreground
           -s <name>  Shutdown a running MicroVM
+          -l         List MicroVMs
 EOF
       ;;
     create)
       TEMP=$(mktemp -d)
       pushd $TEMP
-
-      git init
-      cat > flake.nix << EOF
-{
-  inputs.microvm.url = "github:astro/microvm.nix";
-
-  outputs = { self, microvm }: {
-    defaultApp.${system} = self.apps.${system}.run;
-    apps.${system} = {
-      run = {
-        type = "app";
-        program = toString self.packages.${system}.microvm.runScript;
-      };
-      shutdown = {
-        type = "app";
-        program = toString self.packages.${system}.microvm.shutdownScript;
-      };
-    };
-
-    packages.${system}.microvm = microvm.lib.makeMicrovm {
-      system = "${system}";
-      hypervisor = "cloud-hypervisor";
-      nixosConfig = self.nixosConfigurations.$NAME;
-      socket = "$DIR/socket";
-
-      volumes = [ {
-        mountpoint = "/var";
-        image = "$DIR/var.img";
-        size = 256;
-      } ];
-      # vcpu = 1;
-      # mem = 512;
-      # # ...
-    };
-
-    nixosConfigurations.$NAME = { ... }: {
-      networking.hostName = "$NAME";
-      users.users.root.password = "";
-    };
-  };
-}
-EOF
-      git add flake.nix
-      nix flake update . --override-flake microvm ${./..}
-      git add flake.lock
-      build .
+      echo -n "$FLAKE" > flake
+      build $NAME
 
       popd
       if [ -e $DIR ]; then
@@ -119,15 +89,18 @@ EOF
       ;;
 
     update)
-      build $DIR
+      pushd $DIR
+      build $NAME
+
+      # TODO: echo No update required for $NAME
       ;;
 
     run)
-      nix run git+file://$DIR#run
+      exec $DIR/run
       ;;
 
     shutdown)
-      nix run git+file://$DIR#shutdown
+      exec nix run $DIR/shutdown
       ;;
   esac
 ''

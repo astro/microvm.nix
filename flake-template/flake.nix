@@ -16,7 +16,7 @@
           inherit system;
           hypervisor = "qemu";
           nixosConfig = {
-            networking.hostName = "microvm";
+            networking.hostName = "my-microvm";
             users.users.root.password = "";
           };
           volumes = [ {
@@ -24,6 +24,7 @@
             image = "var.img";
             size = 256;
           } ];
+          socket = "control.socket";
         };
       };
     };

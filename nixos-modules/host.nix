@@ -1,6 +1,9 @@
 { pkgs, ... }:
 let
   stateDir = "/var/lib/microvms";
+  microvmCommand = import ../pkgs/microvm-command.nix {
+    inherit pkgs;
+  };
 in
 {
   system.activationScripts.microvm-host = ''
@@ -9,10 +12,8 @@ in
     chmod g+w ${stateDir}
   '';
 
-  environment.systemPackages = [
-    (import ../pkgs/microvm-command.nix {
-      inherit pkgs;
-    })
+  environment.systemPackages = with pkgs; [
+    microvmCommand
   ];
 
   users.users.microvm = {
@@ -23,11 +24,12 @@ in
   systemd.services."microvm@" = {
     description = "MicroVM '%i'";
     after = [ "network.target" ];
-    unitConfig.ConditionPathExists = "${stateDir}/%i/run";
+    unitConfig.ConditionPathExists = "${stateDir}/%i/microvm-run";
     serviceConfig = {
       Type = "simple";
-      ExecStart = "${stateDir}/%i/run";
-      ExecStop = "${stateDir}/%i/shutdown";
+      WorkingDirectory = "${stateDir}/%i";
+      ExecStart = "${stateDir}/%i/microvm-run";
+      ExecStop = "${stateDir}/%i/microvm-shutdown";
       Restart = "always";
       RestartSec = "1s";
       User = "microvm";

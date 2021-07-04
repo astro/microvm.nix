@@ -25,6 +25,13 @@ in
     description = "MicroVM '%i'";
     after = [ "network.target" ];
     unitConfig.ConditionPathExists = "${stateDir}/%i/microvm-run";
+    preStart = ''
+      rm -f booted
+      ln -s $(dirname $(dirname $(readlink microvm-run))) booted
+    '';
+    postStop = ''
+      rm booted
+    '';
     serviceConfig = {
       Type = "simple";
       WorkingDirectory = "${stateDir}/%i";

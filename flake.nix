@@ -283,5 +283,11 @@
             })
           ];
         };
+
+        defaultTemplate = self.templates.microvm;
+        templates.microvm = {
+          path = ./flake-template;
+          description = "Flake with MicroVMs";
+        };
       };
 }

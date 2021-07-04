@@ -232,10 +232,11 @@
 
                   runner = nixpkgs.legacyPackages.${system}.runCommand "microvm-run" {} ''
                     mkdir -p $out/bin
-                    ls -l ${runScriptBin} ${shutdownScriptBin}
 
                     ln -s ${runScriptBin}/bin/microvm-run $out/bin/microvm-run
-                    ln -s ${shutdownScriptBin}/bin/microvm-shutdown $out/bin/microvm-shutdown
+                    ${if canShutdown
+                      then "ln -s ${shutdownScriptBin}/bin/microvm-shutdown $out/bin/microvm-shutdown"
+                      else ""}
                   '';
                 };
             in

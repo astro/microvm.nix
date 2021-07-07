@@ -2,7 +2,17 @@
 
 A Nix Flake to build NixOS and run it on one of several Type-2 Hypervisors.
 
+## Installation
+
+```shell
+nix-shell -p nixFlakes
+nix registry add microvm git+https://github.com/astro/microvm.nix.git
+```
+
 ## Examples
+
+Instead of checking out this repository, you can can replace `.` with
+`microvm` if you added the Flake to your local Registry as shown above.
 
 ```shell
 nix-shell -p nixFlakes

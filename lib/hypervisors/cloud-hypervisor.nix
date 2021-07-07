@@ -9,7 +9,7 @@
 , rootDisk
 , volumes
 , hostName
-, socket ? "/tmp/microvm-${hostName}.cloud-hypervisor"
+, socket ? "microvm-${hostName}.cloud-hypervisor"
 , ...
 }@args:
 let

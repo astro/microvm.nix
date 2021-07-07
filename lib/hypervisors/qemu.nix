@@ -10,7 +10,7 @@
 , rootDisk
 , volumes
 , hostName
-, socket ? "/tmp/microvm-${hostName}.qmp"
+, socket ? "microvm-${hostName}.qmp"
 , ...
 }@args:
 let

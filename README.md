@@ -47,12 +47,7 @@ This module is automatically included in MicroVMs.
 
 # TODO
 
-- [x] qemu
-- [x] Firecracker
-- [x] Cloud-Hypervisor
-- [x] crosvm
-
-- [x] Volumes
-- [x] Tests
-- [ ] Kernel config unification
-- [ ] Control sockets for clean shutdown
+- [ ] Networking
+  - host: virbr, dhcp, nat[46]
+- [ ] ZVOL before mkfs
+- [ ] nbd raid

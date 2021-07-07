@@ -5,6 +5,8 @@ let
   };
 in
 {
+  # WORKS: system.build.microvm = lib.makeMicrovm microvm;
+
   imports = [
     (modulesPath + "/profiles/minimal.nix")
   ];

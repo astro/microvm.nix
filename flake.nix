@@ -220,7 +220,7 @@
                 shutdownCommand = throw "Shutdown not implemented for ${hypervisor}";
               };
 
-              extend = { command, preStart ? "", hostName, volumes, canShutdown, shutdownCommand, ... }@args:
+              extend = { command, preStart ? "", hostName, volumes, interfaces, canShutdown, shutdownCommand, ... }@args:
                 args // rec {
                   run = ''
                     #! ${pkgs.runtimeShell} -e
@@ -250,6 +250,13 @@
                     ${if canShutdown
                       then "ln -s ${shutdownScriptBin}/bin/microvm-shutdown $out/bin/microvm-shutdown"
                       else ""}
+
+                    mkdir $out/share/microvm
+                    echo "${builtins.concatStringsSep " " (map (interface:
+                      if interface.type == "tap" && interface ? id
+                      then interface.id
+                      else ""
+                    ) (builtins.attrValues interfaces))}" > $out/share/microvm/tap-interfaces
                   '';
                 };
               result = extend (
@@ -265,13 +272,15 @@
         nixosModules = {
           microvm = import ./nixos-modules/microvm.nix;
           host = import ./nixos-modules/host.nix;
+          # host-virbr = import ./nixos-modules/host-virbr.nix;
         };
 
         nixosConfigurations.microvms-host = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
             self.nixosModules.host
-            ({ pkgs, lib, options, config, ... }: {
+            
+            ({ pkgs, lib, options, ... }: {
               networking.hostName = "microvms-host";
               users.users.root.password = "";
               nix = {

@@ -57,6 +57,7 @@ in
                 then "ln -sf ${runner}/bin/microvm-shutdown ."
                 else ""}
               echo ${flake} > flake
+              # TODO: export interfaces names
               chown -R microvm:kvm .
             fi
           '';

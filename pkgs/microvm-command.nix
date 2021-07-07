@@ -26,7 +26,6 @@ writeScriptBin "microvm" ''
         ACTION=run
         NAME=$OPTARG
         ;;
-        ;;
       l)
         ACTION=list
         ;;
@@ -53,6 +52,7 @@ writeScriptBin "microvm" ''
     rmdir $TMP
     ln -sf $OUTPUT/bin/microvm-run .
     ln -sf $OUTPUT/bin/microvm-shutdown .
+    # TODO: export interfaces names
   }
 
   case $ACTION in

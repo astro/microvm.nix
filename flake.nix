@@ -13,6 +13,17 @@
     in
       flake-utils.lib.eachSystem systems (system: {
 
+        apps = {
+          vm = {
+            type = "app";
+            program =
+              let
+                inherit (self.nixosConfigurations.microvms-host) config;
+              in
+                "${config.system.build.vm}/bin/run-${config.networking.hostName}-vm";
+          };
+        };
+
         packages = {
           microvm = import ./pkgs/microvm-command.nix {
             pkgs = nixpkgs.legacyPackages.${system};
@@ -269,8 +280,9 @@
                   microvm.flake = self;
                 };
               };
-              # HACK: include a prebuilt microvm kernel in the system
               environment.systemPackages = [
+                pkgs.git
+                # HACK: include a prebuilt microvm kernel in the system
                 self.packages.${pkgs.system}.qemu-example
               ];
               virtualisation = lib.optionalAttrs (options.virtualisation ? qemu) {

@@ -307,7 +307,6 @@
                 # writableStoreUseTmpfs = false;
 
                 qemu.options = [
-                  "-enable-kvm"
                   # faster virtio-console
                   "-serial null"
                   "-device virtio-serial"

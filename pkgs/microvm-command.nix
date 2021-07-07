@@ -26,9 +26,6 @@ writeScriptBin "microvm" ''
         ACTION=run
         NAME=$OPTARG
         ;;
-      s)
-        ACTION=shutdown
-        NAME=$OPTARG
         ;;
       l)
         ACTION=list
@@ -68,7 +65,6 @@ Actions:
           -c <name>  Create a MicroVM
           -u <name>  Rebuild a MicroVM
           -r <name>  Run a MicroVM in foreground
-          -s <name>  Shutdown a running MicroVM
           -l         List MicroVMs
 
 Flags:
@@ -109,11 +105,7 @@ EOF
       ;;
 
     run)
-      exec $DIR/run
-      ;;
-
-    shutdown)
-      exec nix run $DIR/shutdown
+      exec $DIR/microvm-run
       ;;
 
     list)

@@ -49,8 +49,6 @@ writeScriptBin "microvm" ''
     NAME=$1
     FLAKE=$(cat flake)
 
-    echo "Building $FLAKE#$NAME"
-
     TMP=$(mktemp -d)
     nix build -o $TMP/output $FLAKE#$NAME >/dev/null
     OUTPUT=$(readlink $TMP/output)
@@ -64,7 +62,7 @@ writeScriptBin "microvm" ''
     help)
       echo Help:
       cat << EOF
-Usage: $0 <action>
+Usage: $0 <action> [flags]
 
 Actions:
           -c <name>  Create a MicroVM
@@ -74,16 +72,16 @@ Actions:
           -l         List MicroVMs
 
 Flags:
-          -f <flake> Create using another flake than `git+file:///etc/nixos`
+          -f <flake> Create using another flake than $FLAKE
 EOF
       ;;
     create)
       TEMP=$(mktemp -d)
-      pushd $TEMP
+      pushd $TEMP > /dev/null
       echo -n "$FLAKE" > flake
       build $NAME
 
-      popd
+      popd > /dev/null
       if [ -e $DIR ]; then
         echo $DIR already exists.
         exit 1
@@ -95,7 +93,7 @@ EOF
       ;;
 
     update)
-      pushd $DIR
+      pushd $DIR > /dev/null
       build $NAME
 
       # TODO: echo No update required for $NAME
@@ -119,14 +117,13 @@ EOF
       ;;
 
     list)
-      LIST=$(mktemp)
       for DIR in $STATE_DIR/* ; do
         NAME=$(basename $DIR)
         if [ -d $DIR ] ; then
           CURRENT=$(dirname $(dirname $(readlink $DIR/microvm-run)))
 
           TEMP=$(mktemp -d)
-          pushd $TEMP
+          pushd $TEMP > /dev/null
           cp $DIR/flake .
           build $NAME
           BUILT=$(dirname $(dirname $(readlink microvm-run)))
@@ -144,12 +141,10 @@ EOF
             echo "built, not booted"
           fi
 
-          popd
+          popd > /dev/null
           rm -rf $TEMP
         fi
-      done >$LIST
-      cat $LIST
-      rm $LIST
+      done
       ;;
   esac
 ''

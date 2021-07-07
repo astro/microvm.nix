@@ -241,7 +241,9 @@
                   shutdownScript = pkgs.writeScript "shutdown-${hypervisor}-${hostName}" shutdown;
                   shutdownScriptBin = pkgs.writeScriptBin "microvm-shutdown" shutdown;
 
-                  runner = nixpkgs.legacyPackages.${system}.runCommand "microvm-run" {} ''
+                  runner = nixpkgs.legacyPackages.${system}.runCommand "microvm-run" {
+                    passthru = result;
+                  } ''
                     mkdir -p $out/bin
 
                     ln -s ${runScriptBin}/bin/microvm-run $out/bin/microvm-run
@@ -250,10 +252,10 @@
                       else ""}
                   '';
                 };
-            in
-              extend (
+              result = extend (
                 self.lib.hypervisors.${hypervisor} config
               );
+            in result;
 
           runner = args: (
             self.lib.makeMicrovm args
@@ -282,8 +284,6 @@
               };
               environment.systemPackages = [
                 pkgs.git
-                # HACK: include a prebuilt microvm kernel in the system
-                self.packages.${pkgs.system}.qemu-example
               ];
               virtualisation = lib.optionalAttrs (options.virtualisation ? qemu) {
                 # larger than the defaults
@@ -297,6 +297,19 @@
                 # # keep the store paths built inside the VM across reboots
                 # writableStoreUseTmpfs = false;
                 qemu.options = [ "-enable-kvm" ];
+              };
+
+              microvm.vms.qemu-example = {
+                flake = self;
+              };
+              microvm.vms.firecracker-example = {
+                flake = self;
+              };
+              microvm.vms.cloud-hypervisor-example = {
+                flake = self;
+              };
+              microvm.vms.crosvm-example = {
+                flake = self;
               };
             })
           ];

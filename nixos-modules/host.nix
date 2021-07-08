@@ -4,6 +4,8 @@ let
   microvmCommand = import ../pkgs/microvm-command.nix {
     inherit pkgs;
   };
+  user = "microvm";
+  group = "kvm";
 in
 {
   options = with lib; {
@@ -22,7 +24,7 @@ in
   config = {
     system.activationScripts.microvm-host = ''
       mkdir -p ${stateDir}
-      chown root:kvm ${stateDir}
+      chown ${user}:${group} ${stateDir}
       chmod g+w ${stateDir}
     '';
 
@@ -30,15 +32,15 @@ in
       microvmCommand
     ];
 
-    users.users.microvm = {
+    users.users.${user} = {
       isSystemUser = true;
-      group = "kvm";
+      inherit group;
     };
 
     systemd.services = builtins.foldl' (result: name: result // {
       "install-microvm-${name}" = {
         description = "Install MicroVM '${name}'";
-        before = [ "microvm@${name}.service" ];
+        before = [ "microvm@${name}.service" "microvm-tap-interfaces@${name}.service" ];
         wantedBy = [ "microvms.target" ];
         serviceConfig = {
           Type = "oneshot";
@@ -56,15 +58,43 @@ in
               ${if runner.canShutdown
                 then "ln -sf ${runner}/bin/microvm-shutdown ."
                 else ""}
+              cp ${runner}/share/microvm/tap-interfaces .
               echo ${flake} > flake
-              # TODO: export interfaces names
-              chown -R microvm:kvm .
+              chown -R ${user}:${group} .
             fi
           '';
       };
     }) {
+      "microvm-tap-interfaces@" = {
+        description = "Setup MicroVM '%i' TAP interfaces";
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStop =
+            let
+              stopScript = pkgs.writeScript "stop-microvm-tap-interfaces" ''
+                #! ${pkgs.runtimeShell} -e
+
+                cd ${stateDir}/$1
+                for id in $(cat tap-interfaces); do
+                  ${pkgs.tunctl}/bin/tunctl -d $id
+                done
+              '';
+            in "${stopScript} %i";
+        };
+        scriptArgs = "%i";
+        script = ''
+          cd ${stateDir}/$1
+          for id in $(cat tap-interfaces); do
+            ${pkgs.tunctl}/bin/tunctl -u ${user} -t $id
+            ${pkgs.iproute2}/bin/ip link set $id up
+          done
+        '';
+      };
+
       "microvm@" = {
         description = "MicroVM '%i'";
+        requires = [ "microvm-tap-interfaces@%i.service" ];
         after = [ "network.target" ];
         unitConfig.ConditionPathExists = "${stateDir}/%i/microvm-run";
         preStart = ''
@@ -81,8 +111,8 @@ in
           ExecStop = "${stateDir}/%i/microvm-shutdown";
           Restart = "always";
           RestartSec = "1s";
-          User = "microvm";
-          Group = "kvm";
+          User = user;
+          Group = group;
         };
       };
     } (builtins.attrNames config.microvm.vms);

@@ -47,7 +47,7 @@ in config // {
       [ "-drive" "id=vd${letter},format=raw,file=${image},if=none" "-device" "virtio-blk-device,drive=vd${letter}" ]
     ) (config.volumes) ++
     (builtins.concatMap ({ type, id, mac }: [
-      "-netdev" "${type},id=${id}"
+      "-netdev" "${type},id=${id}${nixpkgs.lib.optionalString (type == "tap") ",ifname=${id},script=no,downscript=no"}"
       "-device" "virtio-net-device,netdev=${id},mac=${mac}"
     ]) interfaces)
   );

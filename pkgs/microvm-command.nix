@@ -52,7 +52,7 @@ writeScriptBin "microvm" ''
     rmdir $TMP
     ln -sf $OUTPUT/bin/microvm-run .
     ln -sf $OUTPUT/bin/microvm-shutdown .
-    # TODO: export interfaces names
+    cp $OUTPUT/share/microvm/tap-interfaces .
   }
 
   case $ACTION in

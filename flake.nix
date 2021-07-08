@@ -24,68 +24,60 @@
           };
         };
 
-        packages = {
-          microvm = import ./pkgs/microvm-command.nix {
-            pkgs = nixpkgs.legacyPackages.${system};
-          };
+        packages =
+          let
+            makeExample = { hypervisor, ... }@args:
+              self.lib.runner (nixpkgs.lib.recursiveUpdate {
+                inherit system;
+                nixosConfig = {
+                  networking.hostName = "${hypervisor}-microvm";
+                  users.users.root.password = "";
+                };
+                volumes = [ {
+                  mountpoint = "/var";
+                  image = "var.img";
+                  size = 256;
+                } ];
+              } args);
+            makeExampleWithTap = args:
+              makeExample (nixpkgs.lib.recursiveUpdate {
+              } args);
+          in
+            {
+              qemu-example = makeExample { hypervisor = "qemu"; };
+              firecracker-example = makeExample { hypervisor = "firecracker"; };
+              cloud-hypervisor-example = makeExample { hypervisor = "cloud-hypervisor"; };
+              crosvm-example = makeExample { hypervisor = "crosvm"; };
 
-          qemu-example = self.lib.runner {
-            inherit system;
-            hypervisor = "qemu";
-            nixosConfig = {
-              networking.hostName = "microvm";
-              users.users.root.password = "";
-            };
-            volumes = [ {
-              mountpoint = "/var";
-              image = "var.img";
-              size = 256;
-            } ];
-          };
+              qemu-example-with-tap = makeExampleWithTap {
+                hypervisor = "qemu";
+                interfaces = [ {
+                  type = "tap";
+                  id = "qemu-eth0";
+                  mac = "00:02:00:01:01:01";
+                } ];
+              };
+              firecracker-example-with-tap = makeExampleWithTap {
+                hypervisor = "firecracker";
+                interfaces = [ {
+                  type = "tap";
+                  id = "fire-eth0";
+                  mac = "00:02:00:01:01:02";
+                } ];
+              };
+              cloud-hypervisor-example-with-tap = makeExampleWithTap {
+                hypervisor = "cloud-hypervisor";
+                interfaces = [ {
+                  type = "tap";
+                  id = "cloud-eth0";
+                  mac = "00:02:00:01:01:03";
+                } ];
+              };
 
-          firecracker-example = self.lib.runner {
-            inherit system;
-            hypervisor = "firecracker";
-            nixosConfig = {
-              networking.hostName = "microvm";
-              users.users.root.password = "";
+              microvm = import ./pkgs/microvm-command.nix {
+                pkgs = nixpkgs.legacyPackages.${system};
+              };
             };
-            volumes = [ {
-              mountpoint = "/var";
-              image = "var.img";
-              size = 256;
-            } ];
-          };
-
-          cloud-hypervisor-example = self.lib.runner {
-            inherit system;
-            hypervisor = "cloud-hypervisor";
-            nixosConfig = {
-              networking.hostName = "microvm";
-              users.users.root.password = "";
-            };
-            volumes = [ {
-              mountpoint = "/var";
-              image = "var.img";
-              size = 256;
-            } ];
-          };
-
-          crosvm-example = self.lib.runner {
-            inherit system;
-            hypervisor = "crosvm";
-            nixosConfig = {
-              networking.hostName = "microvm";
-              networking.useDHCP = false;
-              users.users.root.password = "";
-            };
-            volumes = [ {
-              mountpoint = "/var";
-              image = "var.img";
-              size = 256;
-            } ];
-          };
-        };
 
         checks =
           builtins.foldl' (result: hypervisor: result // {
@@ -251,12 +243,12 @@
                       then "ln -s ${shutdownScriptBin}/bin/microvm-shutdown $out/bin/microvm-shutdown"
                       else ""}
 
-                    mkdir $out/share/microvm
-                    echo "${builtins.concatStringsSep " " (map (interface:
+                    mkdir -p $out/share/microvm
+                    echo "${nixpkgs.lib.concatMapStringsSep " " (interface:
                       if interface.type == "tap" && interface ? id
                       then interface.id
                       else ""
-                    ) (builtins.attrValues interfaces))}" > $out/share/microvm/tap-interfaces
+                    ) interfaces}" > $out/share/microvm/tap-interfaces
                   '';
                 };
               result = extend (
@@ -331,13 +323,13 @@
                 graphics = false;
               };
 
-              microvm.vms.qemu-example = {
+              microvm.vms.qemu-example-with-tap = {
                 flake = self;
               };
-              microvm.vms.firecracker-example = {
+              microvm.vms.firecracker-example-with-tap = {
                 flake = self;
               };
-              microvm.vms.cloud-hypervisor-example = {
+              microvm.vms.cloud-hypervisor-example-with-tap = {
                 flake = self;
               };
               microvm.vms.crosvm-example = {

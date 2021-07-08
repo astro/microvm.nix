@@ -18,6 +18,8 @@ nix flake init -t microvm
 
 ## Examples
 
+### Run MicroVMs on your local machine
+
 ```shell
 nix run microvm#qemu-example
 nix run microvm#firecracker-example
@@ -25,11 +27,15 @@ nix run microvm#cloud-hypervisor-example
 nix run microvm#crosvm-example
 ```
 
-Run a proper NixOS virtual machine with four example MicroVMs:
+### Run a Virtual Machine to host four example MicroVMs
 
 ```shell
 nix run microvm#vm
 ```
+
+Check `networkctl status virbr0` for the DHCP leases of the
+MicroVMs. They listen for ssh with an empty root password.
+
 
 ## NixOS modules
 

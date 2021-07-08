@@ -41,6 +41,14 @@
               } args);
             makeExampleWithTap = args:
               makeExample (nixpkgs.lib.recursiveUpdate {
+                nixosConfig = {
+                  networking.interfaces.eth0.useDHCP = true;
+                  networking.firewall.allowedTCPPorts = [ 22 ];
+                  services.openssh = {
+                    enable = true;
+                    permitRootLogin = "yes";
+                  };
+                };
               } args);
           in
             {
@@ -338,6 +346,33 @@
               microvm.vms.crosvm-example = {
                 flake = self;
                 updateFlake = "microvm";
+              };
+
+              systemd.network = {
+                enable = true;
+                netdevs.virbr0.netdevConfig = {
+                  Kind = "bridge";
+                  Name = "virbr0";
+                };
+                networks.virbr0 = {
+                  matchConfig.Name = "virbr0";
+                  # Hand IP addresses to MicroVMs
+                  networkConfig.DHCPServer = true;
+                  addresses = [ {
+                    addressConfig.Address = "10.0.0.1/24";
+                  } ];
+                };
+                networks.microvm-eth0 = {
+                  matchConfig.Name = "*-eth0";
+                  networkConfig.Bridge = "virbr0";
+                };
+              };
+              # Allow DHCP server
+              networking.firewall.allowedUDPPorts = [ 67 ];
+              # Allow Internet access
+              networking.nat = {
+                enable = true;
+                internalInterfaces = [ "virbr0" ];
               };
             })
           ];

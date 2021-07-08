@@ -357,9 +357,17 @@
                 networks.virbr0 = {
                   matchConfig.Name = "virbr0";
                   # Hand IP addresses to MicroVMs
-                  networkConfig.DHCPServer = true;
+                  networkConfig = {
+                    DHCPServer = true;
+                    IPv6SendRA = true;
+                  };
                   addresses = [ {
                     addressConfig.Address = "10.0.0.1/24";
+                  } {
+                    addressConfig.Address = "fd12:3456:789a::1/64";
+                  } ];
+                  ipv6Prefixes = [ {
+                    ipv6PrefixConfig.Prefix = "fd12:3456:789a::/64";
                   } ];
                 };
                 networks.microvm-eth0 = {
@@ -372,6 +380,7 @@
               # Allow Internet access
               networking.nat = {
                 enable = true;
+                enableIPv6 = true;
                 internalInterfaces = [ "virbr0" ];
               };
             })

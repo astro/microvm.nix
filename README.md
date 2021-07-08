@@ -53,7 +53,5 @@ This module is automatically included in MicroVMs.
 
 # TODO
 
-- [ ] Networking
-  - host: virbr, dhcp, nat[46]
 - [ ] ZVOL before mkfs
 - [ ] nbd raid

@@ -53,9 +53,3 @@ Use this on a (physical) machine that is supposed to host MicroVMs.
 ### `microvm.nixosModules.host`
 
 This module is automatically included in MicroVMs.
-
-
-# TODO
-
-- [ ] ZVOL before mkfs
-- [ ] nbd raid

@@ -272,7 +272,6 @@
         nixosModules = {
           microvm = import ./nixos-modules/microvm.nix;
           host = import ./nixos-modules/host.nix;
-          # host-virbr = import ./nixos-modules/host-virbr.nix;
         };
 
         nixosConfigurations.microvms-host = nixpkgs.lib.nixosSystem {

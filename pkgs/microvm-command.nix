@@ -99,7 +99,7 @@ EOF
         if [ $BUILT = $BOOTED ]; then
           echo No reboot of MicroVM $NAME required
         else
-          echo You need to reboot MicroVM $NAME for the new profile
+          echo Reboot MicroVM $NAME for the new profile: systemctl restart microvm@$NAME.service
         fi
       fi
       ;;
@@ -127,10 +127,10 @@ EOF
             if [ $BUILT = $BOOTED ]; then
               echo current, running
             else
-              echo built, restart required
+              echo built, reboot required: systemctl restart microvm@$NAME.service
             fi
           else
-            echo "built, not booted"
+            echo "built, not booted: systemctl start microvm@$NAME.service"
           fi
 
           popd > /dev/null

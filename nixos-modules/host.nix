@@ -13,7 +13,12 @@ in
       type = with types; attrsOf (submodule ({ name, ... }: {
         options = {
           flake = mkOption {
-            type = nullOr path;
+            type = path;
+            description = "Source flake for declarative build";
+          };
+          updateFlake = mkOption {
+            type = nullOr str;
+            description = "Source flake to store for later imperative update";
           };
         };
       }));
@@ -47,21 +52,25 @@ in
         };
         script =
           let
-            inherit (config.microvm.vms.${name}) flake;
+            inherit (config.microvm.vms.${name}) flake updateFlake;
             runner = flake.packages.${pkgs.system}.${name};
           in
           ''
             mkdir -p ${stateDir}/${name}
             cd ${stateDir}/${name}
+
             if [ ! -e microvm-run ] || [ ! -e microvm-shutdown ]; then
               ln -sf ${runner}/bin/microvm-run .
               ${if runner.canShutdown
                 then "ln -sf ${runner}/bin/microvm-shutdown ."
                 else ""}
               cp ${runner}/share/microvm/tap-interfaces .
-              echo ${flake} > flake
-              chown -R ${user}:${group} .
             fi
+
+            echo ${if updateFlake != null
+                   then updateFlake
+                   else flake} > flake
+            chown -R ${user}:${group} .
           '';
       };
     }) {

@@ -325,15 +325,19 @@
 
               microvm.vms.qemu-example-with-tap = {
                 flake = self;
+                updateFlake = "microvm";
               };
               microvm.vms.firecracker-example-with-tap = {
                 flake = self;
+                updateFlake = "microvm";
               };
               microvm.vms.cloud-hypervisor-example-with-tap = {
                 flake = self;
+                updateFlake = "microvm";
               };
               microvm.vms.crosvm-example = {
                 flake = self;
+                updateFlake = "microvm";
               };
             })
           ];

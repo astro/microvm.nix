@@ -13,12 +13,13 @@ in
       type = with types; attrsOf (submodule ({ name, ... }: {
         options = {
           flake = mkOption {
-            type = path;
             description = "Source flake for declarative build";
+            type = path;
           };
           updateFlake = mkOption {
-            type = nullOr str;
             description = "Source flake to store for later imperative update";
+            type = nullOr str;
+            default = null;
           };
         };
       }));

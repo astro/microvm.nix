@@ -134,6 +134,16 @@
                   exit 1
                 fi
               '';
+            "vm-host-microvm-${hypervisor}" = import (nixpkgs + "/nixos/tests/make-test-python.nix") ({ ... }: {
+              name = "vm-host-microvm-${hypervisor}";
+              nodes.vm = {
+                imports = [ self.nixosModules.host ];
+                microvm.vms."${hypervisor}-example".flake = self;
+              };
+              testScript = ''
+                vm.wait_for_unit("microvm@${hypervisor}-example.service")
+              '';
+            }) { inherit system; pkgs = nixpkgs.legacyPackages.${system}; };
           } // (
             let
               pkgs = nixpkgs.legacyPackages.${system};

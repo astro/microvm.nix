@@ -20,8 +20,8 @@ rec {
     let
       pkgs = nixpkgs.legacyPackages.${system};
     in                
-    pkgs.runCommandLocal "rootfs-${hostName}.img" {
-      buildInputs = [ pkgs.libguestfs-with-appliance ];
+    pkgs.runCommandLocal "rootfs-${hostName}.squashfs" {
+      buildInputs = [ pkgs.squashfsTools ];
       passthru = {
         inherit writablePaths;
       };
@@ -29,15 +29,13 @@ rec {
       mkdir -p ${builtins.concatStringsSep " " (
         map (path:
           "rootfs${path}"
-        ) (writablePaths ++ [ "/dev" "/nix/var/nix/gcroots" "/proc" "/run" "/sys" ])
+        ) (writablePaths ++ [ "/dev" "/nix/var/nix/gcroots" "/proc" "/run" "/sys" "/nix/store" ])
       )}
+      for d in $(cat ${pkgs.writeReferencesToFile nixos.config.system.build.toplevel}); do
+        cp -a $d rootfs/nix/store
+      done
 
-      cp -a --no-preserve=xattr --parents \
-        $(cat ${pkgs.writeReferencesToFile nixos.config.system.build.toplevel}) \
-        rootfs/
-      virt-make-fs --size=+${rootReserve} --type=ext4 rootfs $out
-
-      # add padding to sector size
-      dd if=/dev/zero of=$out seek=$(($(stat -c %s $out) / 512 + 1)) count=1 bs=512
+      mksquashfs rootfs $out \
+        -comp xz -reproducible -all-root -4k-align
     '';
 }

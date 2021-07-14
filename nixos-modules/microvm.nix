@@ -34,6 +34,8 @@ in
         VIRTIO_PCI_LIB y
         VIRTIO_VSOCKETS m
         EXT4_FS y
+        SQUASHFS y
+        SQUASHFS_XZ y
 
         # for Firecracker SendCtrlAltDel
         SERIO_I8042 y

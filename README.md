@@ -50,6 +50,6 @@ MicroVMs. They listen for ssh with an empty root password.
 
 Use this on a (physical) machine that is supposed to host MicroVMs.
 
-### `microvm.nixosModules.host`
+### `microvm.nixosModules.microvm`
 
 This module is automatically included in MicroVMs.

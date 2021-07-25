@@ -194,6 +194,7 @@
             { hypervisor
             , system
             , nixosConfig
+            , extraArgs ? {}
             , vcpu ? 1
             , mem ? 512
             , append ? ""
@@ -215,7 +216,7 @@
 
                 nixos = nixpkgs.lib.nixosSystem {
                   inherit system;
-                  extraArgs = {
+                  extraArgs = extraArgs // {
                     inherit (config.rootDisk.passthru) writablePaths;
                     microvm = config;
                   };

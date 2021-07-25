@@ -15,7 +15,6 @@ rec {
   mkDiskImage = { system
                 , hostName
                 , nixos
-                , rootReserve ? "64M"
                 }:
     let
       pkgs = nixpkgs.legacyPackages.${system};

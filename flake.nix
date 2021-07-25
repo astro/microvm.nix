@@ -197,21 +197,20 @@
             , vcpu ? 1
             , mem ? 512
             , append ? ""
-            , rootReserve ? "64M"
             , volumes ? []
             , ... }@args:
             let
               pkgs = nixpkgs.legacyPackages.${system};
 
               config = args // {
-                inherit vcpu mem append rootReserve;
+                inherit vcpu mem append;
                 inherit (config.nixos.config.networking) hostName;
                 volumes = map ({ letter, ... }@volume: volume // {
                   device = "/dev/vd${letter}";
                 }) (self.lib.withDriveLetters 1 volumes);
 
                 rootDisk = self.lib.mkDiskImage {
-                  inherit (config) system rootReserve nixos hostName;
+                  inherit (config) system nixos hostName;
                 };
 
                 nixos = nixpkgs.lib.nixosSystem {

@@ -96,7 +96,7 @@ in config // {
             } ];
           }}
       ) | \
-        ${pkgs.socat}/bin/socat STDIO UNIX:${socket}
+        ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none
     ''
     else throw "Cannot shutdown without socket";
 }

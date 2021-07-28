@@ -119,6 +119,9 @@ in
           WorkingDirectory = "${stateDir}/%i";
           ExecStart = "${stateDir}/%i/microvm-run";
           ExecStop = "${stateDir}/%i/microvm-shutdown";
+          # on stop the ExecStart process won't be killed after the
+          # ExecStop command has returned only with a configured timeout:
+          TimeoutStopSec = 90;
           Restart = "always";
           RestartSec = "1s";
           User = user;

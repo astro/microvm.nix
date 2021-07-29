@@ -35,6 +35,6 @@ rec {
       done
 
       mksquashfs rootfs $out \
-        -comp xz -reproducible -all-root -4k-align
+        -reproducible -all-root -4k-align
     '';
 }

@@ -41,6 +41,8 @@ in
     users.users.${user} = {
       isSystemUser = true;
       inherit group;
+      # allow access to zvol
+      extraGroups = [ "disk" ];
     };
 
     systemd.services = builtins.foldl' (result: name: result // {

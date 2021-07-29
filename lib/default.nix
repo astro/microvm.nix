@@ -12,7 +12,12 @@ rec {
     ));
 
   createVolumesScript = pkgs: pkgs.lib.concatMapStringsSep "\n" (
-    { image, size, fsType ? defaultFsType, ... }: ''
+    { image
+    , size ? throw "Specify a size for volume ${image} or use autoCreate = false"
+    , fsType ? defaultFsType
+    , autoCreate ? true
+    , ...
+    }: nixpkgs-lib.optionalString autoCreate ''
       PATH=$PATH:${with pkgs; lib.makeBinPath [ e2fsprogs ]}
 
       if [ ! -e ${image} ]; then

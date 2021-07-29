@@ -199,6 +199,7 @@
             , mem ? 512
             , append ? ""
             , volumes ? []
+            , shares ? []
             , ... }@args:
             let
               pkgs = nixpkgs.legacyPackages.${system};

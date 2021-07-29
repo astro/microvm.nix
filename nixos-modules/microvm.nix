@@ -24,6 +24,8 @@ in
         HAVE_VIRT_CPU_ACCOUNTING_GEN y
         VIRT_DRIVERS y
         VIRTIO_BLK y
+        FUSE_FS y
+        VIRTIO_FS y
         BLK_MQ_VIRTIO y
         VIRTIO_NET y
         VIRTIO_BALLOON y
@@ -69,5 +71,13 @@ in
         inherit device fsType;
       };
     }) {} (lib.withDriveLetters 1 microvm.volumes)
+  ) // (
+    # Shares
+    builtins.foldl' (result: { mountpoint, tag, ... }: result // {
+      "${mountpoint}" = {
+        device = tag;
+        fsType = "virtiofs";
+      };
+    }) {} microvm.shares
   );
 }

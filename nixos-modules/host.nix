@@ -68,6 +68,9 @@ in
                 then "ln -sf ${runner}/bin/microvm-shutdown ."
                 else ""}
               cp ${runner}/share/microvm/tap-interfaces .
+              rm -rf ./virtiofs
+              [ -e ${runner}/share/microvm/virtiofs ] && \
+                cp -r ${runner}/share/microvm/virtiofs .
             fi
 
             echo ${if updateFlake != null
@@ -100,6 +103,34 @@ in
           for id in $(cat tap-interfaces); do
             ${pkgs.iproute2}/bin/ip tuntap add name $id mode tap user ${user}
             ${pkgs.iproute2}/bin/ip link set $id up
+          done
+        '';
+      };
+
+      "microvm-virtiofsd@" = {
+        description = "VirtioFS daemons for MicroVM '%i'";
+        requiredBy = [ "microvm@%i.service" ];
+        after = [ "local-fs.target" ];
+        unitConfig.ConditionPathExists = "${stateDir}/%i/virtiofs";
+        serviceConfig = {
+          Type = "forking";
+          RemainAfterExit = "yes";
+          GuessMainPID = "no";
+          WorkingDirectory = "${stateDir}/%i";
+          Restart = "always";
+          RestartSec = "1s";
+        };
+        script = ''
+          cd virtiofs
+          for d in *; do
+            SOCKET=$(cat $d/socket)
+
+            ${pkgs.qemu}/libexec/virtiofsd \
+              --socket-path=$SOCKET \
+              --socket-group=${config.users.users.microvm.group} \
+              -o source=$(cat $d/source) \
+              -f &
+            disown
           done
         '';
       };

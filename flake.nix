@@ -38,6 +38,12 @@
                   image = "var.img";
                   size = 256;
                 } ];
+                shares = [ {
+                  socket = "/tmp/x.sock";
+                  tag = "x";
+                  mountpoint = "/var";
+                  source = "/tmp/x";
+                } ];
               } args);
             makeExampleWithTap = args:
               makeExample (nixpkgs.lib.recursiveUpdate {
@@ -231,7 +237,7 @@
                 shutdownCommand = throw "Shutdown not implemented for ${hypervisor}";
               };
 
-              extend = { command, preStart ? "", hostName, volumes, interfaces, canShutdown, shutdownCommand, ... }@args:
+              extend = { command, preStart ? "", hostName, volumes, shares, interfaces, canShutdown, shutdownCommand, ... }@args:
                 args // rec {
                   run = ''
                     #! ${pkgs.runtimeShell} -e
@@ -268,6 +274,13 @@
                       then interface.id
                       else ""
                     ) interfaces}" > $out/share/microvm/tap-interfaces
+                    ${nixpkgs.lib.optionalString (shares != []) (
+                      nixpkgs.lib.concatMapStringsSep "\n" ({ tag, socket, source, ... }: ''
+                        mkdir -p $out/share/microvm/virtiofs/${tag}
+                        echo "${socket}" > $out/share/microvm/virtiofs/${tag}/socket
+                        echo "${source}" > $out/share/microvm/virtiofs/${tag}/source
+                      '') shares
+                    )}
                   '';
                 };
               result = extend (

@@ -53,6 +53,8 @@ writeScriptBin "microvm" ''
     ln -sf $OUTPUT/bin/microvm-run .
     ln -sf $OUTPUT/bin/microvm-shutdown .
     cp $OUTPUT/share/microvm/tap-interfaces .
+    [ -e $OUTPUT/share/microvm/virtiofs ] && cp -r $OUTPUT/share/microvm/virtiofs .
+    chmod -R u+rwX .
   }
 
   case $ACTION in
@@ -84,7 +86,7 @@ EOF
       fi
       mv $TEMP $DIR
       chown :kvm -R $DIR
-      chmod -R a+rX -R $DIR
+      chmod -R a+rX $DIR
       chmod g+w $DIR
       ;;
 

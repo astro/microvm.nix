@@ -8,8 +8,8 @@
 , user ? null
 , interfaces ? [ { id = "eth0"; type = "user"; mac = "00:23:de:ad:be:ef"; } ]
 , rootDisk
-, volumes
-, shares
+, volumes ? []
+, shares ? []
 , hostName
 , socket ? "microvm-${hostName}.qmp"
 , ...

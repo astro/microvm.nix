@@ -237,7 +237,7 @@
                 shutdownCommand = throw "Shutdown not implemented for ${hypervisor}";
               };
 
-              extend = { command, preStart ? "", hostName, volumes, shares, interfaces, canShutdown, shutdownCommand, ... }@args:
+              extend = { command, preStart ? "", hostName, volumes ? [], shares ? [], interfaces, canShutdown, shutdownCommand, ... }@args:
                 args // rec {
                   run = ''
                     #! ${pkgs.runtimeShell} -e

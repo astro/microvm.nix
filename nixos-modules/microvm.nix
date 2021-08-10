@@ -64,14 +64,14 @@ in
         fsType = "tmpfs";
       };
     }) {} writablePaths
-  ) // (
+  ) // (args.lib.optionalAttrs (microvm ? volumes) (
     # Volumes
     builtins.foldl' (result: { mountpoint, device, fsType ? lib.defaultFsType, ... }: result // {
       "${mountpoint}" = {
         inherit device fsType;
       };
     }) {} (lib.withDriveLetters 1 microvm.volumes)
-  ) // (
+  )) // (args.lib.optionalAttrs (microvm ? shares) (
     # Shares
     builtins.foldl' (result: { mountpoint, tag, ... }: result // {
       "${mountpoint}" = {
@@ -79,5 +79,5 @@ in
         fsType = "virtiofs";
       };
     }) {} microvm.shares
-  );
+  ));
 }

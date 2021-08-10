@@ -82,6 +82,7 @@ in
     }) {
       "microvm-tap-interfaces@" = {
         description = "Setup MicroVM '%i' TAP interfaces";
+        before = [ "microvm@%i.service" ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
@@ -109,7 +110,7 @@ in
 
       "microvm-virtiofsd@" = {
         description = "VirtioFS daemons for MicroVM '%i'";
-        requiredBy = [ "microvm@%i.service" ];
+        before = [ "microvm@%i.service" ];
         after = [ "local-fs.target" ];
         unitConfig.ConditionPathExists = "${stateDir}/%i/virtiofs";
         serviceConfig = {
@@ -137,7 +138,7 @@ in
 
       "microvm@" = {
         description = "MicroVM '%i'";
-        requires = [ "microvm-tap-interfaces@%i.service" ];
+        requires = [ "microvm-tap-interfaces@%i.service" "microvm-virtiofsd@%i.service" ];
         after = [ "network.target" ];
         unitConfig.ConditionPathExists = "${stateDir}/%i/microvm-run";
         preStart = ''

@@ -115,7 +115,6 @@ in
         unitConfig.ConditionPathExists = "${stateDir}/%i/virtiofs";
         serviceConfig = {
           Type = "forking";
-          RemainAfterExit = "yes";
           GuessMainPID = "no";
           WorkingDirectory = "${stateDir}/%i";
           Restart = "always";

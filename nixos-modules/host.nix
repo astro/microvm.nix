@@ -122,8 +122,7 @@ in
           RestartSec = "1s";
         };
         script = ''
-          cd virtiofs
-          for d in *; do
+          for d in virtiofs/*; do
             SOCKET=$(cat $d/socket)
 
             ${pkgs.qemu}/libexec/virtiofsd \

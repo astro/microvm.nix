@@ -10,9 +10,10 @@ writeScriptBin "microvm" ''
   STATE_DIR=/var/lib/microvms
   ACTION=help
   FLAKE=git+file:///etc/nixos
+  RESTART=n
 
   OPTERR=1
-  while getopts ":c:f:u:r:s:l" arg; do
+  while getopts ":c:f:u:Rr:s:l" arg; do
     case $arg in
       c)
         ACTION=create
@@ -32,6 +33,10 @@ writeScriptBin "microvm" ''
 
       f)
         FLAKE=$OPTARG
+        ;;
+
+      R)
+        RESTART=y
         ;;
 
       ?)
@@ -65,12 +70,13 @@ Usage: $0 <action> [flags]
 
 Actions:
           -c <name>  Create a MicroVM
-          -u <name>  Rebuild a MicroVM
+          -u <name>  Rebuild (update) a MicroVM
           -r <name>  Run a MicroVM in foreground
           -l         List MicroVMs
 
 Flags:
           -f <flake> Create using another flake than $FLAKE
+          -R         Restart after update
 EOF
       ;;
     create)
@@ -101,7 +107,12 @@ EOF
         if [ $BUILT = $BOOTED ]; then
           echo No reboot of MicroVM $NAME required
         else
-          echo Reboot MicroVM $NAME for the new profile: systemctl restart microvm@$NAME.service
+          if [ $RESTART = y ]; then
+            echo Rebooting MicroVM $NAME
+            systemctl restart microvm@$NAME.service
+          else
+            echo Reboot MicroVM $NAME for the new profile: systemctl restart microvm@$NAME.service
+          fi
         fi
       fi
       ;;

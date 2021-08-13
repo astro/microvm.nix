@@ -7,7 +7,8 @@
 , append
 , interfaces ? []
 , rootDisk
-, volumes
+, volumes ? []
+, shares ? []
 , hostName
 , ...
 }@args:
@@ -30,6 +31,9 @@ in config // {
     builtins.concatMap ({ image, ... }:
       [ "--rwdisk" image ]
     ) volumes ++
+    map (_:
+      throw "virtiofs shares not implemented for CrosVM"
+    ) shares ++
     map (_:
       throw "CrosVM networking is not configurable"
     ) interfaces ++

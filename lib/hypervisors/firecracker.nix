@@ -7,7 +7,8 @@
 , append
 , interfaces ? []
 , rootDisk
-, volumes
+, volumes ? []
+, shares ? []
 , hostName
 , socket ? "microvm-${hostName}.firecracker"
 , ...
@@ -40,6 +41,9 @@ in config // {
     map ({ image, ... }:
       "--add-drive=${image}:rw"
     ) volumes ++
+    map (_:
+      throw "virtiofs shares not implemented for CrosVM"
+    ) shares ++
     map ({ type ? "tap", id, mac }:
       if type == "tap"
       then "--tap-device=${id}/${mac}"

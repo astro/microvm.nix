@@ -225,7 +225,7 @@
                   inherit system;
                   extraArgs = extraArgs // {
                     inherit (config.rootDisk.passthru) writablePaths;
-                    microvm = config;
+                    microvm = result;
                   };
                   modules = [
                     self.nixosModules.microvm

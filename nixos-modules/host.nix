@@ -91,7 +91,7 @@ in
 
                 cd ${stateDir}/$1
                 for id in $(cat tap-interfaces); do
-                  ${pkgs.iproute2}/bin/ip tuntal del name $id
+                  ${pkgs.iproute2}/bin/ip tuntap del name $id
                 done
               '';
             in "${stopScript} %i";
@@ -100,6 +100,10 @@ in
         script = ''
           cd ${stateDir}/$1
           for id in $(cat tap-interfaces); do
+            if [ -e /sys/class/net/$id ]; then
+              ${pkgs.iproute2}/bin/ip tuntap del name $id mode tap
+            fi
+
             ${pkgs.iproute2}/bin/ip tuntap add name $id mode tap user ${user}
             ${pkgs.iproute2}/bin/ip link set $id up
           done

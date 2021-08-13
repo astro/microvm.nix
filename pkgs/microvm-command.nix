@@ -94,6 +94,10 @@ EOF
       chown :kvm -R $DIR
       chmod -R a+rX $DIR
       chmod g+w $DIR
+
+      mkdir -p /nix/var/nix/gcroots/microvm
+      rm -f /nix/var/nix/gcroots/microvm/$NAME
+      ln -s $DIR/microvm-run /nix/var/nix/gcroots/microvm/$NAME
       ;;
 
     update)

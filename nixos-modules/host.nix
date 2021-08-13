@@ -48,11 +48,9 @@ in
     systemd.services = builtins.foldl' (result: name: result // {
       "install-microvm-${name}" = {
         description = "Install MicroVM '${name}'";
-        before = [ "microvm@${name}.service" "microvm-tap-interfaces@${name}.service" ];
+        before = [ "microvm@${name}.service" "microvm-tap-interfaces@${name}.service" "microvm-virtiofsd@${name}.service" ];
         wantedBy = [ "microvms.target" ];
-        serviceConfig = {
-          Type = "oneshot";
-        };
+        serviceConfig.Type = "oneshot";
         script =
           let
             inherit (config.microvm.vms.${name}) flake updateFlake;

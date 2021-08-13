@@ -125,11 +125,13 @@ in
         script = ''
           for d in virtiofs/*; do
             SOCKET=$(cat $d/socket)
+            SOURCE=$(cat $d/source)
+            mkdir -p $SOURCE
 
             ${pkgs.qemu}/libexec/virtiofsd \
               --socket-path=$SOCKET \
               --socket-group=${config.users.users.microvm.group} \
-              -o source=$(cat $d/source) \
+              -o source=$SOURCE \
               -f &
             disown
           done

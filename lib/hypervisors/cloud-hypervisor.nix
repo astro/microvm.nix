@@ -34,7 +34,7 @@ in config // {
     map ({ image, ... }:
       "path=${image}"
     ) volumes ++
-    (if shares != null
+    (if shares != []
      then [ "--fs" ] ++
           (map ({ socket, tag, ... }:
             "tag=${tag},socket=${socket}"

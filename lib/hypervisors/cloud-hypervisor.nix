@@ -37,7 +37,7 @@ in config // {
     (if shares != []
      then [ "--fs" ] ++
           (map ({ socket, tag, ... }:
-            "tag=${tag},socket=${socket},dax=on"
+            "tag=${tag},socket=${socket}"
           ) shares)
      else []) ++
     (if socket != null
@@ -63,6 +63,4 @@ in config // {
       "-X" "PUT" "http://localhost/api/v1/vm.power-button"
     ]
     else throw "Cannot shutdown without socket";
-
-  virtiofsDax = true;
 }

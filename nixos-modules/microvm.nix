@@ -26,8 +26,8 @@ in
         VIRTIO_BLK y
         FUSE_FS y
         VIRTIO_FS y
-        FS_DAX y
-        FUSE_DAX y
+        #FS_DAX y
+        #FUSE_DAX y
         BLK_MQ_VIRTIO y
         VIRTIO_NET y
         VIRTIO_BALLOON y
@@ -79,7 +79,6 @@ in
       "${mountpoint}" = {
         device = tag;
         fsType = "virtiofs";
-        options = pkgs.lib.optional microvm.virtiofsDax "dax";
       };
     }) {} microvm.shares
   ));

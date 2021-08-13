@@ -7,7 +7,8 @@
 , append
 , interfaces ? []
 , rootDisk
-, volumes
+, volumes ? []
+, shares ? []
 , hostName
 , socket ? "microvm-${hostName}.cloud-hypervisor"
 , ...
@@ -21,7 +22,7 @@ in config // {
   command = nixpkgs.lib.escapeShellArgs (
     [
       "${pkgs.cloud-hypervisor}/bin/cloud-hypervisor"
-      "--memory" "size=${toString mem}M,mergeable=on"
+      "--memory" "size=${toString mem}M,mergeable=on,shared=on"
       "--cpus" "boot=${toString vcpu}"
       "--rng" "--watchdog"
       "--console" "tty"
@@ -33,6 +34,12 @@ in config // {
     map ({ image, ... }:
       "path=${image}"
     ) volumes ++
+    (if shares != null
+     then [ "--fs" ] ++
+          (map ({ socket, tag, ... }:
+            "tag=${tag},socket=${socket}"
+          ) shares)
+     else []) ++
     (if socket != null
      then [ "--api-socket" socket ]
      else []) ++

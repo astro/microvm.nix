@@ -132,6 +132,7 @@ in
               --socket-path=$SOCKET \
               --socket-group=${config.users.users.microvm.group} \
               -o source=$SOURCE \
+              -o cache=none \
               -f &
             disown
           done

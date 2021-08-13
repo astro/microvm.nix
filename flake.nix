@@ -235,6 +235,8 @@
 
                 canShutdown = false;
                 shutdownCommand = throw "Shutdown not implemented for ${hypervisor}";
+
+                virtiofsDax = false;
               };
 
               extend = { command, preStart ? "", hostName, volumes ? [], shares ? [], interfaces, canShutdown, shutdownCommand, ... }@args:

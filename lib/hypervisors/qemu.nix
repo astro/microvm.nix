@@ -64,7 +64,7 @@ in config // {
     builtins.concatMap ({ image, letter, ... }:
       [ "-drive" "id=vd${letter},format=raw,file=${image},if=none" "-device" "virtio-blk-${devType},drive=vd${letter}" ]
     ) (config.volumes) ++
-    (if config.volumes != []
+    (if shares != []
      then [
        "-object" "memory-backend-memfd,id=mem,size=${toString mem}M,share=on"
        "-numa" "node,memdev=mem"

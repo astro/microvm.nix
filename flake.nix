@@ -38,12 +38,12 @@
                   image = "var.img";
                   size = 256;
                 } ];
-                shares = [ {
-                  socket = "/tmp/x.sock";
-                  tag = "x";
-                  mountpoint = "/var";
-                  source = "/tmp/x";
-                } ];
+                # shares = [ {
+                #   socket = "/tmp/x.sock";
+                #   tag = "x";
+                #   mountpoint = "/var";
+                #   source = "/tmp/x";
+                # } ];
               } args);
             makeExampleWithTap = args:
               makeExample (nixpkgs.lib.recursiveUpdate {

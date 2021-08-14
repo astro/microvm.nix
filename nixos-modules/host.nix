@@ -49,6 +49,7 @@ in
       "install-microvm-${name}" = {
         description = "Install MicroVM '${name}'";
         before = [ "microvm@${name}.service" "microvm-tap-interfaces@${name}.service" "microvm-virtiofsd@${name}.service" ];
+        partOf = [ "microvm@${name}.service" ];
         wantedBy = [ "microvms.target" ];
         serviceConfig.Type = "oneshot";
         script =
@@ -81,6 +82,7 @@ in
       "microvm-tap-interfaces@" = {
         description = "Setup MicroVM '%i' TAP interfaces";
         before = [ "microvm@%i.service" ];
+        partOf = [ "microvm@%i.service" ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
@@ -91,7 +93,7 @@ in
 
                 cd ${stateDir}/$1
                 for id in $(cat tap-interfaces); do
-                  ${pkgs.iproute2}/bin/ip tuntap del name $id
+                  ${pkgs.iproute2}/bin/ip tuntap del name $id mode tap
                 done
               '';
             in "${stopScript} %i";
@@ -114,6 +116,7 @@ in
         description = "VirtioFS daemons for MicroVM '%i'";
         before = [ "microvm@%i.service" ];
         after = [ "local-fs.target" ];
+        partOf = [ "microvm@%i.service" ];
         unitConfig.ConditionPathExists = "${stateDir}/%i/virtiofs";
         serviceConfig = {
           Type = "forking";

@@ -121,11 +121,6 @@
                         '';
                     };
                   };
-                  volumes = [ {
-                    mountpoint = "/var";
-                    image = "var.img";
-                    size = 32;
-                  } ];
                 };
               in pkgs.runCommandNoCCLocal "microvm-${hypervisor}-test-startup-shutdown" {
                 buildInputs = [

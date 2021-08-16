@@ -56,6 +56,26 @@
                   };
                 };
               } args);
+            makeIperfServer = args: makeExampleWithTap ({
+              interfaces = [ {
+                type = "tap";
+                id = "microvm";
+                mac = "00:02:00:01:01:01";
+              } ];
+              nixosConfig = {
+                networking = {
+                  interfaces.eth0 = {
+                    useDHCP = false;
+                    ipv4.addresses = [ {
+                      address = "10.0.0.1";
+                      prefixLength = 24;
+                    } ];
+                  };
+                  firewall.enable = false;
+                };
+                services.iperf3.enable = true;
+              };
+            } // args);
           in
             {
               qemu-example = makeExample { hypervisor = "qemu"; };
@@ -86,6 +106,16 @@
                   id = "cloud-eth0";
                   mac = "00:02:00:01:01:03";
                 } ];
+              };
+
+              qemu-iperf-server = makeIperfServer {
+                hypervisor = "qemu";
+              };
+              firecracker-iperf-server = makeIperfServer {
+                hypervisor = "firecracker";
+              };
+              cloud-hypervisor-iperf-server = makeIperfServer {
+                hypervisor = "cloud-hypervisor";
               };
 
               microvm = import ./pkgs/microvm-command.nix {
@@ -175,6 +205,33 @@
                   vm.succeed("cat ${builtins.toFile "${name}.sh" check.buildCommand}")
                   vm.succeed("${check.builder} ${builtins.toFile "${name}.sh" check.buildCommand}")
                 '';
+            }) { inherit system; pkgs = nixpkgs.legacyPackages.${system}; };
+            # Run a VM with to test MicroVM virtiofsd
+            "vm-host-microvm-${hypervisor}-iperf" = import (nixpkgs + "/nixos/tests/make-test-python.nix") ({ ... }: {
+              name = "vm-host-microvm-${hypervisor}-virtiofsd";
+              nodes.vm = {
+                imports = [ self.nixosModules.host ];
+                microvm.vms."${hypervisor}-iperf-server".flake = self;
+                environment.systemPackages = with nixpkgs.legacyPackages.${system}; [ iperf iproute ];
+                virtualisation = {
+                  # larger than the defaults
+                  memorySize = 2048;
+                  cores = 2;
+                  # 9P performance optimization that quelches a qemu warning
+                  msize = 65536;
+                  # # allow building packages
+                  # writableStore = true;
+                  # # keep the store paths built inside the VM across reboots
+                  # writableStoreUseTmpfs = false;
+                  qemu.options = [ "-enable-kvm" ];
+                };
+              };
+              testScript = ''
+                vm.wait_for_unit("microvm@${hypervisor}-iperf-server.service")
+                vm.succeed("ip addr add 10.0.0.2/24 dev microvm")
+                result = vm.wait_until_succeeds("iperf -c 10.0.0.1")
+                print(result)
+              '';
             }) { inherit system; pkgs = nixpkgs.legacyPackages.${system}; };
           } // (
             let

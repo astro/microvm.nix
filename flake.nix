@@ -95,6 +95,7 @@
 
         checks =
           builtins.foldl' (result: hypervisor: result // {
+            # Run a MicroVM that immediately shuts down again
             "microvm-${hypervisor}-test-startup-shutdown" =
               let
                 pkgs = nixpkgs.legacyPackages.${system};
@@ -140,6 +141,7 @@
                   exit 1
                 fi
               '';
+            # Run a VM with a MicroVM
             "vm-host-microvm-${hypervisor}" = import (nixpkgs + "/nixos/tests/make-test-python.nix") ({ ... }: {
               name = "vm-host-microvm-${hypervisor}";
               nodes.vm = {
@@ -162,6 +164,7 @@
                 socket = "./microvm.sock";
               };
             in nixpkgs.lib.optionalAttrs microvm.canShutdown {
+              # Test the shutdown command
               "microvm-${hypervisor}-test-shutdown-command" =
                 pkgs.runCommandNoCCLocal "microvm-${hypervisor}-test-shutdown-command" {
                 } ''

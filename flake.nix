@@ -82,6 +82,7 @@
               firecracker-example = makeExample { hypervisor = "firecracker"; };
               cloud-hypervisor-example = makeExample { hypervisor = "cloud-hypervisor"; };
               crosvm-example = makeExample { hypervisor = "crosvm"; };
+              kvmtool-example = makeExample { hypervisor = "kvmtool"; };
 
               qemu-example-with-tap = makeExampleWithTap {
                 hypervisor = "qemu";
@@ -105,6 +106,14 @@
                   type = "tap";
                   id = "cloud-eth0";
                   mac = "00:02:00:01:01:03";
+                } ];
+              };
+              kvmtool-example-with-tap = makeExampleWithTap {
+                hypervisor = "kvmtool";
+                interfaces = [ {
+                  type = "tap";
+                  id = "kvmtool-eth0";
+                  mac = "00:02:00:01:01:05";
                 } ];
               };
 
@@ -147,6 +156,7 @@
                             firecracker = "reboot";
                             cloud-hypervisor = "poweroff";
                             crosvm = "reboot";
+                            kvmtool = "reboot";
                           }.${hypervisor};
                         in ''
                           ${pkgs.coreutils}/bin/uname > /var/OK
@@ -281,6 +291,7 @@
             firecracker = ./lib/hypervisors/firecracker.nix;
             cloud-hypervisor = ./lib/hypervisors/cloud-hypervisor.nix;
             crosvm = ./lib/hypervisors/crosvm.nix;
+            kvmtool = ./lib/hypervisors/kvmtool.nix;
           };
 
           makeMicrovm =

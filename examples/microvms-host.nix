@@ -73,6 +73,10 @@ nixpkgs.lib.nixosSystem {
         flake = self;
         updateFlake = "microvm";
       };
+      microvm.vms.kvmtool-example-with-tap = {
+        flake = self;
+        updateFlake = "microvm";
+      };
 
       systemd.network = {
         enable = true;

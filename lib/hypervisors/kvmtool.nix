@@ -1,6 +1,7 @@
 { self, nixpkgs }:
 
 { system
+, hostName
 , vcpu
 , mem
 , nixos
@@ -26,10 +27,12 @@ in config // {
   command = nixpkgs.lib.escapeShellArgs (
     [
       "${self.packages.${system}.kvmtool}/bin/lkvm" "run"
+      "--name" hostName
       "-m" (toString mem)
       "-c" (toString vcpu)
       "-d" "${rootDisk},ro"
       "--console" "virtio"
+      "--rng"
       "-k" "${nixos.config.system.build.kernel}/bzImage"
       "-p" "console=ttyS0 quiet reboot=k panic=1 nomodules ro init=${nixos.config.system.build.toplevel}/init ${append}"
     ] ++
@@ -40,13 +43,11 @@ in config // {
     # map (_:
     #   throw "virtiofs shares not implemented for kvmtool"
     # ) shares ++
-    builtins.concatMap ({ type, id, ... }:
-      [ "-n" "mode=${type},tapif=${id}" ]
+    builtins.concatMap ({ type, id, mac, ... }:
+      [ "-n" "mode=${type},tapif=${id},guest_mac=${mac}" ]
     ) interfaces
   );
 
-  # TODO:
-  # canShutdown = false;
-  # shutdownCommand =
-  #   throw "'crosvm stop' is not graceful";
+  # `lkvm stop` works but is not graceful.
+  canShutdown = false;
 }

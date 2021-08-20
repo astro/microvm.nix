@@ -9,7 +9,6 @@
 , rootDisk
 , volumes ? []
 , shares ? []
-, hostName
 , ...
 }@args:
 let
@@ -24,7 +23,6 @@ in config // {
       "-m" (toString mem)
       "-c" (toString vcpu)
       "-r" rootDisk
-      "--shared-dir" "/nix/store/:store"
       "--serial" "type=stdout,console=true,stdin=true"
       "-p" "console=ttyS0 quiet reboot=k panic=1 nomodules ro init=${nixos.config.system.build.toplevel}/init ${append}"
     ] ++

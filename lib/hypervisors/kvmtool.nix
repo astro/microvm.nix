@@ -9,6 +9,7 @@
 , rootDisk
 , volumes ? []
 , shares ? []
+, preStart ? ""
 , ...
 }@args:
 let
@@ -17,6 +18,11 @@ let
   };
   pkgs = nixpkgs.legacyPackages.${system};
 in config // {
+  preStart = ''
+    ${preStart}
+    export HOME=$PWD
+  '';
+
   command = nixpkgs.lib.escapeShellArgs (
     [
       "${self.packages.${system}.kvmtool}/bin/lkvm" "run"

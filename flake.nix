@@ -195,30 +195,6 @@
                 vm.wait_for_unit("microvm@${hypervisor}-example.service")
               '';
             }) { inherit system; pkgs = nixpkgs.legacyPackages.${system}; };
-            # Run the test-startup-shutdown check in a VM
-            "vm-host-microvm-${hypervisor}-test-startup-shutdown" = import (nixpkgs + "/nixos/tests/make-test-python.nix") ({ ... }: {
-              name = "vm-host-microvm-${hypervisor}";
-              nodes.vm = { pkgs, ... }: {
-                imports = [ self.nixosModules.host ];
-                nix = {
-                  package = pkgs.nixFlakes;
-                  extraOptions = "experimental-features = nix-command flakes";
-                  registry = {
-                    nixpkgs.flake = nixpkgs;
-                    microvm.flake = self;
-                  };
-                };
-              };
-              testScript =
-                let
-                  name = "microvm-${hypervisor}-test-startup-shutdown";
-                  check = self.checks.${system}.${name};
-                in ''
-                  vm.wait_for_unit("multi-user.target")
-                  vm.succeed("cat ${builtins.toFile "${name}.sh" check.buildCommand}")
-                  vm.succeed("${check.builder} ${builtins.toFile "${name}.sh" check.buildCommand}")
-                '';
-            }) { inherit system; pkgs = nixpkgs.legacyPackages.${system}; };
             # Run a VM with to test MicroVM virtiofsd
             "vm-host-microvm-${hypervisor}-iperf" = import (nixpkgs + "/nixos/tests/make-test-python.nix") ({ ... }: {
               name = "vm-host-microvm-${hypervisor}-virtiofsd";

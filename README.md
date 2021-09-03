@@ -29,9 +29,10 @@ nix run microvm#qemu-example
 nix run microvm#firecracker-example
 nix run microvm#cloud-hypervisor-example
 nix run microvm#crosvm-example
+nix run microvm#kvmtool-example
 ```
 
-### Run a Virtual Machine to host four example MicroVMs
+### Run a Virtual Machine to host example MicroVMs on 5 different Hypervisors
 
 ```shell
 nix run microvm#vm
@@ -53,3 +54,10 @@ Use this on a (physical) machine that is supposed to host MicroVMs.
 ### `microvm.nixosModules.microvm`
 
 This module is automatically included in MicroVMs.
+
+
+## Ideas
+
+- [ ] Boot with root off virtiofs, avoiding overhead of creating squashfs image
+- [ ] Provide a writable `/nix/store`
+- [ ] Distribute/fail-over MicroVMs at run-time within a cluster of hosts

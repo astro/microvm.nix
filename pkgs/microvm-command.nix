@@ -104,7 +104,6 @@ EOF
       pushd $DIR > /dev/null
       build $NAME
 
-      # TODO: echo No update required for $NAME
       BUILT=$(dirname $(dirname $(readlink microvm-run)))
       if [ -L booted ]; then
         BOOTED=$(readlink booted)

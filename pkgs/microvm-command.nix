@@ -129,18 +129,14 @@ EOF
         NAME=$(basename $DIR)
         if [ -d $DIR ] ; then
           CURRENT=$(dirname $(dirname $(readlink $DIR/microvm-run)))
+          NEW=$(nix eval --raw $FLAKE#NAME)
 
-          TEMP=$(mktemp -d)
-          pushd $TEMP > /dev/null
-          cp $DIR/flake .
-          build $NAME
-          BUILT=$(dirname $(dirname $(readlink microvm-run)))
           echo -n "$NAME: "
-          if [ $CURRENT != $BUILT ]; then
+          if [ $CURRENT != $NEW ]; then
             echo outdated, update required
           elif [ -L $DIR/booted ]; then
             BOOTED=$(readlink $DIR/booted)
-            if [ $BUILT = $BOOTED ]; then
+            if [ $NEW = $BOOTED ]; then
               echo current, running
             else
               echo built, reboot required: systemctl restart microvm@$NAME.service

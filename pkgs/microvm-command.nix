@@ -130,7 +130,7 @@ EOF
         if [ -d $DIR ] ; then
           CURRENT=$(dirname $(dirname $(readlink $DIR/microvm-run)))
           FLAKE=$(cat $DIR/flake)
-          NEW=$(nix eval --raw $FLAKE#$NAME)
+          NEW=$(nix eval --raw $FLAKE#$NAME 2>/dev/null)
 
           echo -n "$NAME: "
           if [ $CURRENT != $NEW ]; then

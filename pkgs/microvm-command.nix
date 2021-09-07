@@ -145,9 +145,6 @@ EOF
           else
             echo "built, not booted: systemctl start microvm@$NAME.service"
           fi
-
-          popd > /dev/null
-          rm -rf $TEMP
         fi
       done
       ;;

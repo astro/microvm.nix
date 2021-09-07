@@ -129,6 +129,7 @@ EOF
         NAME=$(basename $DIR)
         if [ -d $DIR ] ; then
           CURRENT=$(dirname $(dirname $(readlink $DIR/microvm-run)))
+          FLAKE=$(cat $DIR/flake)
           NEW=$(nix eval --raw $FLAKE#NAME)
 
           echo -n "$NAME: "

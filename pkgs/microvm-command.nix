@@ -2,6 +2,18 @@
 
 with pkgs;
 
+let
+  colors = {
+    normal = "\\033[0m";
+    red = "\\033[0;31m";
+    green = "\\033[0;32m";
+    boldRed = "\\033[1;31m";
+    boldYellow = "\\033[1;33m";
+    boldGreen = "\\033[1;32m";
+    boldCyan = "\\033[1;36m";
+  };
+  colored = color: text: "${colors.${color}}${text}${colors.normal}";
+in
 writeScriptBin "microvm" ''
   #! ${pkgs.runtimeShell}
   set -e
@@ -129,21 +141,29 @@ EOF
         NAME=$(basename $DIR)
         if [ -d $DIR ] ; then
           CURRENT=$(dirname $(dirname $(readlink $DIR/microvm-run)))
+
           FLAKE=$(cat $DIR/flake)
           NEW=$(nix eval --raw $FLAKE#$NAME 2>/dev/null)
 
-          echo -n "$NAME: "
-          if [ $CURRENT != $NEW ]; then
-            echo outdated, update required
-          elif [ -L $DIR/booted ]; then
-            BOOTED=$(readlink $DIR/booted)
-            if [ $NEW = $BOOTED ]; then
-              echo current, running
+          if systemctl is-active -q microvm@$NAME ; then
+            echo -n -e "${colors.boldGreen}"
+          elif [ -e "$DIR/booted" ]; then
+            echo -n -e "${colors.boldYellow}"
+          else
+            echo -n -e "${colors.boldRed}"
+          fi
+          echo -n -e "$NAME${colors.normal}: "
+          if [ "$CURRENT" != "$NEW" ] ; then
+            echo -e "${colored "red" "outdated"}, rebuild and reboot: ${colored "boldCyan" "microvm -Ru $NAME"}"
+          elif [ -L "$DIR/booted" ]; then
+            BOOTED=$(readlink "$DIR/booted")
+            if [ "$NEW" = "$BOOTED" ]; then
+              echo -e "${colored "green" "current"}"
             else
-              echo built, reboot required: systemctl restart microvm@$NAME.service
+              echo -e "${colored "red" "stale"}, reboot: ${colored "boldCyan" "systemctl restart microvm@$NAME.service"}"
             fi
           else
-            echo "built, not booted: systemctl start microvm@$NAME.service"
+            echo -e "${colored "green" "current"}, not booted: ${colored "boldCyan" "systemctl start microvm@$NAME.service"}}"
           fi
         fi
       done

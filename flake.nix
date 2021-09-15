@@ -130,9 +130,7 @@
               microvm = import ./pkgs/microvm-command.nix {
                 pkgs = nixpkgs.legacyPackages.${system};
               };
-              kvmtool = import ./pkgs/kvmtool.nix {
-                pkgs = nixpkgs.legacyPackages.${system};
-              };
+              kvmtool = nixpkgs.legacyPackages.${system}.callPackage ./pkgs/kvmtool.nix {};
             };
 
         checks =

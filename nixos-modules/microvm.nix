@@ -1,4 +1,4 @@
-{ modulesPath, writablePaths, config, pkgs, microvm, ... }@args:
+{ modulesPath, writablePaths, pkgs, microvm, ... }@args:
 let
   lib = import ../lib {
     nixpkgs-lib = args.lib;
@@ -15,7 +15,7 @@ in
   systemd.sockets.nix-daemon.enable = false;
 
   boot.loader.grub.enable = false;
-  boot.kernelPackages = pkgs.linuxPackages_latest.extend (self: super: {
+  boot.kernelPackages = pkgs.linuxPackages_latest.extend (_self: super: {
     kernel = super.kernel.override {
       extraConfig = ''
         PVH y

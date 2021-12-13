@@ -18,7 +18,7 @@ let
     inherit interfaces;
   };
   pkgs = nixpkgs.legacyPackages.${system};
-  firectl = pkgs.firectl.overrideAttrs (oa: {
+  firectl = pkgs.firectl.overrideAttrs (_oa: {
     # allow read-only root-drive
     postPatch = ''
       substituteInPlace options.go \

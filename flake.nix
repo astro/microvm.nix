@@ -256,7 +256,7 @@
             inherit self nixpkgs;
           }) mkDiskImage;
 
-          hypervisors = builtins.mapAttrs (hypervisor: path: (
+          hypervisors = builtins.mapAttrs (_hypervisor: path: (
             import path {
               inherit self nixpkgs;
             }
@@ -277,7 +277,6 @@
             , mem ? 512
             , append ? ""
             , volumes ? []
-            , shares ? []
             , ... }@args:
             let
               pkgs = nixpkgs.legacyPackages.${system};

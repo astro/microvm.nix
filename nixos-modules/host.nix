@@ -10,7 +10,7 @@ in
 {
   options = with lib; {
     microvm.vms = mkOption {
-      type = with types; attrsOf (submodule ({ name, ... }: {
+      type = with types; attrsOf (submodule ({ ... }: {
         options = {
           flake = mkOption {
             description = "Source flake for declarative build";

@@ -9,7 +9,6 @@
 , interfaces ? []
 , rootDisk
 , volumes ? []
-, shares ? []
 , preStart ? ""
 , ...
 }@args:
@@ -17,7 +16,6 @@ let
   config = args // {
     inherit interfaces;
   };
-  pkgs = nixpkgs.legacyPackages.${system};
 in config // {
   preStart = ''
     ${preStart}

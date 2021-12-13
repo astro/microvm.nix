@@ -17,7 +17,6 @@ let
   config = args // {
     inherit interfaces;
   };
-  pkgs = nixpkgs.legacyPackages.${system};
 in config // {
   preStart = ''
     ${preStart}

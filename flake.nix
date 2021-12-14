@@ -1,7 +1,8 @@
 {
   description = "Contain NixOS in a MicroVM";
 
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-21.11";
+  #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-21.11";
+  inputs.nixpkgs.url = "github:alyssais/nixpkgs/cloud-hypervisor-20.1";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, nixpkgs, flake-utils }:

@@ -17,16 +17,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1638887115,
-        "narHash": "sha256-emjtIeqyJ84Eb3X7APJruTrwcfnHQKs55XGljj62prs=",
-        "owner": "nixos",
+        "lastModified": 1639414427,
+        "narHash": "sha256-a5+Riqzt9GiTXdlhY68z7ssSBayKBGOAIxvJ0ICAeAE=",
+        "owner": "alyssais",
         "repo": "nixpkgs",
-        "rev": "1bd4bbd49bef217a3d1adea43498270d6e779d65",
+        "rev": "a879ac2a1aeb07ed3a0c3f33f5ccbfb51ee23c8c",
         "type": "github"
       },
       "original": {
-        "owner": "nixos",
-        "ref": "nixos-21.11",
+        "owner": "alyssais",
+        "ref": "cloud-hypervisor-20.1",
         "repo": "nixpkgs",
         "type": "github"
       }

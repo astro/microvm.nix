@@ -294,13 +294,15 @@
 
                 nixos = nixpkgs.lib.nixosSystem {
                   inherit system;
-                  extraArgs = extraArgs // {
-                    inherit (config.rootDisk.passthru) writablePaths;
-                    microvm = result;
-                  };
                   modules = [
                     self.nixosModules.microvm
                     nixosConfig
+                    {
+                      _module.args = extraArgs // {
+                        inherit (config.rootDisk.passthru) writablePaths;
+                        microvm = result;
+                      };
+                    }
                   ];
                 };
 

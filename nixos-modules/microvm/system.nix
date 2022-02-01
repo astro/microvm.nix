@@ -1,12 +1,12 @@
-{ modulesPath, writablePaths, pkgs, microvm, ... }@args:
+{ modulesPath, pkgs, config, ... }@args:
 let
-  lib = import ../lib {
+  inherit (import ../../lib {
     nixpkgs-lib = args.lib;
-  };
+  }) defaultFsType withDriveLetters;
+
+  rootImage = config.system.build.squashfs;
 in
 {
-  # WORKS: system.build.microvm = lib.makeMicrovm microvm;
-
   imports = [
     (modulesPath + "/profiles/minimal.nix")
   ];
@@ -54,9 +54,14 @@ in
 
   fileSystems."/" = {
     device = "/dev/vda";
-    fsType = "ext4";
+    fsType = "squashfs";
     options = [ "ro" ];
   };
+  # microvm.volumes = [ {
+  #   mountPoint = "/";
+  #   fsType = "squashfs";
+  #   options = [ "ro" ];
+  # } ];
 
   boot.specialFileSystems = (
     # writablePaths
@@ -65,21 +70,22 @@ in
         device = path;
         fsType = "tmpfs";
       };
-    }) {} writablePaths
-  ) // (args.lib.optionalAttrs (microvm ? volumes) (
+    }) {} rootImage.passthru.writablePaths
+  ) // (
     # Volumes
-    builtins.foldl' (result: { mountpoint, device, fsType ? lib.defaultFsType, ... }: result // {
-      "${mountpoint}" = {
-        inherit device fsType;
+    builtins.foldl' (result: { mountPoint, letter, fsType ? defaultFsType, ... }: result // {
+      "${mountPoint}" = {
+        inherit fsType;
+        device = "/dev/vd${letter}";
       };
-    }) {} (lib.withDriveLetters 1 microvm.volumes)
-  )) // (args.lib.optionalAttrs (microvm ? shares) (
+    }) {} (withDriveLetters 1 config.microvm.volumes)
+  ) // (
     # Shares
     builtins.foldl' (result: { mountpoint, tag, ... }: result // {
       "${mountpoint}" = {
         device = tag;
         fsType = "virtiofs";
       };
-    }) {} microvm.shares
-  ));
+    }) {} config.microvm.shares
+  );
 }

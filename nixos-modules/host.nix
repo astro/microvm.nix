@@ -1,6 +1,6 @@
-{ pkgs, config, lib, ... }:
+{ system, pkgs, config, lib, ... }:
 let
-  stateDir = "/var/lib/microvms";
+  stateDir = builtins.trace "system: ${system}" "/var/lib/microvms";
   microvmCommand = import ../pkgs/microvm-command.nix {
     inherit pkgs;
   };
@@ -55,7 +55,7 @@ in
         script =
           let
             inherit (config.microvm.vms.${name}) flake updateFlake;
-            runner = flake.packages.${pkgs.system}.${name};
+            runner = flake.packages.${system}.${name};
           in
           ''
             mkdir -p ${stateDir}/${name}

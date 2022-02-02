@@ -78,6 +78,7 @@
             } // args);
           in
             {
+              microvm-kernel = import ./pkgs/microvm-kernel.nix { inherit system nixpkgs; };
               qemu-example = makeExample { hypervisor = "qemu"; };
               firecracker-example = makeExample { hypervisor = "firecracker"; };
               cloud-hypervisor-example = makeExample { hypervisor = "cloud-hypervisor"; };
@@ -367,7 +368,15 @@
         };
 
         nixosModules = {
-          microvm = import ./nixos-modules/microvm.nix;
+          microvm = {
+          imports = [
+            {
+              nixpkgs.config.packageOverrides =
+                pkgs: { inherit (self.packages."${pkgs.stdenv.hostPlatform.system}") microvm-kernel; };
+            }
+            ./nixos-modules/microvm.nix
+          ];
+        };
           host = import ./nixos-modules/host.nix;
         };
 

@@ -48,6 +48,8 @@ nixpkgs.lib.nixosSystem {
           "-chardev stdio,mux=on,id=char0,signal=off"
           "-mon chardev=char0,mode=readline"
           "-device virtconsole,chardev=char0,nr=0"
+          # enable nested kvm
+          "-cpu qemu64,vmx"
         ];
 
         # use virtio's hvc0 as system console
@@ -57,23 +59,23 @@ nixpkgs.lib.nixosSystem {
         graphics = false;
       };
 
-      microvm.vms.qemu-example-with-tap = {
+      microvm.vms."${system}-qemu-example-with-tap" = {
         flake = self;
         updateFlake = "microvm";
       };
-      microvm.vms.firecracker-example-with-tap = {
+      microvm.vms."${system}-firecracker-example-with-tap" = {
         flake = self;
         updateFlake = "microvm";
       };
-      microvm.vms.cloud-hypervisor-example-with-tap = {
+      microvm.vms."${system}-cloud-hypervisor-example-with-tap" = {
         flake = self;
         updateFlake = "microvm";
       };
-      microvm.vms.crosvm-example = {
+      microvm.vms."${system}-crosvm-example" = {
         flake = self;
         updateFlake = "microvm";
       };
-      microvm.vms.kvmtool-example-with-tap = {
+      microvm.vms."${system}-kvmtool-example-with-tap" = {
         flake = self;
         updateFlake = "microvm";
       };
@@ -86,7 +88,8 @@ nixpkgs.lib.nixosSystem {
         };
         networks.virbr0 = {
           matchConfig.Name = "virbr0";
-          # Hand IP addresses to MicroVMs
+          # Hand out IP addresses to MicroVMs.
+          # Use `networkctl status virbr0` to see leases.
           networkConfig = {
             DHCPServer = true;
             IPv6SendRA = true;

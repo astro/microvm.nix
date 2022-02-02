@@ -1,21 +1,30 @@
 { config, lib, ... }:
+let
+  self-lib = import ../../lib {
+    nixpkgs-lib = lib;
+  };
+in
 {
   options.microvm = with lib; {
+    hypervisor = mkOption {
+      type = types.enum self-lib.hypervisors;
+      default = "qemu";
+      description = ''
+        Which hypervisor to use for this MicroVM
+
+        Choose one of: ${lib.concatStringsSep ", " self-lib.hypervisors}
+      '';
+    };
+
     preStart = mkOption {
       description = "Commands to run before starting the hypervisor";
       default = "";
       type = types.lines;
     };
 
-    qemu.socket = mkOption {
-      description = "Control socket name";
-      default = "${config.networking.hostName}.qmp";
-      type = with types; nullOr str;
-    };
-
-    cloud-hypervisor.socket = mkOption {
-      description = "Control socket name";
-      default = "${config.networking.hostName}.cloud-hypervisor";
+    socket = mkOption {
+      description = "Hypervisor control socket path";
+      default = "${config.networking.hostName}.sock";
       type = with types; nullOr str;
     };
 

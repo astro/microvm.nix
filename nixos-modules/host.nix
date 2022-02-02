@@ -1,6 +1,7 @@
-{ system, pkgs, config, lib, ... }:
+{ pkgs, config, lib, ... }:
 let
-  stateDir = builtins.trace "system: ${system}" "/var/lib/microvms";
+  inherit (pkgs) system;
+  stateDir = "/var/lib/microvms";
   microvmCommand = import ../pkgs/microvm-command.nix {
     inherit pkgs;
   };
@@ -8,8 +9,8 @@ let
   group = "kvm";
 in
 {
-  options = with lib; {
-    microvm.vms = mkOption {
+  options.microvm = with lib; {
+    vms = mkOption {
       type = with types; attrsOf (submodule ({ ... }: {
         options = {
           flake = mkOption {
@@ -24,6 +25,17 @@ in
         };
       }));
       default = {};
+      description = ''
+        The MicroVMs that shall be built declaratively with the host NixOS.
+      '';
+    };
+
+    stateDir = mkOption {
+      type = types.path;
+      default = "/var/lib/microvms";
+      description = ''
+        Directory that contains the MicroVMs
+      '';
     };
   };
 
@@ -55,7 +67,9 @@ in
         script =
           let
             inherit (config.microvm.vms.${name}) flake updateFlake;
-            runner = flake.packages.${system}.${name};
+            microvmConfig = flake.nixosConfigurations.${name}.config;
+            inherit (microvmConfig.microvm) hypervisor;
+            runner = microvmConfig.microvm.runner.${hypervisor};
           in
           ''
             mkdir -p ${stateDir}/${name}

@@ -3,7 +3,7 @@ rec {
   hypervisors = [
     "qemu"
     "cloud-hypervisor"
-    "firestarter"
+    "firecracker"
     "crosvm"
     "kvmtool"
   ];

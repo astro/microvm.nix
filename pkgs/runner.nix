@@ -32,7 +32,11 @@ let
 
 in
 
-pkgs.runCommand "microvm-run" {} ''
+pkgs.runCommand "microvm-run" {
+  passthru = {
+    inherit canShutdown;
+  };
+} ''
   mkdir -p $out/bin
 
   ln -s ${runScriptBin}/bin/microvm-run $out/bin/microvm-run

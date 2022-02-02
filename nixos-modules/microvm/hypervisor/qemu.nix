@@ -2,8 +2,7 @@
 
 let
   inherit (pkgs) system;
-  inherit (config.microvm) vcpu mem user interfaces shares;
-  inherit (config.microvm.qemu) socket;
+  inherit (config.microvm) vcpu mem user interfaces shares socket;
   rootDisk = config.system.build.squashfs;
 
   inherit (import ../../../lib { nixpkgs-lib = pkgs.lib; }) withDriveLetters;

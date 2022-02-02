@@ -1,7 +1,6 @@
 { config, pkgs, lib, ... }:
 let
-  inherit (config.microvm) vcpu mem user interfaces volumes shares;
-  inherit (config.microvm.crosvm) socket;
+  inherit (config.microvm) vcpu mem user interfaces volumes shares socket;
   rootDisk = config.system.build.squashfs;
 in {
   microvm.runner.crosvm = import ../../../pkgs/runner.nix {

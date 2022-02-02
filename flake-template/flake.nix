@@ -11,21 +11,23 @@
     in {
       defaultPackage.${system} = self.packages.${system}.my-microvm;
 
-      packages.${system} = {
-        my-microvm = microvm.lib.runner {
-          inherit system;
-          hypervisor = "qemu";
-          nixosConfig = {
+      nixosConfigurations.my-microvm = (nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          microvm.nixosModules.microvm
+          {
             networking.hostName = "my-microvm";
             users.users.root.password = "";
-          };
-          volumes = [ {
-            mountpoint = "/var";
-            image = "var.img";
-            size = 256;
-          } ];
-          socket = "control.socket";
-        };
-      };
+            microvm = {
+              volumes = [ {
+                mountpoint = "/var";
+                image = "var.img";
+                size = 256;
+              } ];
+              socket = "control.socket";
+            };
+          }
+        ]
+      }).config.microvm.runner.qemu;
     };
 }

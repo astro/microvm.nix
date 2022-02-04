@@ -11,6 +11,13 @@
     in {
       defaultPackage.${system} = self.packages.${system}.my-microvm;
 
+      packages.${system}.my-microvm =
+        let
+          inherit (self.nixosConfigurations.my-microvm) config;
+          # quickly build with another hypervisor if this MicroVM is built as a package
+          hypervisor = "qemu";
+        in config.microvm.runner.${hypervisor};
+
       nixosConfigurations.my-microvm = (nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [
@@ -25,6 +32,8 @@
                 size = 256;
               } ];
               socket = "control.socket";
+              # relevant for delarative MicroVM management
+              hypervisor = "qemu";
             };
           }
         ]

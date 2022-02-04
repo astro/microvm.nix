@@ -45,6 +45,7 @@ pkgs.runCommand "microvm-run" {
     else ""}
 
   mkdir -p $out/share/microvm
+  ln -s ${config.system.build.toplevel} $out/share/microvm/system
 
   echo "${pkgs.lib.concatMapStringsSep " " (interface:
     if interface.type == "tap" && interface ? id

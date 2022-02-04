@@ -53,8 +53,6 @@ Use this on a (physical) machine that is supposed to host MicroVMs.
 
 ### `microvm.nixosModules.microvm`
 
-This module is automatically included in MicroVMs.
-
 
 ## Ideas
 

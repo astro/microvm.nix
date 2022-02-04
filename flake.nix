@@ -37,11 +37,7 @@
             let
               nixos = self.nixosConfigurations.${systemName};
               name = builtins.replaceStrings [ "${system}-" ] [ "" ] systemName;
-              hypervisor = builtins.head (
-                builtins.filter (hypervisor:
-                  nixpkgs.lib.hasPrefix hypervisor name
-                ) self.lib.hypervisors
-              );
+              inherit (nixos.config.microvm) hypervisor;
             in
               if nixos.pkgs.system == system
               then result // {
@@ -197,6 +193,9 @@
                   {
                     networking.hostName = "${hypervisor}-microvm";
                     users.users.root.password = "";
+                    services.getty.helpLine = ''
+                      Log in as "root" with an empty password.
+                    '';
 
                     microvm.hypervisor = hypervisor;
                     microvm.volumes = [ {

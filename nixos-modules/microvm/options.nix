@@ -101,7 +101,7 @@ in
       type = with types; listOf (submodule {
         options = {
           tag = mkOption {
-            type = path;
+            type = str;
             description = "Unique virtiofs daemon tag";
           };
           socket = mkOption {

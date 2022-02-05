@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 let
-  inherit (config.microvm) vcpu mem user interfaces volumes shares socket;
+  inherit (config.microvm) vcpu mem interfaces volumes shares socket;
   rootDisk = config.system.build.squashfs;
 
   firectl = pkgs.firectl.overrideAttrs (_oa: {

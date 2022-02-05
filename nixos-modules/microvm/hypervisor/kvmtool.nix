@@ -1,7 +1,6 @@
 { config, pkgs, lib, ... }:
 let
-  inherit (config.microvm) vcpu mem user interfaces volumes shares preStart;
-  inherit (config.microvm.kvmtool) socket;
+  inherit (config.microvm) vcpu mem interfaces volumes shares preStart;
   rootDisk = config.system.build.squashfs;
 in {
   microvm.runner.kvmtool = import ../../../pkgs/runner.nix {

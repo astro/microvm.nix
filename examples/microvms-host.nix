@@ -9,7 +9,7 @@ nixpkgs.lib.nixosSystem {
     # this runs as a MicroVM that nests MicroVMs
     self.nixosModules.microvm
 
-    ({ pkgs, lib, options, ... }: {
+    ({ pkgs, lib, ... }: {
       networking.hostName = "microvms-host";
       users.users.root.password = "";
       nix = {

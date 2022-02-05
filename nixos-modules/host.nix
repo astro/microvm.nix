@@ -1,5 +1,6 @@
 { pkgs, config, lib, ... }:
 let
+  inherit (pkgs) system;
   stateDir = "/var/lib/microvms";
   microvmCommand = import ../pkgs/microvm-command.nix {
     inherit pkgs;
@@ -8,8 +9,8 @@ let
   group = "kvm";
 in
 {
-  options = with lib; {
-    microvm.vms = mkOption {
+  options.microvm = with lib; {
+    vms = mkOption {
       type = with types; attrsOf (submodule ({ ... }: {
         options = {
           flake = mkOption {
@@ -24,6 +25,17 @@ in
         };
       }));
       default = {};
+      description = ''
+        The MicroVMs that shall be built declaratively with the host NixOS.
+      '';
+    };
+
+    stateDir = mkOption {
+      type = types.path;
+      default = "/var/lib/microvms";
+      description = ''
+        Directory that contains the MicroVMs
+      '';
     };
   };
 
@@ -55,21 +67,16 @@ in
         script =
           let
             inherit (config.microvm.vms.${name}) flake updateFlake;
-            runner = flake.packages.${pkgs.system}.${name};
+            microvmConfig = flake.nixosConfigurations.${name}.config;
+            inherit (microvmConfig.microvm) hypervisor;
+            runner = microvmConfig.microvm.runner.${hypervisor};
           in
           ''
             mkdir -p ${stateDir}/${name}
             cd ${stateDir}/${name}
 
-            if [ ! -e microvm-run ] || [ ! -e microvm-shutdown ]; then
-              ln -sf ${runner}/bin/microvm-run .
-              ${if runner.canShutdown
-                then "ln -sf ${runner}/bin/microvm-shutdown ."
-                else ""}
-              cp ${runner}/share/microvm/tap-interfaces .
-              rm -rf ./virtiofs
-              [ -e ${runner}/share/microvm/virtiofs ] && \
-                cp -r ${runner}/share/microvm/virtiofs .
+            if [ ! -e current ]; then
+              ln -sf ${runner} current
             fi
 
             echo ${if updateFlake != null
@@ -92,16 +99,17 @@ in
                 #! ${pkgs.runtimeShell} -e
 
                 cd ${stateDir}/$1
-                for id in $(cat tap-interfaces); do
+                for id in $(cat current/share/microvm/tap-interfaces); do
                   ${pkgs.iproute2}/bin/ip tuntap del name $id mode tap
                 done
               '';
             in "${stopScript} %i";
         };
+        # `ExecStart`
         scriptArgs = "%i";
         script = ''
           cd ${stateDir}/$1
-          for id in $(cat tap-interfaces); do
+          for id in $(cat current/share/microvm/tap-interfaces); do
             if [ -e /sys/class/net/$id ]; then
               ${pkgs.iproute2}/bin/ip tuntap del name $id mode tap
             fi
@@ -117,7 +125,7 @@ in
         before = [ "microvm@%i.service" ];
         after = [ "local-fs.target" ];
         partOf = [ "microvm@%i.service" ];
-        unitConfig.ConditionPathExists = "${stateDir}/%i/virtiofs";
+        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/virtiofs";
         serviceConfig = {
           Type = "forking";
           GuessMainPID = "no";
@@ -126,7 +134,7 @@ in
           RestartSec = "1s";
         };
         script = ''
-          for d in virtiofs/*; do
+          for d in current/share/microvm/virtiofs/*; do
             SOCKET=$(cat $d/socket)
             SOURCE=$(cat $d/source)
             mkdir -p $SOURCE
@@ -137,6 +145,7 @@ in
               -o source=$SOURCE \
               -o cache=none \
               -f &
+            # detach from shell, but remain in systemd cgroup
             disown
           done
         '';
@@ -146,10 +155,10 @@ in
         description = "MicroVM '%i'";
         requires = [ "microvm-tap-interfaces@%i.service" "microvm-virtiofsd@%i.service" ];
         after = [ "network.target" ];
-        unitConfig.ConditionPathExists = "${stateDir}/%i/microvm-run";
+        unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/microvm-run";
         preStart = ''
           rm -f booted
-          ln -s $(dirname $(dirname $(readlink microvm-run))) booted
+          ln -s $(readlink current) booted
         '';
         postStop = ''
           rm booted
@@ -157,8 +166,8 @@ in
         serviceConfig = {
           Type = "simple";
           WorkingDirectory = "${stateDir}/%i";
-          ExecStart = "${stateDir}/%i/microvm-run";
-          ExecStop = "${stateDir}/%i/microvm-shutdown";
+          ExecStart = "${stateDir}/%i/current/bin/microvm-run";
+          ExecStop = "${stateDir}/%i/current/bin/microvm-shutdown";
           TimeoutStopSec = 90;
           Restart = "always";
           RestartSec = "1s";

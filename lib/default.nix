@@ -1,5 +1,13 @@
 { nixpkgs-lib }:
 rec {
+  hypervisors = [
+    "qemu"
+    "cloud-hypervisor"
+    "firecracker"
+    "crosvm"
+    "kvmtool"
+  ];
+
   defaultFsType = "ext4";
 
   withDriveLetters = offset: list:

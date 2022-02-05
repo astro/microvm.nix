@@ -18,121 +18,35 @@
             type = "app";
             program =
               let
-                inherit (self.nixosConfigurations.microvms-host) config;
+                inherit (import ./examples/microvms-host.nix {
+                  inherit self nixpkgs system;
+                }) config;
+                inherit (config.microvm) hypervisor;
               in
-                "${config.system.build.vm}/bin/run-${config.networking.hostName}-vm";
+                "${config.microvm.runner.${hypervisor}}/bin/microvm-run";
           };
         };
 
         packages =
-          let
-            makeExample = { hypervisor, ... }@args:
-              self.lib.runner (nixpkgs.lib.recursiveUpdate {
-                inherit system;
-                nixosConfig = {
-                  networking.hostName = "${hypervisor}-microvm";
-                  users.users.root.password = "";
-                };
-                volumes = [ {
-                  mountpoint = "/var";
-                  image = "var.img";
-                  size = 256;
-                } ];
-                # shares = [ {
-                #   socket = "/tmp/x.sock";
-                #   tag = "x";
-                #   mountpoint = "/var";
-                #   source = "/tmp/x";
-                # } ];
-              } args);
-            makeExampleWithTap = args:
-              makeExample (nixpkgs.lib.recursiveUpdate {
-                nixosConfig = {
-                  networking.interfaces.eth0.useDHCP = true;
-                  networking.firewall.allowedTCPPorts = [ 22 ];
-                  services.openssh = {
-                    enable = true;
-                    permitRootLogin = "yes";
-                  };
-                };
-              } args);
-            makeIperfServer = args: makeExampleWithTap ({
-              interfaces = [ {
-                type = "tap";
-                id = "microvm";
-                mac = "00:02:00:01:01:01";
-              } ];
-              nixosConfig = {
-                networking = {
-                  interfaces.eth0 = {
-                    useDHCP = false;
-                    ipv4.addresses = [ {
-                      address = "10.0.0.1";
-                      prefixLength = 24;
-                    } ];
-                  };
-                  firewall.enable = false;
-                };
-                services.iperf3.enable = true;
-              };
-            } // args);
-          in
-            {
-              microvm-kernel = import ./pkgs/microvm-kernel.nix { inherit system nixpkgs; };
-              qemu-example = makeExample { hypervisor = "qemu"; };
-              firecracker-example = makeExample { hypervisor = "firecracker"; };
-              cloud-hypervisor-example = makeExample { hypervisor = "cloud-hypervisor"; };
-              crosvm-example = makeExample { hypervisor = "crosvm"; };
-              kvmtool-example = makeExample { hypervisor = "kvmtool"; };
-
-              qemu-example-with-tap = makeExampleWithTap {
-                hypervisor = "qemu";
-                interfaces = [ {
-                  type = "tap";
-                  id = "qemu-eth0";
-                  mac = "00:02:00:01:01:01";
-                } ];
-              };
-              firecracker-example-with-tap = makeExampleWithTap {
-                hypervisor = "firecracker";
-                interfaces = [ {
-                  type = "tap";
-                  id = "fire-eth0";
-                  mac = "00:02:00:01:01:02";
-                } ];
-              };
-              cloud-hypervisor-example-with-tap = makeExampleWithTap {
-                hypervisor = "cloud-hypervisor";
-                interfaces = [ {
-                  type = "tap";
-                  id = "cloud-eth0";
-                  mac = "00:02:00:01:01:03";
-                } ];
-              };
-              kvmtool-example-with-tap = makeExampleWithTap {
-                hypervisor = "kvmtool";
-                interfaces = [ {
-                  type = "tap";
-                  id = "kvmtool-eth0";
-                  mac = "00:02:00:01:01:05";
-                } ];
-              };
-
-              qemu-iperf-server = makeIperfServer {
-                hypervisor = "qemu";
-              };
-              firecracker-iperf-server = makeIperfServer {
-                hypervisor = "firecracker";
-              };
-              cloud-hypervisor-iperf-server = makeIperfServer {
-                hypervisor = "cloud-hypervisor";
-              };
-
-              microvm = import ./pkgs/microvm-command.nix {
-                pkgs = nixpkgs.legacyPackages.${system};
-              };
-              kvmtool = nixpkgs.legacyPackages.${system}.callPackage ./pkgs/kvmtool.nix {};
+          {
+            microvm-kernel = import ./pkgs/microvm-kernel.nix { inherit system nixpkgs; };
+            microvm = import ./pkgs/microvm-command.nix {
+              pkgs = nixpkgs.legacyPackages.${system};
             };
+          } //
+          # wrap self.nixosConfigurations in executable packages
+          builtins.foldl' (result: systemName:
+            let
+              nixos = self.nixosConfigurations.${systemName};
+              name = builtins.replaceStrings [ "${system}-" ] [ "" ] systemName;
+              inherit (nixos.config.microvm) hypervisor;
+            in
+              if nixos.pkgs.system == system
+              then result // {
+                "${name}" = nixos.config.microvm.runner.${hypervisor};
+              }
+              else result
+          ) {} (builtins.attrNames self.nixosConfigurations);
 
         checks =
           builtins.foldl' (result: hypervisor: result // {
@@ -140,38 +54,41 @@
             "microvm-${hypervisor}-test-startup-shutdown" =
               let
                 pkgs = nixpkgs.legacyPackages.${system};
-                microvm = self.lib.makeMicrovm {
-                  inherit system hypervisor;
-                  nixosConfig = { pkgs, ... }: {
-                    networking.hostName = "microvm-test";
-                    networking.useDHCP = false;
-                    systemd.services.poweroff-again = {
-                      wantedBy = [ "multi-user.target" ];
-                      serviceConfig.Type = "idle";
-                      script =
-                        let
-                          exit = {
-                            qemu = "reboot";
-                            firecracker = "reboot";
-                            cloud-hypervisor = "poweroff";
-                            crosvm = "reboot";
-                            kvmtool = "reboot";
-                          }.${hypervisor};
-                        in ''
+                microvm = (nixpkgs.lib.nixosSystem {
+                  inherit system;
+                  modules = [
+                    self.nixosModules.microvm
+                    ({ pkgs, ... }: {
+                      networking.hostName = "microvm-test";
+                      networking.useDHCP = false;
+                      systemd.services.poweroff-again = {
+                        wantedBy = [ "multi-user.target" ];
+                        serviceConfig.Type = "idle";
+                        script =
+                          let
+                            exit = {
+                              qemu = "reboot";
+                              firecracker = "reboot";
+                              cloud-hypervisor = "poweroff";
+                              crosvm = "reboot";
+                              kvmtool = "reboot";
+                            }.${hypervisor};
+                          in ''
                           ${pkgs.coreutils}/bin/uname > /var/OK
                           ${exit}
                         '';
-                    };
-                  };
-                  volumes = [ {
-                    mountpoint = "/var";
-                    image = "var.img";
-                    size = 32;
-                  } ];
-                };
+                      };
+                      microvm.volumes = [ {
+                        mountPoint = "/var";
+                        image = "var.img";
+                        size = 32;
+                      } ];
+                    })
+                  ];
+                }).config.microvm.runner.${hypervisor};
               in pkgs.runCommandNoCCLocal "microvm-${hypervisor}-test-startup-shutdown" {
                 buildInputs = [
-                  microvm.runner
+                  microvm
                   pkgs.libguestfs-with-appliance
                 ];
               } ''
@@ -224,165 +141,50 @@
           } // (
             let
               pkgs = nixpkgs.legacyPackages.${system};
-              microvm = self.lib.makeMicrovm {
-                inherit system hypervisor;
-                nixosConfig = {
-                  networking.hostName = "microvm-test";
-                  networking.useDHCP = false;
-                };
-                socket = "./microvm.sock";
-              };
+              microvm = (nixpkgs.lib.nixosSystem {
+                inherit system ;
+                modules = [
+                  self.nixosModules.microvm
+                  {
+                    networking.hostName = "microvm-test";
+                    networking.useDHCP = false;
+                    microvm.socket = "./microvm.sock";
+                  }
+                ];
+              }).config.microvm.runner.${hypervisor};
             in nixpkgs.lib.optionalAttrs microvm.canShutdown {
               # Test the shutdown command
               "microvm-${hypervisor}-test-shutdown-command" =
                 pkgs.runCommandNoCCLocal "microvm-${hypervisor}-test-shutdown-command" {
                 } ''
                   set -m
-                  ${microvm.runScript} > $out &
+                  ${microvm}/bin/microvm-run > $out &
 
                   sleep 10
                   echo Now shutting down
-                  ${microvm.shutdownCommand}
+                  ${microvm}/bin/microvm-shutdown
                   fg
                 '';
             }
-          )) {} (builtins.attrNames self.lib.hypervisors);
+          )) {} self.lib.hypervisors;
       }) // {
-        lib = (
-          import ./lib {
-            nixpkgs-lib = nixpkgs.lib;
-          }
-        ) // {
-          inherit (import ./lib/disk-image.nix {
-            inherit self nixpkgs;
-          }) mkDiskImage;
+        lib = import ./lib { nixpkgs-lib = nixpkgs.lib; };
 
-          hypervisors = builtins.mapAttrs (_hypervisor: path: (
-            import path {
-              inherit self nixpkgs;
-            }
-          )) {
-            qemu = ./lib/hypervisors/qemu.nix;
-            firecracker = ./lib/hypervisors/firecracker.nix;
-            cloud-hypervisor = ./lib/hypervisors/cloud-hypervisor.nix;
-            crosvm = ./lib/hypervisors/crosvm.nix;
-            kvmtool = ./lib/hypervisors/kvmtool.nix;
-          };
-
-          makeMicrovm =
-            { hypervisor
-            , system
-            , nixosConfig
-            , extraArgs ? {}
-            , vcpu ? 1
-            , mem ? 512
-            , append ? ""
-            , volumes ? []
-            , ... }@args:
-            let
-              pkgs = nixpkgs.legacyPackages.${system};
-
-              config = args // {
-                inherit vcpu mem append;
-                inherit (config.nixos.config.networking) hostName;
-                volumes = map ({ letter, ... }@volume: volume // {
-                  device = "/dev/vd${letter}";
-                }) (self.lib.withDriveLetters 1 volumes);
-
-                rootDisk = self.lib.mkDiskImage {
-                  inherit (config) system nixos hostName;
-                };
-
-                nixos = nixpkgs.lib.nixosSystem {
-                  inherit system;
-                  modules = [
-                    self.nixosModules.microvm
-                    nixosConfig
-                    {
-                      _module.args = extraArgs // {
-                        inherit (config.rootDisk.passthru) writablePaths;
-                        microvm = result;
-                      };
-                    }
-                  ];
-                };
-
-                canShutdown = false;
-                shutdownCommand = throw "Shutdown not implemented for ${hypervisor}";
-              };
-
-              extend = { command, preStart ? "", hostName, volumes ? [], shares ? [], interfaces, canShutdown, shutdownCommand, ... }@args:
-                args // rec {
-                  run = ''
-                    #! ${pkgs.runtimeShell} -e
-
-                    ${self.lib.createVolumesScript pkgs volumes}
-                    ${preStart}
-
-                    exec ${command}
-                  '';
-                  runScript = pkgs.writeScript "run-${hypervisor}-${hostName}" run;
-                  runScriptBin = pkgs.writeScriptBin "microvm-run" run;
-
-                  shutdown = ''
-                    #! ${pkgs.runtimeShell} -e
-
-                    ${shutdownCommand}
-                  '';
-                  shutdownScript = pkgs.writeScript "shutdown-${hypervisor}-${hostName}" shutdown;
-                  shutdownScriptBin = pkgs.writeScriptBin "microvm-shutdown" shutdown;
-
-                  runner = nixpkgs.legacyPackages.${system}.runCommand "microvm-run" {
-                    passthru = result;
-                  } ''
-                    mkdir -p $out/bin
-
-                    ln -s ${runScriptBin}/bin/microvm-run $out/bin/microvm-run
-                    ${if canShutdown
-                      then "ln -s ${shutdownScriptBin}/bin/microvm-shutdown $out/bin/microvm-shutdown"
-                      else ""}
-
-                    mkdir -p $out/share/microvm
-                    echo "${nixpkgs.lib.concatMapStringsSep " " (interface:
-                      if interface.type == "tap" && interface ? id
-                      then interface.id
-                      else ""
-                    ) interfaces}" > $out/share/microvm/tap-interfaces
-                    ${nixpkgs.lib.optionalString (shares != []) (
-                      nixpkgs.lib.concatMapStringsSep "\n" ({ tag, socket, source, ... }: ''
-                        mkdir -p $out/share/microvm/virtiofs/${tag}
-                        echo "${socket}" > $out/share/microvm/virtiofs/${tag}/socket
-                        echo "${source}" > $out/share/microvm/virtiofs/${tag}/source
-                      '') shares
-                    )}
-                  '';
-                };
-              result = extend (
-                self.lib.hypervisors.${hypervisor} config
-              );
-            in result;
-
-          runner = args: (
-            self.lib.makeMicrovm args
-          ).runner;
+        overlay = final: prev: {
+          kvmtool = prev.callPackage ./pkgs/kvmtool.nix {};
         };
 
         nixosModules = {
           microvm = {
-          imports = [
-            {
-              nixpkgs.config.packageOverrides =
-                pkgs: { inherit (self.packages."${pkgs.stdenv.hostPlatform.system}") microvm-kernel; };
-            }
-            ./nixos-modules/microvm.nix
-          ];
-        };
+            imports = [
+              {
+                nixpkgs.config.packageOverrides =
+                  pkgs: { inherit (self.packages."${pkgs.stdenv.hostPlatform.system}") microvm-kernel; };
+              }
+              (import ./nixos-modules/microvm self)
+            ];
+          };
           host = import ./nixos-modules/host.nix;
-        };
-
-        nixosConfigurations.microvms-host = import ./examples/microvms-host.nix {
-          inherit self nixpkgs;
-          system = "x86_64-linux";
         };
 
         defaultTemplate = self.templates.microvm;
@@ -390,5 +192,60 @@
           path = ./flake-template;
           description = "Flake with MicroVMs";
         };
+
+        nixosConfigurations =
+          let
+            makeExample = { system, hypervisor, config ? {} }:
+              nixpkgs.lib.nixosSystem {
+                inherit system;
+                modules = [
+                  self.nixosModules.microvm
+                  {
+                    networking.hostName = "${hypervisor}-microvm";
+                    users.users.root.password = "";
+                    services.getty.helpLine = ''
+                      Log in as "root" with an empty password.
+                    '';
+
+                    microvm.hypervisor = hypervisor;
+                    microvm.volumes = [ {
+                      mountPoint = "/var";
+                      image = "var.img";
+                      size = 256;
+                    } ];
+                  }
+                  config
+                ];
+              };
+          in
+            (builtins.foldl' (results: system:
+              builtins.foldl' ({ result, n }: hypervisor: {
+                result = result // {
+                  "${system}-${hypervisor}-example" = makeExample {
+                    inherit system hypervisor;
+                  };
+
+                  "${system}-${hypervisor}-example-with-tap" = makeExample {
+                    inherit system hypervisor;
+                    config = {
+                      microvm.interfaces = [ {
+                        type = "tap";
+                        id = "vm-${builtins.substring 0 4 hypervisor}";
+                        mac = "00:02:00:01:01:0${toString n}";
+                      } ];
+                      networking.interfaces.eth0.useDHCP = true;
+                      networking.firewall.allowedTCPPorts = [ 22 ];
+                      services.openssh = {
+                        enable = true;
+                        permitRootLogin = "yes";
+                      };
+                    };
+                  };
+
+                  # TODO: -iperf-server
+                };
+                n = n + 1;
+              }) results self.lib.hypervisors
+            ) { result = {}; n = 1; } systems).result;
       };
 }

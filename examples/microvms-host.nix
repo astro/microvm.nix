@@ -4,7 +4,10 @@ nixpkgs.lib.nixosSystem {
   inherit system;
 
   modules = [
+    # for declarative MicroVM management
     self.nixosModules.host
+    # this runs as a MicroVM that nests MicroVMs
+    self.nixosModules.microvm
 
     ({ pkgs, lib, options, ... }: {
       networking.hostName = "microvms-host";
@@ -29,51 +32,30 @@ nixpkgs.lib.nixosSystem {
           and `quit` to stop the VM.
         '';
       };
-      virtualisation = lib.optionalAttrs (options.virtualisation ? qemu) {
-        # larger than the defaults
-        memorySize = 8192;
-        cores = 12;
-        diskSize = 8192;
-        # 9P performance optimization that quelches a qemu warning
-        msize = 65536;
-        # allow building packages
-        writableStore = true;
-        # # keep the store paths built inside the VM across reboots
-        # writableStoreUseTmpfs = false;
-
-        qemu.options = [
-          # faster virtio-console
-          "-serial null"
-          "-device virtio-serial"
-          "-chardev stdio,mux=on,id=char0,signal=off"
-          "-mon chardev=char0,mode=readline"
-          "-device virtconsole,chardev=char0,nr=0"
-        ];
-
-        # use virtio's hvc0 as system console
-        qemu.consoles = ["tty0" "hvc0"];
-
-        # headless qemu
-        graphics = false;
+      # Host MicroVM settings
+      microvm = {
+        mem = 8192;
+        vcpu = 4;
       };
 
-      microvm.vms.qemu-example-with-tap = {
+      # Nested MicroVMs
+      microvm.vms."${system}-qemu-example-with-tap" = {
         flake = self;
         updateFlake = "microvm";
       };
-      microvm.vms.firecracker-example-with-tap = {
+      microvm.vms."${system}-firecracker-example-with-tap" = {
         flake = self;
         updateFlake = "microvm";
       };
-      microvm.vms.cloud-hypervisor-example-with-tap = {
+      microvm.vms."${system}-cloud-hypervisor-example-with-tap" = {
         flake = self;
         updateFlake = "microvm";
       };
-      microvm.vms.crosvm-example = {
+      microvm.vms."${system}-crosvm-example" = {
         flake = self;
         updateFlake = "microvm";
       };
-      microvm.vms.kvmtool-example-with-tap = {
+      microvm.vms."${system}-kvmtool-example-with-tap" = {
         flake = self;
         updateFlake = "microvm";
       };
@@ -86,7 +68,8 @@ nixpkgs.lib.nixosSystem {
         };
         networks.virbr0 = {
           matchConfig.Name = "virbr0";
-          # Hand IP addresses to MicroVMs
+          # Hand out IP addresses to MicroVMs.
+          # Use `networkctl status virbr0` to see leases.
           networkConfig = {
             DHCPServer = true;
             IPv6SendRA = true;
@@ -101,7 +84,7 @@ nixpkgs.lib.nixosSystem {
           } ];
         };
         networks.microvm-eth0 = {
-          matchConfig.Name = "*-eth0";
+          matchConfig.Name = "vm-*";
           networkConfig.Bridge = "virbr0";
         };
       };

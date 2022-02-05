@@ -83,7 +83,7 @@ in
       type = with types; listOf (submodule {
         options = {
           type = mkOption {
-            type = enum [ "user" "tap" ];
+            type = enum [ "user" "tap" "bridge" ];
           };
           id = mkOption {
             type = str;

@@ -18,7 +18,7 @@ writeScriptBin "microvm" ''
   #! ${pkgs.runtimeShell}
   set -e
 
-  PATH=$PATH:${lib.makeBinPath [ git nixFlakes jq ]}
+  PATH=${lib.makeBinPath [ git nixFlakes jq ]}:$PATH
   STATE_DIR=/var/lib/microvms
   ACTION=help
   FLAKE=git+file:///etc/nixos
@@ -62,15 +62,7 @@ writeScriptBin "microvm" ''
     NAME=$1
     FLAKE=$(cat flake)
 
-    TMP=$(mktemp -d)
-    nix build -o $TMP/output $FLAKE#$NAME >/dev/null
-    OUTPUT=$(readlink $TMP/output)
-    rm $TMP/output
-    rmdir $TMP
-    ln -sf $OUTPUT/bin/microvm-run .
-    ln -sf $OUTPUT/bin/microvm-shutdown .
-    cp $OUTPUT/share/microvm/tap-interfaces .
-    [ -e $OUTPUT/share/microvm/virtiofs ] && cp -r $OUTPUT/share/microvm/virtiofs .
+    nix build -o current $FLAKE#nixosConfigurations.$NAME.config.microvm.declaredRunner >/dev/null
     chmod -R u+rwX .
   }
 
@@ -109,14 +101,14 @@ EOF
 
       mkdir -p /nix/var/nix/gcroots/microvm
       rm -f /nix/var/nix/gcroots/microvm/$NAME
-      ln -s $DIR/microvm-run /nix/var/nix/gcroots/microvm/$NAME
+      ln -s $DIR/current /nix/var/nix/gcroots/microvm/$NAME
       ;;
 
     update)
       pushd $DIR > /dev/null
       build $NAME
 
-      BUILT=$(dirname $(dirname $(readlink microvm-run)))
+      BUILT=$(readlink current)
       if [ -L booted ]; then
         BOOTED=$(readlink booted)
         if [ $BUILT = $BOOTED ]; then
@@ -133,17 +125,18 @@ EOF
       ;;
 
     run)
-      exec $DIR/microvm-run
+      exec $DIR/current/bin/microvm-run
       ;;
 
     list)
       for DIR in $STATE_DIR/* ; do
         NAME=$(basename $DIR)
         if [ -d $DIR ] ; then
-          CURRENT=$(dirname $(dirname $(readlink $DIR/microvm-run)))
+          CURRENT=$(basename $(readlink $DIR/current/share/microvm/system))
 
           FLAKE=$(cat $DIR/flake)
-          NEW=$(nix eval --raw $FLAKE#$NAME 2>/dev/null)
+          NEW_SYSTEM=$(nix eval --raw $FLAKE#nixosConfigurations.$NAME.config.system.build.toplevel)
+          NEW=$(basename $NEW_SYSTEM)
 
           if systemctl is-active -q microvm@$NAME ; then
             echo -n -e "${colors.boldGreen}"
@@ -154,16 +147,16 @@ EOF
           fi
           echo -n -e "$NAME${colors.normal}: "
           if [ "$CURRENT" != "$NEW" ] ; then
-            echo -e "${colored "red" "outdated"}, rebuild and reboot: ${colored "boldCyan" "microvm -Ru $NAME"}"
+            echo -e "${colored "red" "outdated"}(${colored "red" "$CURRENT"}), rebuild(${colored "green" "$NEW"}) and reboot: ${colored "boldCyan" "microvm -Ru $NAME"}"
           elif [ -L "$DIR/booted" ]; then
-            BOOTED=$(readlink "$DIR/booted")
+            BOOTED=$(basename $(readlink "$DIR/booted/share/microvm/system"))
             if [ "$NEW" = "$BOOTED" ]; then
-              echo -e "${colored "green" "current"}"
+              echo -e "${colored "green" "current"}(${colored "green" "$BOOTED"})"
             else
-              echo -e "${colored "red" "stale"}, reboot: ${colored "boldCyan" "systemctl restart microvm@$NAME.service"}"
+              echo -e "${colored "red" "stale"}(${colored "green" "$BOOTED"}), reboot((${colored "green" "$NEW"})): ${colored "boldCyan" "systemctl restart microvm@$NAME.service"}"
             fi
           else
-            echo -e "${colored "green" "current"}, not booted: ${colored "boldCyan" "systemctl start microvm@$NAME.service"}"
+            echo -e "${colored "green" "current"}(${colored "green" "$BOOTED"}), not booted: ${colored "boldCyan" "systemctl start microvm@$NAME.service"}"
           fi
         fi
       done

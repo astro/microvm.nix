@@ -158,7 +158,7 @@ in
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/microvm-run";
         preStart = ''
           rm -f booted
-          ln -s $(dirname $(dirname $(readlink microvm-run))) booted
+          ln -s $(readlink current) booted
         '';
         postStop = ''
           rm booted

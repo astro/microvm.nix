@@ -4,7 +4,10 @@ nixpkgs.lib.nixosSystem {
   inherit system;
 
   modules = [
+    # for declarative MicroVM management
     self.nixosModules.host
+    # this runs as a MicroVM that nests MicroVMs
+    self.nixosModules.microvm
 
     ({ pkgs, lib, options, ... }: {
       networking.hostName = "microvms-host";
@@ -29,36 +32,13 @@ nixpkgs.lib.nixosSystem {
           and `quit` to stop the VM.
         '';
       };
-      virtualisation = lib.optionalAttrs (options.virtualisation ? qemu) {
-        # larger than the defaults
-        memorySize = 8192;
-        cores = 12;
-        diskSize = 8192;
-        # 9P performance optimization that quelches a qemu warning
-        msize = 65536;
-        # allow building packages
-        writableStore = true;
-        # # keep the store paths built inside the VM across reboots
-        # writableStoreUseTmpfs = false;
-
-        qemu.options = [
-          # faster virtio-console
-          "-serial null"
-          "-device virtio-serial"
-          "-chardev stdio,mux=on,id=char0,signal=off"
-          "-mon chardev=char0,mode=readline"
-          "-device virtconsole,chardev=char0,nr=0"
-          # enable nested kvm
-          "-cpu qemu64,vmx"
-        ];
-
-        # use virtio's hvc0 as system console
-        qemu.consoles = ["tty0" "hvc0"];
-
-        # headless qemu
-        graphics = false;
+      # Host MicroVM settings
+      microvm = {
+        mem = 8192;
+        vcpu = 4;
       };
 
+      # Nested MicroVMs
       microvm.vms."${system}-qemu-example-with-tap" = {
         flake = self;
         updateFlake = "microvm";
@@ -104,7 +84,7 @@ nixpkgs.lib.nixosSystem {
           } ];
         };
         networks.microvm-eth0 = {
-          matchConfig.Name = "*-eth0";
+          matchConfig.Name = "vm-*";
           networkConfig.Bridge = "virbr0";
         };
       };

@@ -4,12 +4,9 @@ self:
     ./squashfs.nix
     ./options.nix
     ./system.nix
-    ./hypervisor/qemu.nix
-    ./hypervisor/cloud-hypervisor.nix
-    ./hypervisor/firecracker.nix
-    ./hypervisor/crosvm.nix
-    ./hypervisor/kvmtool.nix
-  ];
+  ] ++ map (hypervisor:
+    ./hypervisor + "/${hypervisor}.nix"
+  ) self.lib.hypervisors;
 
   nixpkgs.overlays = [
     self.overlay

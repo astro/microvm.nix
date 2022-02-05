@@ -32,7 +32,7 @@ nix run microvm#crosvm-example
 nix run microvm#kvmtool-example
 ```
 
-### Run a Virtual Machine to host example MicroVMs on 5 different Hypervisors
+### Run a MicroVM example with nested MicroVMs on 5 different Hypervisors
 
 ```shell
 nix run microvm#vm

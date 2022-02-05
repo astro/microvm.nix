@@ -21,8 +21,9 @@
                 inherit (import ./examples/microvms-host.nix {
                   inherit self nixpkgs system;
                 }) config;
+                inherit (config.microvm) hypervisor;
               in
-                "${config.system.build.vm}/bin/run-${config.networking.hostName}-vm";
+                "${config.microvm.runner.${hypervisor}}/bin/microvm-run";
           };
         };
 
@@ -220,7 +221,7 @@
                     config = {
                       microvm.interfaces = [ {
                         type = "tap";
-                        id = builtins.substring 0 4 hypervisor;
+                        id = "vm-${builtins.substring 0 4 hypervisor}";
                         mac = "00:02:00:01:01:0${toString n}";
                       } ];
                       networking.interfaces.eth0.useDHCP = true;

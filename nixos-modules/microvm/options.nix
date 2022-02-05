@@ -120,5 +120,11 @@ in
       description = "Generated Hypervisor runner for this NixOS";
       type = with types; attrsOf package;
     };
+
+    declaredRunner = mkOption {
+      description = "Generated Hypervisor declared by `config.microvm.hypervisor`";
+      type = types.package;
+      default = config.microvm.runner.${config.microvm.hypervisor};
+    };
   };
 }

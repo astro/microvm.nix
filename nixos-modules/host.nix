@@ -79,9 +79,9 @@ in
               ln -sf ${runner} current
             fi
 
-            echo ${if updateFlake != null
-                   then updateFlake
-                   else flake} > flake
+            echo '${if updateFlake != null
+                    then updateFlake
+                    else flake}' > flake
             chown -R ${user}:${group} .
           '';
       };

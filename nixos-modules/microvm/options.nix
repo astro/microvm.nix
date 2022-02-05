@@ -112,6 +112,10 @@ in
             type = path;
             description = "Path to shared directory tree";
           };
+          mountPoint = mkOption {
+            type = path;
+            description = "Where to mount the share inside the container";
+          };
         };
       });
     };

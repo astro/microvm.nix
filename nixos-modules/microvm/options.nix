@@ -105,7 +105,7 @@ in
             description = "Unique virtiofs daemon tag";
           };
           socket = mkOption {
-            type = path;
+            type = str;
             description = "Socket for communication with virtiofs daemon";
           };
           source = mkOption {

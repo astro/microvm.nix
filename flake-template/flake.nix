@@ -27,7 +27,7 @@
             users.users.root.password = "";
             microvm = {
               volumes = [ {
-                mountpoint = "/var";
+                mountPoint = "/var";
                 image = "var.img";
                 size = 256;
               } ];

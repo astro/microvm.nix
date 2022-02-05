@@ -48,8 +48,8 @@ in
     }) {} (withDriveLetters 1 config.microvm.volumes)
   ) // (
     # Shares
-    builtins.foldl' (result: { mountpoint, tag, ... }: result // {
-      "${mountpoint}" = {
+    builtins.foldl' (result: { mountPoint, tag, ... }: result // {
+      "${mountPoint}" = {
         device = tag;
         fsType = "virtiofs";
       };

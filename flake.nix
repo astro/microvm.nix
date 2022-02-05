@@ -29,7 +29,7 @@
 
         packages =
           {
-            microvm-kernel = nixpkgs.legacyPackages.${system}.kernelPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
+            microvm-kernel = nixpkgs.legacyPackages.${system}.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
             microvm = import ./pkgs/microvm-command.nix {
               pkgs = nixpkgs.legacyPackages.${system};
             };

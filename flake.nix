@@ -29,7 +29,7 @@
 
         packages =
           {
-            microvm-kernel = import ./pkgs/microvm-kernel.nix { inherit system nixpkgs; };
+            microvm-kernel = nixpkgs.legacyPackages.${system}.kernelPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
             microvm = import ./pkgs/microvm-command.nix {
               pkgs = nixpkgs.legacyPackages.${system};
             };
@@ -172,18 +172,11 @@
 
         overlay = final: prev: {
           kvmtool = prev.callPackage ./pkgs/kvmtool.nix {};
+          microvm-kernel = prev.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
         };
 
         nixosModules = {
-          microvm = {
-            imports = [
-              {
-                nixpkgs.config.packageOverrides =
-                  pkgs: { inherit (self.packages."${pkgs.stdenv.hostPlatform.system}") microvm-kernel; };
-              }
-              (import ./nixos-modules/microvm self)
-            ];
-          };
+          microvm = import ./nixos-modules/microvm self;
           host = import ./nixos-modules/host.nix;
         };
 

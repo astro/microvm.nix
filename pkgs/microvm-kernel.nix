@@ -1,6 +1,5 @@
-{ nixpkgs, system }:
-nixpkgs.legacyPackages."${system}".linuxPackages_latest.kernel.override
-{
+{ kernel, ... }:
+kernel.override {
   extraConfig = ''
     PVH y
     PARAVIRT y

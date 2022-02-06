@@ -15,10 +15,14 @@ let
   colored = color: text: "${colors.${color}}${text}${colors.normal}";
 in
 writeScriptBin "microvm" ''
-  #! ${pkgs.runtimeShell}
-  set -e
+  #! ${pkgs.runtimeShell} -e
 
-  PATH=${lib.makeBinPath [ git nixFlakes jq ]}:$PATH
+  PATH=${lib.makeBinPath ([
+    git jq
+    (if pkgs ? nixFlakes
+     then nixFlakes
+     else nix)
+  ])}:$PATH
   STATE_DIR=/var/lib/microvms
   ACTION=help
   FLAKE=git+file:///etc/nixos

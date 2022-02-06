@@ -156,7 +156,7 @@ EOF
               echo -e "${colored "red" "stale"}(${colored "green" "$BOOTED"}), reboot(${colored "green" "$NEW"}): ${colored "boldCyan" "systemctl restart microvm@$NAME.service"}"
             fi
           else
-            echo -e "${colored "green" "current"}(${colored "green" "$BOOTED"}), not booted: ${colored "boldCyan" "systemctl start microvm@$NAME.service"}"
+            echo -e "${colored "green" "current"}(${colored "green" "$CURRENT"}), not booted: ${colored "boldCyan" "systemctl start microvm@$NAME.service"}"
           fi
         fi
       done

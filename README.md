@@ -135,6 +135,11 @@ Delete the following remnants from 0.1.0:
 All these copied files are now behind the `current` symlink to a
 Hypervisor runner package.
 
+## Commercial support
+
+The author can be hired to implement the features that you wish, or to
+integrate this tool into your toolchain. If in doubt, just press the
+💗sponsor button.
 
 ## Ideas
 

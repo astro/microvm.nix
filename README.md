@@ -135,6 +135,9 @@ Delete the following remnants from 0.1.0:
 All these copied files are now behind the `current` symlink to a
 Hypervisor runner package.
 
+At last, check the validity of the symlinks in
+`/nix/var/nix/gcroots/microvm`.
+
 ## Commercial support
 
 The author can be hired to implement the features that you wish, or to

@@ -19,6 +19,10 @@ impereratively with the provided `microvm` command.
 - MicroVMs have a read-only root disk with a prepopulated `/nix/store`
 - You define your MicroVMs in a Nix Flake's `nixosConfigurations`
   section, reusing the `nixosModules` that are exported by this Flake
+- MicroVMs can access stateful filesystems either on a image volume as
+  a block device or as a shared directory hierarchy through virtiofsd.
+- Zero, one, or more virtual tap ethernet network interfaces can be
+  attached to a MicroVM.
 
 ## Hypervisors
 

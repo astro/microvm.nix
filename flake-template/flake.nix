@@ -18,7 +18,7 @@
           hypervisor = "qemu";
         in config.microvm.runner.${hypervisor};
 
-      nixosConfigurations.my-microvm = (nixpkgs.lib.nixosSystem {
+      nixosConfigurations.my-microvm = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [
           microvm.nixosModules.microvm
@@ -36,7 +36,7 @@
               hypervisor = "qemu";
             };
           }
-        ]
-      }).config.microvm.runner.qemu;
+        ];
+      };
     };
 }

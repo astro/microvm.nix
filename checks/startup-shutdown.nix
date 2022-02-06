@@ -40,15 +40,16 @@
     in pkgs.runCommandNoCCLocal "microvm-${hypervisor}-test-startup-shutdown" {
       buildInputs = [
         microvm
-        pkgs.libguestfs-with-appliance
+        pkgs.p7zip
       ];
     } ''
       microvm-run
 
-      virt-cat -a var.img -m /dev/sda:/ /OK > $out
-      if [ "$(cat $out)" != "Linux" ] ; then
+      7z e var.img OK
+      if [ "$(cat OK)" != "Linux" ] ; then
         echo Output does not match
         exit 1
       fi
+      cp OK $out
     '';
 }

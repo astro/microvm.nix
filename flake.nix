@@ -83,12 +83,7 @@
                     '';
 
                     microvm.hypervisor = hypervisor;
-                    microvm.volumes = [ {
-                      mountPoint = "/var";
-                      image = "var.img";
-                      size = 256;
-                    } ];
-                  }
+                   }
                   config
                 ];
               };

@@ -15,7 +15,7 @@ in
   systemd.sockets.nix-daemon.enable = false;
 
   boot.loader.grub.enable = false;
-  boot.kernelPackages = pkgs.linuxPackages_latest.extend (_self: super: {
+  boot.kernelPackages = pkgs.linuxPackages_latest.extend (_: _: {
     kernel = pkgs.microvm-kernel;
   });
 

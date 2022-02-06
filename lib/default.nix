@@ -8,6 +8,11 @@ rec {
     "kvmtool"
   ];
 
+  hypervisorsWithNetwork =
+    builtins.filter (hypervisor:
+      ! builtins.elem hypervisor ["crosvm"]
+    ) hypervisors;
+
   defaultFsType = "ext4";
 
   withDriveLetters = offset: list:

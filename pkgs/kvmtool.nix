@@ -1,12 +1,12 @@
 { stdenv, fetchgit, lib, zlib, libaio, libbfd }:
 stdenv.mkDerivation {
   pname = "kvmtool";
-  version = "2021-08-31";
+  version = "2021-12-14";
 
   src = fetchgit {
     url = "https://git.kernel.org/pub/scm/linux/kernel/git/will/kvmtool.git";
-    rev = "2e7380db438defbc5aa24652fe10b7bf99822355";
-    sha256 = "sha256-QhT0znxlLWhFtN2DiwU0Zl3IYJDpynX8DYBHVTxy8iU=";
+    rev = "cdd7d8cc0109bb8e2a0a04c5fe904b5ad4f07a80";
+    sha256 = "0gp0fq130q7m5z1gppan4cd5ip2zxr7hjx4z9aysjy0nj584rihk";
   };
 
   buildInputs = [

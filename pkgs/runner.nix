@@ -9,7 +9,6 @@
 
 let
   inherit (import ../lib { nixpkgs-lib = pkgs.lib; }) createVolumesScript;
-  inherit (config.networking) hostName;
   
   run = ''
     #! ${pkgs.runtimeShell} -e
@@ -19,7 +18,6 @@ let
 
     exec ${command}
   '';
-  runScript = pkgs.writeScript "run-${hypervisor}-${hostName}" run;
   runScriptBin = pkgs.writeScriptBin "microvm-run" run;
 
   shutdown = ''
@@ -27,7 +25,6 @@ let
 
     ${shutdownCommand}
   '';
-  shutdownScript = pkgs.writeScript "shutdown-${hypervisor}-${hostName}" shutdown;
   shutdownScriptBin = pkgs.writeScriptBin "microvm-shutdown" shutdown;
 
 in

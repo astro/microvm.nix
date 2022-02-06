@@ -1,9 +1,9 @@
 # MicroVM.nix
 
 A Nix Flake to build NixOS and run it on one of several Type-2
-Hypervisors on NixOS/Linux. The project's intention is to provide a
-more isolated alternative to `nixos-container`. You can either build
-and run them like Nix packages, or alternatively install them as
+Hypervisors on NixOS/Linux. The project is intended to provide a more
+isolated alternative to `nixos-container`. You can either build and
+run MicroVMs like Nix packages, or alternatively install them as
 systemd services declaratively in your host's Nix Flake or
 impereratively with the provided `microvm` command.
 

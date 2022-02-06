@@ -29,6 +29,7 @@
 
         packages =
           {
+            kvmtool = nixpkgs.legacyPackages.${system}.callPackage ./pkgs/kvmtool.nix {};
             microvm-kernel = nixpkgs.legacyPackages.${system}.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
             microvm = import ./pkgs/microvm-command.nix {
               pkgs = nixpkgs.legacyPackages.${system};

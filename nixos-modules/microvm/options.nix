@@ -131,4 +131,60 @@ in
       default = config.microvm.runner.${config.microvm.hypervisor};
     };
   };
+
+  config.assertions =
+    # check for duplicate volume images
+    map (volumes: {
+      assertion = builtins.length volumes == 1;
+      message = ''
+        MicroVM ${config.networking.hostName}: volume image "${(builtins.head volumes).image}" is used ${toString (builtins.length volumes)} > 1 times.
+      '';
+    }) (
+      builtins.attrValues (
+        lib.groupBy ({ image, ... }: image) config.microvm.volumes
+      )
+    )
+    ++
+    # check for duplicate interface ids
+    map (interfaces: {
+      assertion = builtins.length interfaces == 1;
+      message = ''
+        MicroVM ${config.networking.hostName}: interface id "${(builtins.head interfaces).id}" is used ${toString (builtins.length interfaces)} > 1 times.
+      '';
+    }) (
+      builtins.attrValues (
+        lib.groupBy ({ id, ... }: id) config.microvm.interfaces
+      )
+    )
+    ++
+    # check for duplicate share tags
+    map (shares: {
+      assertion = builtins.length shares == 1;
+      message = ''
+        MicroVM ${config.networking.hostName}: share tag "${(builtins.head shares).tag}" is used ${toString (builtins.length shares)} > 1 times.
+      '';
+    }) (
+      builtins.attrValues (
+        lib.groupBy ({ tag, ... }: tag) config.microvm.shares
+      )
+    )
+    ++
+    # check for duplicate share sockets
+    map (shares: {
+      assertion = builtins.length shares == 1;
+      message = ''
+        MicroVM ${config.networking.hostName}: share socket "${(builtins.head shares).socket}" is used ${toString (builtins.length shares)} > 1 times.
+      '';
+    }) (
+      builtins.attrValues (
+        lib.groupBy ({ socket, ... }: socket) config.microvm.shares
+      )
+    )
+  ;
+
+  config.warnings =
+    # 32 MB is just an optimistic guess, not based on experience
+    lib.optional (config.microvm.mem < 32) ''
+      MicroVM ${config.networking.hostName}: ${toString config.microvm.mem} MB of RAM is uncomfortably narrow.
+    '';
 }

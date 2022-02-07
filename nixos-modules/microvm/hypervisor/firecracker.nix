@@ -37,7 +37,7 @@ in {
         map (_:
           throw "9p/virtiofs shares not implemented for Firecracker"
         ) shares ++
-        map ({ type ? "tap", id, mac }:
+        map ({ type ? "tap", id, mac, ... }:
           if type == "tap"
           then "--tap-device=${id}/${mac}"
           else throw "Unsupported interface type ${type} for Firecracker"

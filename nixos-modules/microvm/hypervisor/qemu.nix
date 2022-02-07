@@ -79,8 +79,8 @@ in {
          }.${proto}) (enumerate 0 shares)
        )
        else []) ++
-      (builtins.concatMap ({ type, id, mac }: [
-        "-netdev" "${type},id=${id}${lib.optionalString (type == "tap") ",ifname=${id},script=no,downscript=no"}"
+      (builtins.concatMap ({ type, id, mac, bridge }: [
+        "-netdev" "${type},${lib.optionalString (type == "bridge") ("br=${bridge},")}id=${id}${lib.optionalString (type == "tap") ",ifname=${id},script=no,downscript=no"}"
         "-device" "virtio-net-${devType},netdev=${id},mac=${mac}"
       ]) interfaces)
     );

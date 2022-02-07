@@ -88,6 +88,9 @@ in
           id = mkOption {
             type = str;
           };
+          bridge = mkOption {
+            type = str;
+          };
           mac = mkOption {
             type = str;
           };

@@ -1,7 +1,7 @@
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 let
   self-lib = import ../../lib {
-    nixpkgs-lib = lib;
+    nixpkgs = pkgs;
   };
 in
 {

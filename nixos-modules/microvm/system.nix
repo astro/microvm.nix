@@ -1,7 +1,7 @@
-{ modulesPath, pkgs, config, ... }@args:
+{ modulesPath, pkgs, config, ... }:
 let
   inherit (import ../../lib {
-    nixpkgs-lib = args.lib;
+    nixpkgs = pkgs;
   }) defaultFsType withDriveLetters;
 
   rootImage = config.system.build.squashfs;

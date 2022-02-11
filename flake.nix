@@ -3,8 +3,10 @@
 
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-21.11";
   inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.notos.url = "github:cleverca22/not-os";
+  inputs.notos.flake = false;
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, notos }:
     let
       systems = [
         "x86_64-linux"
@@ -42,7 +44,8 @@
               name = builtins.replaceStrings [ "${system}-" ] [ "" ] systemName;
               inherit (nixos.config.microvm) hypervisor;
             in
-              if nixos.pkgs.system == system
+              if (nixos ? pkgs && nixos.pkgs.system == system) ||
+                 (nixos ? system && nixos.system == system)
               then result // {
                 "${name}" = nixos.config.microvm.runner.${hypervisor};
               }
@@ -51,7 +54,7 @@
 
         checks = import ./checks { inherit self nixpkgs system; };
       }) // {
-        lib = import ./lib { nixpkgs-lib = nixpkgs.lib; };
+        lib = import ./lib { inherit nixpkgs notos; };
 
         overlay = _final: prev: {
           kvmtool = prev.callPackage ./pkgs/kvmtool.nix {};
@@ -88,11 +91,31 @@
                   config
                 ];
               };
+            makeNotOSExample = { system, hypervisor, config ? {} }:
+              self.lib.notosSystem {
+                inherit system;
+                modules = [
+                  self.nixosModules.microvm
+                  {
+                    networking.hostName = "${hypervisor}-microvm";
+                    users.users.root.password = "";
+                    services.getty.helpLine = ''
+                      Log in as "root" with an empty password.
+                    '';
+
+                    microvm.hypervisor = hypervisor;
+                   }
+                  config
+                ];
+              };
           in
             (builtins.foldl' (results: system:
               builtins.foldl' ({ result, n }: hypervisor: {
                 result = result // {
                   "${system}-${hypervisor}-example" = makeExample {
+                    inherit system hypervisor;
+                  };
+                  "${system}-${hypervisor}-notos-example" = makeNotOSExample {
                     inherit system hypervisor;
                   };
                 } //

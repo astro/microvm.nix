@@ -1,4 +1,7 @@
-{ nixpkgs-lib }:
+{ nixpkgs
+# let this be used without passing notos
+, notos ? throw "no notos passed"
+}:
 rec {
   hypervisors = [
     "qemu"
@@ -20,8 +23,8 @@ rec {
       fst // {
         letter = snd;
       }
-    ) (nixpkgs-lib.zipLists list (
-      nixpkgs-lib.drop offset nixpkgs-lib.strings.lowerChars
+    ) (nixpkgs.lib.zipLists list (
+      nixpkgs.lib.drop offset nixpkgs.lib.strings.lowerChars
     ));
 
   createVolumesScript = pkgs: pkgs.lib.concatMapStringsSep "\n" (
@@ -30,7 +33,7 @@ rec {
     , fsType ? defaultFsType
     , autoCreate ? true
     , ...
-    }: nixpkgs-lib.optionalString autoCreate ''
+    }: nixpkgs.lib.optionalString autoCreate ''
       PATH=$PATH:${with pkgs; lib.makeBinPath [ e2fsprogs ]}
 
       if [ ! -e ${image} ]; then
@@ -38,4 +41,12 @@ rec {
         mkfs.${fsType} ${image}
       fi
     '');
+
+  notosSystem = { system, modules }:
+    import notos {
+      inherit system nixpkgs;
+      configuration = {
+        # imports = modules;
+      };
+  };
 }

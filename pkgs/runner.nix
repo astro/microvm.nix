@@ -8,7 +8,9 @@
 }:
 
 let
-  inherit (import ../lib { nixpkgs-lib = pkgs.lib; }) createVolumesScript;
+  inherit (import ../lib {
+    nixpkgs = pkgs;
+  }) createVolumesScript;
   
   run = ''
     #! ${pkgs.runtimeShell} -e

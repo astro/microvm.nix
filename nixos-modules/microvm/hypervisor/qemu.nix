@@ -5,7 +5,7 @@ let
   inherit (config.microvm) vcpu mem user interfaces shares socket;
   rootDisk = config.system.build.squashfs;
 
-  inherit (import ../../../lib { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
+  inherit (import ../../../lib { nixpkgs = pkgs; }) withDriveLetters;
   volumes = withDriveLetters 1 config.microvm.volumes;
 
   # interfaces ? [ { id = "eth0"; type = "user"; mac = "00:23:de:ad:be:ef"; } ]

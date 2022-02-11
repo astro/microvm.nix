@@ -31,10 +31,27 @@
         "type": "github"
       }
     },
+    "notos": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1630679604,
+        "narHash": "sha256-LuBfCWZpHR4EI5cS9/xo9mRNl4RR4qPGTbTDeRjovTE=",
+        "owner": "cleverca22",
+        "repo": "not-os",
+        "rev": "1b1feb12a44daf57885d3167acd647dea7a1b29f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cleverca22",
+        "repo": "not-os",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "notos": "notos"
       }
     }
   },

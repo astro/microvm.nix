@@ -42,11 +42,14 @@ in {
         "-smp" (toString vcpu)
         "-no-acpi" "-enable-kvm"
         "-nodefaults" "-no-user-config"
-        "-nographic" "-no-reboot"
+        "-nographic"
+        # qemu just hangs after shutdown, allow to exit by rebooting
+        "-no-reboot"
+        "-serial" "null"
         "-device" "virtio-serial-${devType}"
-        "-device" "i8042"
-        "-chardev" "stdio,id=virtiocon0"
+        "-chardev" "stdio,mux=on,id=virtiocon0,signal=off"
         "-device" "virtconsole,chardev=virtiocon0"
+        "-device" "i8042"
         "-device" "virtio-rng-${devType}"
         "-drive" "id=root,format=raw,media=cdrom,file=${rootDisk},if=none"
         "-device" "virtio-blk-${devType},drive=root"

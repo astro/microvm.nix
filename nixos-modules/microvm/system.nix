@@ -19,26 +19,7 @@ in
     kernel = pkgs.microvm-kernel;
   });
 
-  fileSystems."/" = {
-    device = "/dev/vda";
-    fsType = "squashfs";
-    options = [ "ro" ];
-  };
-  # microvm.volumes = [ {
-  #   mountPoint = "/";
-  #   fsType = "squashfs";
-  #   options = [ "ro" ];
-  # } ];
-
   boot.specialFileSystems = (
-    # writablePaths
-    builtins.foldl' (result: path: result // {
-      "${path}" = {
-        device = path;
-        fsType = "tmpfs";
-      };
-    }) {} rootImage.passthru.writablePaths
-  ) // (
     # Volumes
     builtins.foldl' (result: { mountPoint, letter, fsType ? defaultFsType, ... }: result // {
       "${mountPoint}" = {

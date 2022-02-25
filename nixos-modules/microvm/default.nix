@@ -2,6 +2,7 @@ self:
 {
   imports = [
     ./squashfs.nix
+    ./stage-1.nix
     ./options.nix
     ./system.nix
   ] ++ map (hypervisor:

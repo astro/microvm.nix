@@ -54,7 +54,7 @@ in {
         "-drive" "id=root,format=raw,media=cdrom,file=${rootDisk},if=none"
         "-device" "virtio-blk-${devType},drive=root"
         "-kernel" "${config.system.build.kernel.dev}/vmlinux"
-        "-append" "console=hvc0 acpi=off reboot=t panic=-1 quiet ro root=/dev/vda init=${config.system.build.toplevel}/init ${toString config.boot.kernelParams}"
+        "-append" "console=hvc0 acpi=off reboot=t panic=-1 verbose ro root=/dev/vda init=/init stage2init=${config.system.build.toplevel}/init ${toString config.boot.kernelParams}"
         "-sandbox" "on"
       ] ++
       (if user != null then [ "-user" user ] else []) ++

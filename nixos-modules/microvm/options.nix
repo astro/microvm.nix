@@ -120,6 +120,17 @@ in
       });
     };
 
+    storeOnBootDisk = mkOption {
+      type = types.bool;
+      default = ! config.fileSystems ? "/nix/store";
+      description = "Whether to include the required /nix/store on the boot disk.";
+    };
+
+    writableStore = mkOption {
+      type = types.bool;
+      default = false;
+    };
+
     runner = mkOption {
       description = "Generated Hypervisor runner for this NixOS";
       type = with types; attrsOf package;

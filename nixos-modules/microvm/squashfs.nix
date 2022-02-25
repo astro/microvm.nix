@@ -1,33 +1,29 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
-  writablePaths = [
-    "/bin"
-    "/etc"
-    "/home"
-    "/nix/var"
-    "/root"
-    "/usr"
-    "/var"
-    "/tmp"
-  ];
+  inherit (config.system.build) extraUtils microvmStage1;
 in {
   system.build.squashfs = pkgs.runCommandLocal "rootfs-${config.networking.hostName}.squashfs" {
     buildInputs = [ pkgs.squashfsTools ];
-    passthru = {
-      inherit writablePaths;
-    };
   } ''
-    mkdir -p ${builtins.concatStringsSep " " (
-      map (path:
-        "rootfs${path}"
-      ) (writablePaths ++ [ "/dev" "/nix/var/nix/gcroots" "/proc" "/run" "/sys" "/nix/store" ])
-    )}
-    for d in $(cat ${pkgs.writeReferencesToFile config.system.build.toplevel}); do
+    mkdir -p $(for d in nix/store mnt-root dev etc lib run proc sys tmp; do
+      echo rootfs/$d
+    done)
+    ln -s ${extraUtils}/bin rootfs/bin
+    ln -s ${microvmStage1} rootfs/init
+
+    for d in $(sort -u ${
+      lib.concatMapStringsSep " " pkgs.writeReferencesToFile ([
+        microvmStage1
+        extraUtils
+      ] ++
+      lib.optional config.microvm.storeOnBootDisk config.system.build.toplevel
+    )}); do
       cp -a $d rootfs/nix/store
     done
 
     mksquashfs rootfs $out \
       -reproducible -all-root -4k-align
+    du -hs $out
   '';
 }

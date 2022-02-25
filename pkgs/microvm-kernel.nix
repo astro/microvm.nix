@@ -20,6 +20,10 @@ kernel.override {
     VIRTIO_PCI y
     VIRTIO_PCI_LIB y
     VIRTIO_VSOCKETS m
+    NET_9P y
+    NET_9P_VIRTIO y
+    9P_FS y
+    9P_FS_POSIX_ACL y
     EXT4_FS y
     SQUASHFS y
     SQUASHFS_XZ y

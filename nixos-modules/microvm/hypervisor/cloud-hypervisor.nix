@@ -19,7 +19,7 @@ in {
           "--rng" "--watchdog"
           "--console" "tty"
           "--kernel" "${config.system.build.kernel.dev}/vmlinux"
-          "--cmdline" "console=hvc0 quiet reboot=t panic=-1 ro root=/dev/vda init=${config.system.build.toplevel}/init ${toString config.boot.kernelParams}"
+          "--cmdline" "console=hvc0 reboot=t panic=-1 stage2init=${config.system.build.toplevel}/init ${toString config.boot.kernelParams}"
           "--seccomp" "true"
           "--disk" "path=${rootDisk},readonly=on"
         ] ++

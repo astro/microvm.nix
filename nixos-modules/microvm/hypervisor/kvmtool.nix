@@ -26,7 +26,7 @@ in {
           "--console" "virtio"
           "--rng"
           "-k" "${config.system.build.kernel}/bzImage"
-          "-p" "console=ttyS0 quiet reboot=k panic=1 nomodules ro init=${config.system.build.toplevel}/init ${toString config.boot.kernelParams}"
+          "-p" "console=ttyS0 reboot=k panic=1 nomodules stage2init=${config.system.build.toplevel}/init ${toString config.boot.kernelParams}"
         ] ++
         builtins.concatMap ({ image, ... }:
           [ "-d" image ]

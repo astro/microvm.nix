@@ -27,7 +27,7 @@ in {
           "-m" (toString mem)
           "-c" (toString vcpu)
           "--kernel=${config.system.build.kernel.dev}/vmlinux"
-          "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off nomodules ro quiet init=${config.system.build.toplevel}/init ${toString config.boot.kernelParams}"
+          "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off nomodules stage2init=${config.system.build.toplevel}/init ${toString config.boot.kernelParams}"
           "--root-drive=${rootDisk}"
         ] ++
         (if socket != null then [ "-s" socket ] else []) ++

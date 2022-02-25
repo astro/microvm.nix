@@ -18,7 +18,7 @@ in {
           "-c" (toString vcpu)
           "-r" rootDisk
           "--serial" "type=stdout,console=true,stdin=true"
-          "-p" "console=ttyS0 quiet reboot=k panic=1 nomodules ro init=${config.system.build.toplevel}/init ${toString config.boot.kernelParams}"
+          "-p" "console=ttyS0 reboot=k panic=1 nomodules stage2init=${config.system.build.toplevel}/init ${toString config.boot.kernelParams}"
         ] ++
         builtins.concatMap ({ image, ... }:
           [ "--rwdisk" image ]

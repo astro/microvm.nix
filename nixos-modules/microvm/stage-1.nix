@@ -55,7 +55,10 @@ in {
   };
 
   boot.kernelParams = [
-    "devtmps.mount=0"
+    "root=/dev/vda" "ro"
+    # stage1
+    "init=/init"
+    "devtmpfs.mount=0"
   ];
 
   fileSystems."/" = {

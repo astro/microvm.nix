@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 let
-  inherit (config.microvm) vcpu mem user interfaces volumes shares;
+  inherit (config.microvm) vcpu mem user interfaces volumes shares socket;
   rootDisk = config.system.build.squashfs;
 in {
   microvm.runner.crosvm = import ../../../pkgs/runner.nix {
@@ -20,11 +20,21 @@ in {
           "--serial" "type=stdout,console=true,stdin=true"
           "-p" "console=ttyS0 reboot=k panic=1 nomodules stage2init=${config.system.build.toplevel}/init ${toString config.boot.kernelParams}"
         ] ++
+        lib.optionals (socket != null) [
+          "-s" socket
+        ] ++
         builtins.concatMap ({ image, ... }:
           [ "--rwdisk" image ]
         ) volumes ++
-        map (_:
-          throw "virtiofs shares not implemented for CrosVM"
+        builtins.concatMap ({ proto, tag, source, ... }:
+          let
+            type = {
+              "9p" = "p9";
+              "virtiofs" = "fs";
+            }.${proto};
+          in [
+            "--shared-dir" "${source}:${tag}:type=${type}"
+          ]
         ) shares ++
         map (_:
           throw "CrosVM networking is not configurable"

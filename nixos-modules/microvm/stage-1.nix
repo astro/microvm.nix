@@ -13,8 +13,7 @@ in {
     shell = "${extraUtils}/bin/ash";
     isExecutable = true;
     inherit (config.system.build) extraUtils earlyMountScript;
-    # inherit (config.microvm) storeOnBootDisk;
-    storeOnBootDisk = if config.microvm.storeOnBootDisk then true else throw "not storeOnBootDisk";
+    inherit (config.microvm) storeOnBootDisk;
     linkUnits = empty;
     udevRules = empty;
     inherit (config.boot.initrd) checkJournalingFS verbose;

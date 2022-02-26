@@ -35,7 +35,7 @@ in {
           "--add-drive=${image}:rw"
         ) volumes ++
         map (_:
-          throw "virtiofs shares not implemented for CrosVM"
+          throw "9p/virtiofs shares not implemented for Firecracker"
         ) shares ++
         map ({ type ? "tap", id, mac }:
           if type == "tap"

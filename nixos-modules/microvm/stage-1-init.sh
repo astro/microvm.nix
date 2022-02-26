@@ -72,35 +72,6 @@ ln -s /proc/mounts /etc/mtab # to shut up mke2fs
 # touch /etc/udev/hwdb.bin # to shut up udev
 # touch /etc/initrd-release
 
-# Function for waiting for device(s) to appear.
-waitDevice() {
-    local device="$1"
-    # Split device string using ':' as a delimiter as bcachefs
-    # uses this for multi-device filesystems, i.e. /dev/sda1:/dev/sda2:/dev/sda3
-    local IFS=':'
-
-    # USB storage devices tend to appear with some delay.  It would be
-    # great if we had a way to synchronously wait for them, but
-    # alas...  So just wait for a few seconds for the device to
-    # appear.
-    for dev in $device; do
-        if test ! -e $dev; then
-            echo -n "waiting for device $dev to appear..."
-            try=20
-            while [ $try -gt 0 ]; do
-                sleep 1
-                # and tell udev to create nodes for the new LVs
-                udevadm trigger --action=add
-                if test -e $dev; then break; fi
-                echo -n "."
-                try=$((try - 1))
-            done
-            echo
-            [ $try -ne 0 ]
-        fi
-    done
-}
-
 # Mount special file systems.
 specialMount() {
   local device="$1"
@@ -402,47 +373,12 @@ while read -u 3 mountPoint; do
             ;;
     esac
 
-    if test -z "$pseudoDevice" && ! waitDevice "$device"; then
-        # If it doesn't appear, try to mount it anyway (and
-        # probably fail).  This is a fallback for non-device "devices"
-        # that we don't properly recognise.
-        echo "Timed out waiting for device $device, trying to mount anyway."
-    fi
-
-    # # Wait once more for the udev queue to empty, just in case it's
-    # # doing something with $device right now.
-    # udevadm settle
-
-    # # If copytoram is enabled: skip mounting the ISO and copy its content to a tmpfs.
-    # if [ -n "$copytoram" ] && [ "$device" = /dev/root ] && [ "$mountPoint" = /iso ]; then
-    #   fsType=$(blkid -o value -s TYPE "$device")
-    #   fsSize=$(blockdev --getsize64 "$device" || stat -Lc '%s' "$device")
-
-    #   mkdir -p /tmp-iso
-    #   mount -t "$fsType" /dev/root /tmp-iso
-    #   mountFS tmpfs /iso size="$fsSize" tmpfs
-
-    #   cp -r /tmp-iso/* /mnt-root/iso/
-
-    #   umount /tmp-iso
-    #   rmdir /tmp-iso
-    #   continue
-    # fi
-
-    # if [ "$mountPoint" = / ] && [ "$device" = tmpfs ] && [ ! -z "$persistence" ]; then
-    #     echo persistence...
-    #     waitDevice "$persistence"
-    #     echo enabling persistence...
-    #     mountFS "$persistence" "$mountPoint" "$persistence_opt" "auto"
-    #     continue
-    # fi
-
     mountFS "$device" "$mountPoint" "$options" "$fsType"
 done
 
-if [ "@storeOnBootDisk@" = 1 ] ; then
-    specialMount /nix/store $targetRoot/nix/store bind auto
-fi
+# if [ "@storeOnBootDisk@" = 1 ] ; then
+#     specialMount /nix/store $targetRoot/nix/store bind auto
+# fi
 
 exec 3>&-
 

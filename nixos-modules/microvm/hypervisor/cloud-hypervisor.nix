@@ -28,8 +28,10 @@ in {
         ) volumes ++
         (if shares != []
          then [ "--fs" ] ++
-              (map ({ socket, tag, ... }:
-                "tag=${tag},socket=${socket}"
+              (map ({ proto, socket, tag, ... }:
+                if proto == "virtiofs"
+                then "tag=${tag},socket=${socket}"
+                else throw "cloud-hypervisor supports only shares that are virtiofs"
               ) shares)
          else []) ++
         (if socket != null

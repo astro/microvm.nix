@@ -105,7 +105,8 @@ in
             description = "Unique virtiofs daemon tag";
           };
           socket = mkOption {
-            type = str;
+            type = nullOr str;
+            default = null;
             description = "Socket for communication with virtiofs daemon";
           };
           source = mkOption {
@@ -116,13 +117,20 @@ in
             type = path;
             description = "Where to mount the share inside the container";
           };
+          proto = mkOption {
+            type = enum [ "9p" "virtiofs" ];
+            description = "Protocol for this share";
+            default = "9p";
+          };
         };
       });
     };
 
     storeOnBootDisk = mkOption {
       type = types.bool;
-      default = ! config.fileSystems ? "/nix/store";
+      default = ! lib.any ({ source, ... }:
+        source == "/nix/store"
+      ) config.microvm.shares;
       description = "Whether to include the required /nix/store on the boot disk.";
     };
 
@@ -188,7 +196,10 @@ in
       '';
     }) (
       builtins.attrValues (
-        lib.groupBy ({ socket, ... }: socket) config.microvm.shares
+        lib.groupBy ({ socket, ... }: socket) (
+          builtins.filter ({ proto, ... }: proto == "virtiofs")
+            config.microvm.shares
+        )
       )
     )
   ;

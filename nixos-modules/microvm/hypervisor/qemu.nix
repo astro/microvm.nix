@@ -67,10 +67,16 @@ in {
          "-object" "memory-backend-memfd,id=mem,size=${toString mem}M,share=on"
          "-numa" "node,memdev=mem"
        ] ++ (
-         builtins.concatMap ({ index, socket, tag, ... }: [
-           "-chardev" "socket,id=fs${toString index},path=${socket}"
-           "-device" "vhost-user-fs-${devType},chardev=fs${toString index},tag=${tag}"
-         ]) (enumerate 0 shares)
+         builtins.concatMap ({ proto, index, socket, source, tag, ... }: {
+           "virtiofs" = [
+             "-chardev" "socket,id=fs${toString index},path=${socket}"
+             "-device" "vhost-user-fs-${devType},chardev=fs${toString index},tag=${tag}"
+           ];
+           "9p" = [
+             "-fsdev" "local,id=fs${toString index},path=${source},security_model=passthrough"
+             "-device" "virtio-9p-${devType},fsdev=fs${toString index},mount_tag=${tag}"
+           ];
+         }.${proto}) (enumerate 0 shares)
        )
        else []) ++
       (builtins.concatMap ({ type, id, mac }: [

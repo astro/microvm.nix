@@ -51,10 +51,12 @@ pkgs.runCommand "microvm-run" {
   ) config.microvm.interfaces}" > $out/share/microvm/tap-interfaces
 
   ${pkgs.lib.optionalString (config.microvm.shares != []) (
-    pkgs.lib.concatMapStringsSep "\n" ({ tag, socket, source, ... }: ''
-      mkdir -p $out/share/microvm/virtiofs/${tag}
-      echo "${socket}" > $out/share/microvm/virtiofs/${tag}/socket
-      echo "${source}" > $out/share/microvm/virtiofs/${tag}/source
-    '') config.microvm.shares
+    pkgs.lib.concatMapStringsSep "\n" ({ tag, socket, source, proto, ... }:
+      pkgs.lib.optionalString (proto == "virtiofs") ''
+        mkdir -p $out/share/microvm/virtiofs/${tag}
+        echo "${socket}" > $out/share/microvm/virtiofs/${tag}/socket
+        echo "${source}" > $out/share/microvm/virtiofs/${tag}/source
+      ''
+    ) config.microvm.shares
   )}
 ''

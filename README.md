@@ -26,13 +26,17 @@ impereratively with the provided `microvm` command.
 
 ## Hypervisors
 
-| Hypervisor                                                              | Language | Restrictions                              |
-|-------------------------------------------------------------------------|----------|-------------------------------------------|
-| [qemu](https://www.qemu.org/)                                           | C        |                                           |
-| [cloud-hypervisor](https://www.cloudhypervisor.org/)                    | Rust     |                                           |
-| [firecracker](https://firecracker-microvm.github.io/)                   | Rust     | no virtiofs shares                        |
-| [crosvm](https://chromium.googlesource.com/chromiumos/platform/crosvm/) | Rust     | no virtiofs shares, no network interfaces |
-| [kvmtool](https://github.com/kvmtool/kvmtool)                           | C        | no virtiofs shares                        |
+| Hypervisor                                                              | Language | Restrictions          |
+|-------------------------------------------------------------------------|----------|-----------------------|
+| [qemu](https://www.qemu.org/)                                           | C        |                       |
+| [cloud-hypervisor](https://www.cloudhypervisor.org/)                    | Rust     | no 9p shares          |
+| [firecracker](https://firecracker-microvm.github.io/)                   | Rust     | no 9p/virtiofs shares |
+| [crosvm](https://chromium.googlesource.com/chromiumos/platform/crosvm/) | Rust     | no network interfaces |
+| [kvmtool](https://github.com/kvmtool/kvmtool)                           | C        | no virtiofs shares    |
+
+While ubiquitous qemu seems to work in most situations, other
+hypervisors tend to break with Linux kernel updates. Especially crosvm
+and kvmtool need a lot of luck to get going.
 
 ## Installation
 

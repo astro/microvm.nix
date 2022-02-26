@@ -31,9 +31,11 @@ in {
         builtins.concatMap ({ image, ... }:
           [ "-d" image ]
         ) volumes ++
-        # TODO:
-        map (_:
-          throw "virtiofs shares not implemented for kvmtool"
+        builtins.concatMap ({ proto, source, tag, ... }:
+          if proto == "9p"
+          then [
+            "--9p" "${source},${tag}"
+          ] else throw "virtiofs shares not implemented for kvmtool"
         ) shares ++
         builtins.concatMap ({ type, id, mac, ... }:
           [ "-n" "mode=${type},tapif=${id},guest_mac=${mac}" ]

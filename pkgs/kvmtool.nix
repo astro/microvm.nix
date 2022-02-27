@@ -1,4 +1,4 @@
-{ stdenv, fetchgit, lib, zlib, libaio, libbfd }:
+{ stdenv, fetchgit, fetchurl, lib, zlib, libaio, libbfd }:
 stdenv.mkDerivation {
   pname = "kvmtool";
   version = "2021-12-14";
@@ -8,6 +8,12 @@ stdenv.mkDerivation {
     rev = "cdd7d8cc0109bb8e2a0a04c5fe904b5ad4f07a80";
     sha256 = "0gp0fq130q7m5z1gppan4cd5ip2zxr7hjx4z9aysjy0nj584rihk";
   };
+
+  # x86: Fixed Unable to execute init process since glibc version 2.33
+  patches = [ (fetchurl {
+    url = "https://github.com/kvmtool/kvmtool/pull/5.patch";
+    sha256 = "1ndp5xx01sghyhg58sym4q5na9af4la35nyh9lm8rh8ynk75q31s";
+  }) ];
 
   buildInputs = [
     zlib libaio libbfd

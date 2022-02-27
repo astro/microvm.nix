@@ -116,8 +116,6 @@ read-only:
 
 ```nix
 microvm.writableStoreOverlay = null;
-systemd.services.nix-daemon.enable = false;
-systemd.sockets.nix-daemon.enable = false;
 ```
 
 ## NixOS modules

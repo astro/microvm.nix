@@ -1,4 +1,4 @@
-{ modulesPath, pkgs, config, ... }@args:
+{ modulesPath, pkgs, lib, config, ... }@args:
 let
   inherit (import ../../lib {
     nixpkgs-lib = args.lib;
@@ -65,4 +65,13 @@ in
       }
       else {}
   );
+
+  # nix-daemon works only with a writable /nix/store
+  systemd =
+    let
+      enable = config.microvm.writableStoreOverlay != null;
+    in {
+      services.nix-daemon.enable = lib.mkDefault enable;
+      sockets.nix-daemon.enable = lib.mkDefault enable;
+    };
 }

@@ -6,7 +6,7 @@
 
 targetRoot=/mnt-root
 console=hvc0
-verbose=0
+verbose=
 
 info() {
     if [[ -n "$verbose" ]]; then
@@ -209,7 +209,7 @@ checkFS() {
     if test "$fsType" != "btrfs"; then
         fsckFlags="-V -a"
     fi
-    fsck $fsckFlags "$device"
+    fsck -T $fsckFlags "$device"
     fsckResult=$?
 
     if test $(($fsckResult | 2)) = $fsckResult; then

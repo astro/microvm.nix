@@ -5,10 +5,13 @@
 ##
 
 targetRoot=/mnt-root
-console=tty1
+console=hvc0
+verbose=0
 
 info() {
-    echo "$@"
+    if [[ -n "$verbose" ]]; then
+        echo "$@"
+    fi
 }
 
 extraUtils="@extraUtils@"
@@ -87,6 +90,9 @@ for o in $(cat /proc/cmdline); do
             params=$2
             set -- $(IFS=,; echo $params)
             console=$1
+            ;;
+        verbose)
+            verbose=1
             ;;
         stage2init=*)
             set -- $(IFS==; echo $o)

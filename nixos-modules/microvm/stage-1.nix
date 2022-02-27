@@ -20,7 +20,7 @@ in {
     shell = "${extraUtils}/bin/ash";
     isExecutable = true;
     inherit (config.system.build) extraUtils earlyMountScript;
-    inherit storeOnBootDisk writableStoreOverlay;
+    checkJournalingFS = 1;
     fsInfo =
       let f = fs: [ fs.mountPoint (if fs.device != null then fs.device else "/dev/disk/by-label/${fs.label}") fs.fsType (builtins.concatStringsSep "," fs.options) ];
       in pkgs.writeText "initrd-fsinfo" (builtins.concatStringsSep "\n" (builtins.concatMap f (builtins.filter utils.fsNeededForBoot (builtins.attrValues config.fileSystems))));
@@ -37,7 +37,7 @@ in {
 
         ${lib.optionalString (writableStoreOverlay != null) ''
           echo "mounting overlay filesystem on /nix/store..."
-          mkdir -p 0755 \
+          mkdir -p -m 0755 \
             $targetRoot/${writableStoreOverlay}/store \
             $targetRoot/${writableStoreOverlay}/work \
             $targetRoot/nix/store
@@ -61,7 +61,7 @@ in {
     "devtmpfs.mount=0"
     # stage2
     "stage2init=${config.system.build.toplevel}/init"
-    "boot.shell_on_fail"
+    "boot.panic_on_fail" # "boot.shell_on_fail"
   ] ++ config.boot.kernelParams;
 
   fileSystems."/" = {

@@ -3,8 +3,6 @@ let
   inherit (import ../../lib {
     nixpkgs-lib = args.lib;
   }) defaultFsType withDriveLetters;
-
-  rootImage = config.system.build.squashfs;
 in
 {
   imports = [

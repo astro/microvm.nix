@@ -5,6 +5,7 @@ let
   microvmCommand = import ../pkgs/microvm-command.nix {
     inherit pkgs;
   };
+  virtiofsd = pkgs.callPackage ../pkgs/virtiofsd.nix {};
   user = "microvm";
   group = "kvm";
 in
@@ -139,12 +140,10 @@ in
             SOURCE=$(cat $d/source)
             mkdir -p $SOURCE
 
-            ${pkgs.qemu}/libexec/virtiofsd \
+            ${virtiofsd}/bin/virtiofsd \
               --socket-path=$SOCKET \
               --socket-group=${config.users.users.microvm.group} \
-              -o source=$SOURCE \
-              -o cache=none \
-              -f &
+              --shared-dir $SOURCE &
             # detach from shell, but remain in systemd cgroup
             disown
           done

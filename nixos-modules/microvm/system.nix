@@ -30,7 +30,7 @@ in
         device = tag;
         fsType = proto;
         options = {
-          "virtiofs" = [];
+          "virtiofs" = [ "defaults" ];
           "9p" = [ "trans=virtio" "version=9p2000.L"  "msize=65536" ];
         }.${proto};
         neededForBoot = (

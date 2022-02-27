@@ -31,6 +31,15 @@
                 image = "var.img";
                 size = 256;
               } ];
+              shares = [ {
+                # use "virtiofs" for MicroVMs that are started by systemd
+                proto = "9p";
+                tag = "ro-store";
+                # a host's /nix/store will be picked up so that the
+                # size of the /dev/vda can be reduced.
+                source = "/nix/store";
+                mountPoint = "/nix/.ro-store";
+              } ];
               socket = "control.socket";
               # relevant for delarative MicroVM management
               hypervisor = "qemu";

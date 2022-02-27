@@ -2,6 +2,9 @@
 
 let
   inherit (config.system.build) extraUtils microvmStage1;
+  regInfo = pkgs.closureInfo {
+    rootPaths = [ config.system.build.toplevel ];
+  };
 in {
   system.build.squashfs = pkgs.runCommandLocal "rootfs-${config.networking.hostName}.squashfs" {
     buildInputs = [ pkgs.squashfsTools ];
@@ -17,7 +20,10 @@ in {
         microvmStage1
         extraUtils
       ] ++
-      lib.optional config.microvm.storeOnBootDisk config.system.build.toplevel
+      lib.optionals config.microvm.storeOnBootDisk [
+        config.system.build.toplevel
+        regInfo
+      ]
     )}); do
       cp -a $d rootfs/nix/store
     done
@@ -26,4 +32,8 @@ in {
       -reproducible -all-root -4k-align
     du -hs $out
   '';
+
+  microvm.kernelParams = [
+    "regInfo=${regInfo}/registration"
+  ];
 }

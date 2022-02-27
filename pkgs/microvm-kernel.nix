@@ -34,5 +34,6 @@ kernel.override {
     ACPI_BUTTON y
     EXPERT y
     ACPI_REDUCED_HARDWARE_ONLY y
+    OVERLAY_FS y
   '';
 }

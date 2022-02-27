@@ -11,9 +11,6 @@ in
     (modulesPath + "/profiles/minimal.nix")
   ];
 
-  systemd.services.nix-daemon.enable = false;
-  systemd.sockets.nix-daemon.enable = false;
-
   boot.loader.grub.enable = false;
   boot.kernelPackages = pkgs.linuxPackages_latest.extend (_: _: {
     kernel = pkgs.microvm-kernel;
@@ -25,6 +22,7 @@ in
       "${mountPoint}" = {
         inherit fsType;
         device = "/dev/vd${letter}";
+        neededForBoot = mountPoint == config.microvm.writableStoreOverlay;
       };
     }) {} (withDriveLetters 1 config.microvm.volumes)
   ) // (
@@ -37,7 +35,10 @@ in
           "virtiofs" = [];
           "9p" = [ "trans=virtio" "version=9p2000.L"  "msize=65536" ];
         }.${proto};
-        neededForBoot = source == "/nix/store";
+        neededForBoot = (
+          source == "/nix/store" ||
+          mountPoint == config.microvm.writableStoreOverlay
+        );
       };
     }) {} config.microvm.shares
   ) // (
@@ -48,8 +49,8 @@ in
         options = [ "bind" ];
         neededForBoot = true;
       };
-    } else
-      let
+    } else if config.microvm.writableStoreOverlay == null
+      then let
         hostStore = builtins.head (
           builtins.filter ({ source, ... }:
             source == "/nix/store"
@@ -62,5 +63,6 @@ in
           neededForBoot = true;
         };
       }
+      else {}
   );
 }

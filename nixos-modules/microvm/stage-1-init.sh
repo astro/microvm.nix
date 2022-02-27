@@ -9,9 +9,7 @@ console=tty1
 verbose="@verbose@"
 
 info() {
-    if [[ -n "$verbose" ]]; then
-        echo "$@"
-    fi
+    echo "$@"
 }
 
 extraUtils="@extraUtils@"
@@ -185,19 +183,10 @@ for o in $(cat /proc/cmdline); do
 done
 
 # Create device nodes in /dev.
-info "running udev..."
 ln -sfn /proc/self/fd /dev/fd
 ln -sfn /proc/self/fd/0 /dev/stdin
 ln -sfn /proc/self/fd/1 /dev/stdout
 ln -sfn /proc/self/fd/2 /dev/stderr
-#mkdir -p /etc/systemd
-#ln -sfn @linkUnits@ /etc/systemd/network
-#mkdir -p /etc/udev
-#ln -sfn @udevRules@ /etc/udev/rules.d
-#mkdir -p /dev/.mdadm
-#systemd-udevd --daemon
-#udevadm trigger --action=add
-#udevadm settle
 
 
 if test -n "$debug1devices"; then fail; fi

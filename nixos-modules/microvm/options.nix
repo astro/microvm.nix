@@ -126,6 +126,11 @@ in
       });
     };
 
+    kernelParams = mkOption {
+      type = with types; listOf str;
+      description = "Includes boot.kernelParams but doesn't end up in toplevel, thereby allowing references to toplevel";
+    };
+
     storeOnBootDisk = mkOption {
       type = types.bool;
       default = ! lib.any ({ source, ... }:
@@ -134,9 +139,10 @@ in
       description = "Whether to include the required /nix/store on the boot disk.";
     };
 
-    writableStore = mkOption {
-      type = types.bool;
-      default = false;
+    writableStoreOverlay = mkOption {
+      type = with types; nullOr str;
+      default = "/nix/.rw-store";
+      description = "Path to the writable /nix/store overlay";
     };
 
     runner = mkOption {

@@ -1,11 +1,18 @@
 { config, pkgs, lib, utils, ... }:
 let
-  empty = pkgs.runCommand "empty.d" {
-    preferLocalBuild = true;
-  } "mkdir $out";
-  # TODO:
-  # - hostStoreRO: share with source == "/nix/store"
-  # - store writable overlay: share or volume
+  inherit (config.microvm) storeOnBootDisk writableStoreOverlay;
+
+  readOnlyStorePath =
+    if storeOnBootDisk
+    then "/nix/store"
+    else "$targetRoot" + (
+      # find share with host's /nix/store
+      builtins.head (
+        builtins.filter ({ source, ... }:
+          source == "/nix/store"
+        ) config.microvm.shares
+      )
+    ).mountPoint;
 in {
   system.build.microvmStage1 = pkgs.substituteAll rec {
     src = ./stage-1-init.sh;
@@ -13,10 +20,7 @@ in {
     shell = "${extraUtils}/bin/ash";
     isExecutable = true;
     inherit (config.system.build) extraUtils earlyMountScript;
-    inherit (config.microvm) storeOnBootDisk;
-    linkUnits = empty;
-    udevRules = empty;
-    inherit (config.boot.initrd) checkJournalingFS verbose;
+    inherit storeOnBootDisk writableStoreOverlay;
     fsInfo =
       let f = fs: [ fs.mountPoint (if fs.device != null then fs.device else "/dev/disk/by-label/${fs.label}") fs.fsType (builtins.concatStringsSep "," fs.options) ];
       in pkgs.writeText "initrd-fsinfo" (builtins.concatStringsSep "\n" (builtins.concatMap f (builtins.filter utils.fsNeededForBoot (builtins.attrValues config.fileSystems))));
@@ -31,34 +35,34 @@ in {
 
         mkdir -p $targetRoot/boot
 
-        ${lib.optionalString config.microvm.writableStore ''
+        ${lib.optionalString (writableStoreOverlay != null) ''
           echo "mounting overlay filesystem on /nix/store..."
-          mkdir -p 0755 $targetRoot/nix/.rw-store/store $targetRoot/nix/.rw-store/work $targetRoot/nix/store
+          mkdir -p 0755 \
+            $targetRoot/${writableStoreOverlay}/store \
+            $targetRoot/${writableStoreOverlay}/work \
+            $targetRoot/nix/store
           mount -t overlay overlay $targetRoot/nix/store \
-            -o lowerdir=$targetRoot/nix/.ro-store,upperdir=$targetRoot/nix/.rw-store/store,workdir=$targetRoot/nix/.rw-store/work || fail
+            -o lowerdir=${readOnlyStorePath},upperdir=$targetRoot/${writableStoreOverlay}/store,workdir=$targetRoot/${writableStoreOverlay}/work || fail
         ''}
       '';
-    # After booting, register the closure of the paths in
-    # `virtualisation.additionalPaths' in the Nix database in the VM.  This
-    # allows Nix operations to work in the VM.  The path to the
-    # registration file is passed through the kernel command line to
-    # allow `system.build.toplevel' to be included.  (If we had a direct
-    # reference to ${regInfo} here, then we would get a cyclic
-    # dependency.)
-    postBootCommands =
-      ''
-        if [[ "$(cat /proc/cmdline)" =~ regInfo=([^ ]*) ]]; then
-          ${config.nix.package.out}/bin/nix-store --load-db < ''${BASH_REMATCH[1]}
-        fi
-      '';
   };
+  boot.postBootCommands = lib.optionalString (writableStoreOverlay != null) ''
+    if [[ "$(cat /proc/cmdline)" =~ regInfo=([^ ]*) ]]; then
+      ${config.nix.package.out}/bin/nix-store --load-db < ''${BASH_REMATCH[1]}
+    else
+      echo "Error: no registration info passed on cmdline"
+    fi
+  '';
 
-  boot.kernelParams = [
+  microvm.kernelParams = [
     "root=/dev/vda" "ro"
     # stage1
     "init=/init"
     "devtmpfs.mount=0"
-  ];
+    # stage2
+    "stage2init=${config.system.build.toplevel}/init"
+    "boot.shell_on_fail"
+  ] ++ config.boot.kernelParams;
 
   fileSystems."/" = {
     device = "rootfs";

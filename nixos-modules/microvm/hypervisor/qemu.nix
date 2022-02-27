@@ -54,7 +54,7 @@ in {
         "-drive" "id=root,format=raw,media=cdrom,file=${rootDisk},if=none"
         "-device" "virtio-blk-${devType},drive=root"
         "-kernel" "${config.system.build.kernel.dev}/vmlinux"
-        "-append" "console=hvc0 acpi=off reboot=t panic=-1 stage2init=${config.system.build.toplevel}/init ${toString config.boot.kernelParams}"
+        "-append" "console=hvc0 acpi=off reboot=t panic=-1 ${toString config.microvm.kernelParams}"
         "-sandbox" "on"
       ] ++
       (if user != null then [ "-user" user ] else []) ++
@@ -73,7 +73,7 @@ in {
              "-device" "vhost-user-fs-${devType},chardev=fs${toString index},tag=${tag}"
            ];
            "9p" = [
-             "-fsdev" "local,id=fs${toString index},path=${source},security_model=passthrough"
+             "-fsdev" "local,id=fs${toString index},path=${source},security_model=none"
              "-device" "virtio-9p-${devType},fsdev=fs${toString index},mount_tag=${tag}"
            ];
          }.${proto}) (enumerate 0 shares)

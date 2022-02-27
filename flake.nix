@@ -96,6 +96,11 @@
                       mountPoint = config.microvm.writableStoreOverlay;
                       size = 2048;
                     } ];
+                    microvm.interfaces = lib.optional (hypervisor == "qemu") {
+                      type = "user";
+                      id = "qemu";
+                      mac = "00:02:00:01:01:01";
+                    };
                   })
                   config
                 ];

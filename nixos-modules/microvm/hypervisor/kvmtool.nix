@@ -26,7 +26,7 @@ in {
           "--console" "virtio"
           "--rng"
           "-k" "${config.system.build.kernel}/bzImage"
-          "-p" "console=ttyS0 reboot=k panic=1 nomodules ${toString config.microvm.kernelParams}"
+          "-p" "console=hvc0 reboot=k panic=1 nomodules ${toString config.microvm.kernelParams}"
         ] ++
         builtins.concatMap ({ image, ... }:
           [ "-d" image ]

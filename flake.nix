@@ -71,12 +71,13 @@
 
         nixosConfigurations =
           let
+            hypervisorsWith9p = [ "qemu" "crosvm" "kvmtool" ];
             makeExample = { system, hypervisor, config ? {} }:
               nixpkgs.lib.nixosSystem {
                 inherit system;
                 modules = [
                   self.nixosModules.microvm
-                  {
+                  ({ config, lib, ... }: {
                     networking.hostName = "${hypervisor}-microvm";
                     users.users.root.password = "";
                     services.getty.helpLine = ''
@@ -84,7 +85,18 @@
                     '';
 
                     microvm.hypervisor = hypervisor;
-                   }
+                    # share the host's /nix/store if the hypervisor can do 9p
+                    microvm.shares = lib.optional (builtins.elem hypervisor hypervisorsWith9p) {
+                      tag = "ro-store";
+                      source = "/nix/store";
+                      mountPoint = "/nix/.ro-store";
+                    };
+                    microvm.volumes = [ {
+                      image = "nix-store-overlay.img";
+                      mountPoint = config.microvm.writableStoreOverlay;
+                      size = 2048;
+                    } ];
+                  })
                   config
                 ];
               };

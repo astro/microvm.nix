@@ -16,7 +16,7 @@ in {
           "${pkgs.cloud-hypervisor}/bin/cloud-hypervisor"
           "--memory" "size=${toString mem}M,mergeable=on,shared=on"
           "--cpus" "boot=${toString vcpu}"
-          "--rng" "--watchdog"
+          "--watchdog"
           "--console" "tty"
           "--kernel" "${config.system.build.kernel.dev}/vmlinux"
           "--cmdline" "console=hvc0 reboot=t panic=-1 ${toString config.microvm.kernelParams}"

@@ -6,7 +6,7 @@ let
     rootPaths = [ config.system.build.toplevel ];
   };
 in {
-  system.build.squashfs = pkgs.runCommandLocal "rootfs-${config.networking.hostName}.squashfs" {
+  system.build.squashfs = pkgs.runCommandLocal "rootfs.squashfs" {
     buildInputs = [ pkgs.squashfsTools ];
   } ''
     mkdir -p $(for d in nix/store mnt-root dev etc lib run proc sys tmp; do

@@ -67,6 +67,6 @@ in {
   fileSystems."/" = {
     device = "rootfs";
     fsType = "tmpfs";
-    options = [ "size=50%" ];
+    options = [ "size=50%,mode=0755" ];
   };
 }

@@ -38,7 +38,10 @@ in {
           ] else throw "virtiofs shares not implemented for kvmtool"
         ) shares ++
         builtins.concatMap ({ type, id, mac, ... }:
-          [ "-n" "mode=${type},tapif=${id},guest_mac=${mac}" ]
+          if builtins.elem type [ "user" "tap" ]
+          then [
+            "-n" "mode=${type},tapif=${id},guest_mac=${mac}"
+          ] else throw "interface type ${type} is not supported by kvmtool"
         ) interfaces
       );
 

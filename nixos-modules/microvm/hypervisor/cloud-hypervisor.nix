@@ -39,7 +39,7 @@ in {
          else []) ++
         (if interfaces != []
          then [ "--net" ] ++
-              (map ({ type ? "tap", id, mac, ... }:
+              (map ({ type, id, mac, ... }:
                 if type == "tap"
                 then "tap=${id},mac=${mac}"
                 else throw "Unsupported interface type ${type} for Cloud-Hypervisor"

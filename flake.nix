@@ -72,7 +72,8 @@
 
         nixosConfigurations =
           let
-            hypervisorsWith9p = [ "qemu" "crosvm" "kvmtool" ];
+            hypervisorsWith9p = [ "qemu" "crosvm" ];
+            hypervisorsWithUserNet = [ "qemu" "kvmtool" ];
             makeExample = { system, hypervisor, config ? {} }:
               nixpkgs.lib.nixosSystem {
                 inherit system;
@@ -97,7 +98,7 @@
                       mountPoint = config.microvm.writableStoreOverlay;
                       size = 2048;
                     } ];
-                    microvm.interfaces = lib.optional (hypervisor == "qemu") {
+                    microvm.interfaces = lib.optional (builtins.elem hypervisor hypervisorsWithUserNet) {
                       type = "user";
                       id = "qemu";
                       mac = "00:02:00:01:01:01";

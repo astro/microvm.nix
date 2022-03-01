@@ -122,12 +122,16 @@ microvm.writableStoreOverlay = null;
 
 #### `type = "user"`
 
-User-mode networking is only provided by qemu, providing outgoing
-connectivity to your MicroVM without any further setup.
+User-mode networking is only provided by qemu and kvmtool, providing
+outgoing connectivity to your MicroVM without any further setup.
+
+As kvmtool seems to lack a built-in DHCP server, additional static IP
+configuration is necessary inside the MicroVM.
 
 #### `type = "tap"`
 
-Use a virtual tuntap Ethernet interface.
+Use a virtual tuntap Ethernet interface. Its name is the value of
+`id`.
 
 Some Hypervisors may be able to automatically create these interfaces
 when running as root, which we advise against. Instead, create the

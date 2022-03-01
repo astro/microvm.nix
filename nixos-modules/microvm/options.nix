@@ -191,7 +191,7 @@ in
     ++
     # check for bridge interfaces
     map ({ id, type, bridge, ... }:
-      builtins.trace type (if type == "bridge"
+      if type == "bridge"
       then {
         assertion = bridge != null;
         message = ''
@@ -205,7 +205,7 @@ in
           MicroVM ${config.networking.hostName}: interface ${id} is not of type "bridge"
           and therefore shouldn't have a "bridge" option defined.
         '';
-      })
+      }
     ) config.microvm.interfaces
     ++
     # check for duplicate share tags

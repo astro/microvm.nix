@@ -182,5 +182,21 @@ in
       wants = map (name: "microvm@${name}.service")
         (builtins.attrNames config.microvm.vms);
     };
+
+    # This creates tap interfaces and attaches them to a bridge for
+    # qemu regardless if it is run as root or not.
+    security.wrappers.qemu-bridge-helper = {
+      source = "${pkgs.qemu}/libexec/qemu-bridge-helper";
+      owner = "root";
+      group = "root";
+      capabilities = "cap_net_admin+ep";
+    };
+
+    # You must define this file with your bridge interfaces if you
+    # intend to use qemu-bridge-helper through a `type = "bridge"`
+    # interface.
+    environment.etc."qemu/bridge.conf".text = lib.mkDefault ''
+      allow all
+    '';
   };
 }

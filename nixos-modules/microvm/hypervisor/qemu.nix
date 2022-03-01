@@ -26,6 +26,11 @@ let
       (builtins.head xs // { index = n; })
     ] ++ (enumerate (n + 1) (builtins.tail xs));
 
+  canSandbox =
+    # Don't let qemu sandbox itself if it is going to call qemu-bridge-helper
+    ! lib.any ({ type, ... }:
+      type == "bridge"
+    ) config.microvm.interfaces;
 in {
   microvm.runner.qemu = import ../../../pkgs/runner.nix {
     inherit config pkgs;
@@ -55,6 +60,7 @@ in {
         "-device" "virtio-blk-${devType},drive=root"
         "-kernel" "${config.system.build.kernel.dev}/vmlinux"
         "-append" "console=hvc0 acpi=off reboot=t panic=-1 ${toString config.microvm.kernelParams}"
+      ] ++ lib.optionals canSandbox [
         "-sandbox" "on"
       ] ++
       (if user != null then [ "-user" user ] else []) ++
@@ -80,7 +86,7 @@ in {
        )
        else []) ++
       (builtins.concatMap ({ type, id, mac, bridge }: [
-        "-netdev" "${type},${lib.optionalString (type == "bridge") ("br=${bridge},")}id=${id}${lib.optionalString (type == "tap") ",ifname=${id},script=no,downscript=no"}"
+        "-netdev" "${type},${lib.optionalString (type == "bridge") "br=${bridge},helper=/run/wrappers/bin/qemu-bridge-helper,"}id=${id}${lib.optionalString (type == "tap") ",ifname=${id},script=no,downscript=no"}"
         "-device" "virtio-net-${devType},netdev=${id},mac=${mac}"
       ]) interfaces)
     );

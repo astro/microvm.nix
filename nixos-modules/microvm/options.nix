@@ -89,7 +89,11 @@ in
             type = str;
           };
           bridge = mkOption {
-            type = str;
+            type = nullOr str;
+            default = null;
+            description = ''
+              Attach network interface to host bridge interface for type = "bridge"
+            '';
           };
           mac = mkOption {
             type = str;

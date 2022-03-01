@@ -8,8 +8,6 @@ let
   inherit (import ../../../lib { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
   volumes = withDriveLetters 1 config.microvm.volumes;
 
-  # interfaces ? [ { id = "eth0"; type = "user"; mac = "00:23:de:ad:be:ef"; } ]
-
   arch = builtins.head (builtins.split "-" system);
   requirePci = shares != [];
   machine = if requirePci
@@ -86,7 +84,17 @@ in {
        )
        else []) ++
       (builtins.concatMap ({ type, id, mac, bridge }: [
-        "-netdev" "${type},${lib.optionalString (type == "bridge") "br=${bridge},helper=/run/wrappers/bin/qemu-bridge-helper,"}id=${id}${lib.optionalString (type == "tap") ",ifname=${id},script=no,downscript=no"}"
+        "-netdev" (
+          lib.concatStringsSep "," ([
+            "${type}"
+            "id=${id}"
+          ] ++ lib.optionals (type == "bridge") [
+            "br=${bridge}" "helper=/run/wrappers/bin/qemu-bridge-helper"
+          ] ++ lib.optionals (type == "tap") [
+            "ifname=${id}"
+            "script=no" "downscript=no"
+          ])
+        )
         "-device" "virtio-net-${devType},netdev=${id},mac=${mac}"
       ]) interfaces)
     );

@@ -16,11 +16,14 @@ impereratively with the provided `microvm` command.
 - This project runs them on NixOS hosts
 - You can choose one of five hypervisors for each MicroVM
 - MicroVMs have a fixed RAM allocation (default: 512 MB)
-- MicroVMs have a read-only root disk with a prepopulated `/nix/store`
+- MicroVMs have a read-only root disk with either a prepopulated
+  `/nix/store` or by mounting the host's along with an optional
+  writable overlay
 - You define your MicroVMs in a Nix Flake's `nixosConfigurations`
   section, reusing the `nixosModules` that are exported by this Flake
 - MicroVMs can access stateful filesystems either on a image volume as
-  a block device or as a shared directory hierarchy through virtiofsd.
+  a block device or as a shared directory hierarchy through 9p or
+  virtiofs.
 - Zero, one, or more virtual tap ethernet network interfaces can be
   attached to a MicroVM.
 

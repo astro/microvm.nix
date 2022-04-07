@@ -54,7 +54,7 @@
       }) // {
         lib = import ./lib { nixpkgs-lib = nixpkgs.lib; };
 
-        overlay = _final: prev: {
+        overlay = final: prev: {
           kvmtool = prev.callPackage ./pkgs/kvmtool.nix {};
           microvm-kernel = prev.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
         };

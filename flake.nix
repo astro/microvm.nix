@@ -1,7 +1,8 @@
 {
   description = "Contain NixOS in a MicroVM";
 
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  #inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  inputs.nixpkgs.url = "github:astro/nixpkgs/kvmtool";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, nixpkgs, flake-utils }:
@@ -29,7 +30,6 @@
 
         packages =
           {
-            kvmtool = nixpkgs.legacyPackages.${system}.callPackage ./pkgs/kvmtool.nix {};
             virtiofsd = nixpkgs.legacyPackages.${system}.callPackage ./pkgs/virtiofsd.nix {};
             microvm-kernel = nixpkgs.legacyPackages.${system}.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
             microvm = import ./pkgs/microvm-command.nix {
@@ -55,7 +55,6 @@
         lib = import ./lib { nixpkgs-lib = nixpkgs.lib; };
 
         overlay = final: prev: {
-          kvmtool = prev.callPackage ./pkgs/kvmtool.nix {};
           microvm-kernel = prev.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
         };
 

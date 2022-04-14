@@ -54,7 +54,7 @@ in {
         "-device" "virtconsole,chardev=virtiocon0"
         "-device" "i8042"
         "-device" "virtio-rng-${devType}"
-        "-drive" "id=root,format=raw,media=cdrom,file=${rootDisk},if=none,cache=none,aio=io_uring"
+        "-drive" "id=root,format=raw,media=cdrom,file=${rootDisk},if=none,aio=io_uring"
         "-device" "virtio-blk-${devType},drive=root"
         "-kernel" "${config.system.build.kernel.dev}/vmlinux"
         "-append" "console=hvc0 acpi=off reboot=t panic=-1 ${toString config.microvm.kernelParams}"
@@ -64,7 +64,7 @@ in {
       (if user != null then [ "-user" user ] else []) ++
       (if socket != null then [ "-qmp" "unix:${socket},server,nowait" ] else []) ++
       builtins.concatMap ({ image, letter, ... }:
-        [ "-drive" "id=vd${letter},format=raw,file=${image},if=none,cache=none,aio=io_uring" "-device" "virtio-blk-${devType},drive=vd${letter}" ]
+        [ "-drive" "id=vd${letter},format=raw,file=${image},if=none,aio=io_uring" "-device" "virtio-blk-${devType},drive=vd${letter}" ]
       ) volumes ++
       (if shares != []
        then [

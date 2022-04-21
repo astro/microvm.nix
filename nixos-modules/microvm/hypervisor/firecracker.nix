@@ -28,7 +28,7 @@ in {
           "-c" (toString vcpu)
           "--kernel=${config.system.build.kernel.dev}/vmlinux"
           "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off nomodules ${toString config.microvm.kernelParams}"
-          "--root-drive=${rootDisk}"
+          "--root-drive=${rootDisk}:ro"
         ] ++
         (if socket != null then [ "-s" socket ] else []) ++
         map ({ image, ... }:

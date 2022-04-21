@@ -29,6 +29,7 @@
 
         packages =
           {
+            doc = nixpkgs.legacyPackages.${system}.callPackage ./pkgs/doc.nix {};
             kvmtool = nixpkgs.legacyPackages.${system}.callPackage ./pkgs/kvmtool.nix {};
             virtiofsd = nixpkgs.legacyPackages.${system}.callPackage ./pkgs/virtiofsd.nix {};
             microvm-kernel = nixpkgs.legacyPackages.${system}.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};

@@ -1,5 +1,7 @@
 # MicroVM.nix
 
+**Handbook:** [HTML](https://astro.github.io/microvm.nix/) [Markdown](./doc/src/SUMMARY.md)
+
 A Nix Flake to build NixOS and run it on one of several Type-2
 Hypervisors on NixOS/Linux. The project is intended to provide a more
 isolated alternative to `nixos-container`. You can either build and
@@ -77,123 +79,6 @@ nix run microvm#vm
 
 Check `networkctl status virbr0` for the DHCP leases of the
 MicroVMs. They listen for ssh with an empty root password.
-
-## Configuration
-
-### Shares
-
-In `microvm.shares` elements the `proto` field allows either of two
-values:
-
-- `9p` (default) is built into many hypervisors, allowing you to
-  quickly share a directory tree
-
-- `virtiofs` requires a separate virtiofsd service which is only
-  started as a prerequisite when you start MicroVMs through a systemd
-  service that comes with the `microvm.nixosModules.host` module.
-
-  Expect `virtiofs` to yield better performance over `9p`.
-
-#### Sharing a host's `/nix/store`
-
-If a share with `source = "/nix/store"` is defined, size and build
-time of the stage1 squashfs for `/dev/vda` will be reduced
-drastically.
-
-```nix
-microvm.shares = [ {
-  tag = "ro-store";
-  source = "/nix/store";
-  mountPoint = "/nix/.ro-store";
-} ];
-```
-
-#### Writable `/nix/store` overlay
-
-The writable layer is mounted from the path
-`microvm.writableStoreOverlay`. You may choose to add a persistent
-volume or share for that mountPoint.
-
-Recommended configuration to disable this feature, making `/nix/store`
-read-only:
-
-```nix
-microvm.writableStoreOverlay = null;
-```
-
-### Network interfaces
-
-#### `type = "user"`
-
-User-mode networking is only provided by qemu and kvmtool, providing
-outgoing connectivity to your MicroVM without any further setup.
-
-As kvmtool seems to lack a built-in DHCP server, additional static IP
-configuration is necessary inside the MicroVM.
-
-#### `type = "tap"`
-
-Use a virtual tuntap Ethernet interface. Its name is the value of
-`id`.
-
-Some Hypervisors may be able to automatically create these interfaces
-when running as root, which we advise against. Instead, create the
-interfaces before starting a microvm:
-
-```bash
-sudo ip tuntap add $IFACE_NAME mode tap user $USER
-```
-
-When running MicroVMs through the `host` module, the tap network
-interfaces are created through a systemd service dependency.
-
-#### `type = "bridge"`
-
-This mode lets qemu create a tap interface and attach it to a bridge.
-
-The `qemu-bridge-helper` binary needs to be setup with the proper
-permissions. See the `host` module for that. qemu will be run
-*without* `-sandbox on` in order for this contraption to work.
-
-## NixOS modules
-
-### `microvm.nixosModules.host`
-
-Use this on a (physical) machine that is supposed to host MicroVMs.
-
-#### Declarative MicroVMs configuration
-
-Declare MicroVMs in your host's nixosSystem.
-
-This method is meant to be used to ensure the presence of a
-MicroVM. It will not update preexisting MicroVMs in
-`/var/lib/microvm`. Use the imperative `microvm` command to do that.
-
-```nix
-microvm.vms."my-microvm" = {
-  # Source flake for `nixos-rebuild` of the host
-  flake = self;
-  # Source flakeref for `microvm -u my-microvm`
-  updateFlake = "git+https://...";
-};
-```
-
-#### Imperative MicroVM management
-
-```bash
-# Create my-microvm
-microvm -f git+https://... -c my-microvm
-# Update my-microvm
-microvm -u my-microvm
-# List MicroVMs
-microvm -l
-```
-
-### `microvm.nixosModules.microvm`
-
-Import this module in your MicroVM's nixosSystem. Refer to
-[nixos-modules/microvm/options.nix](nixos-modules/microvm/options.nix)
-for MicroVM-related config.
 
 ## Migrating from 0.1.0 to 0.2.0
 

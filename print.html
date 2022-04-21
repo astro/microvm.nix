@@ -1,0 +1,467 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>microvm.nix</title>
+        <meta name="robots" content="noindex" />
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.4.</strong> Output options</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management with the MicroVM command</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">microvm.nix</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="intro"><a class="header" href="#intro">Intro</a></h1>
+<p><strong>microvm.nix</strong> is a Flake to run lightweight NixOS virtual machines
+on NixOS. Starting with the reasons why for the remainder of this
+chapter, this handbook guides you through the provisioning of MicroVMs
+on your NixOS machine.</p>
+<h2 id="compartmentalization"><a class="header" href="#compartmentalization">Compartmentalization</a></h2>
+<p>NixOS makes running services a breeze. Being able to quickly rollback
+configuration is a life-saver. Not so much however on systems that are
+shared by multiple services where maintainance of one affects others.</p>
+<p>Increase stability by partitioning services into virtual NixOS systems
+that can be updated individually.</p>
+<h2 id="the-case-against-containers"><a class="header" href="#the-case-against-containers">The Case Against Containers</a></h2>
+<p>Linux containers are not a single technology but a plethora of kernel
+features that serve to isolate various system resources so that the
+running system appears as one. It is still one shared Linux kernel
+with a huge attack surface.</p>
+<p>Virtual machines on the other hand run their own OS kernel, reducing
+the attack surface to the hypervisor and its device drivers. The
+resource usage however incurs some overhead when compared with
+containers, with memory alloction being especially inflexible.</p>
+<p><strong>microvm.nix</strong> ships an additional security feature: the root
+filesystem is a read-only squashfs that includes only the binaries of
+your configuration. That of course holds only true unless you mount the
+host's /nix/store as a share for faster build times, or mount the
+store with a writable overlay.</p>
+<h2 id="just-virtual-machines"><a class="header" href="#just-virtual-machines">Just Virtual Machines?</a></h2>
+<p>Full virtualization has been available for a long time with QEMU and
+VirtualBox. The <em>MicroVM</em> movement wants to express that
+virtualization overhead has been reduced a lot by replacing emulated
+devices with <em>virtio</em> interfaces that have been optimized for an
+emulated environment.</p>
+<p>This Flake offers you to run your MicroVMs not only on QEMU but with
+other Hypervisors that have been explicitly authored for
+<em>virtio</em>. Some of them are written in Rust, a programming language
+that is renowned for being safer than C.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="declaring-nixos-microvms"><a class="header" href="#declaring-nixos-microvms">Declaring NixOS MicroVMs</a></h1>
+<p>microvm.nix creates virtual machine disk images and runner script
+packages for the entries of the <code>nixosConfigurations</code> section of a
+<code>flake.nix</code> file.</p>
+<h2 id="the-microvm-module"><a class="header" href="#the-microvm-module">The <code>microvm</code> module</a></h2>
+<p>To add MicroVM functionality, a NixOS system configuration is
+augmented by importing this flake's <code>nixosModule.microvm</code>:</p>
+<pre><code class="language-nix"># Example flake.nix
+{
+  inputs.nixpkgs.url = &quot;github:nixos/nixpkgs/unstable&quot;;
+  inputs.microvm.url = &quot;github:astro/microvm.nix&quot;;
+  inputs.microvm.inputs.nixpkgs.follows = &quot;nixpkgs&quot;;
+
+  outputs = { self, nixpkgs, microvm }: {
+    # Example nixosConfigurations entry
+    nixosConfigurations.my-microvm = nixpkgs.lib.nixosSystem {
+      system = &quot;x86_64-linux&quot;;
+      modules = [
+        # Include the microvm module
+        microvm.nixosModules.microvm
+        # Add more modules here
+        {
+          networking.hostName = &quot;my-microvm&quot;;
+          microvm.hypervisor = &quot;cloud-hypervisor&quot;;
+        }
+      ];
+    };
+  };
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="configuration-options"><a class="header" href="#configuration-options">Configuration options</a></h1>
+<p>By including the <code>microvm</code> module a set of NixOS options is made
+available for customization. These are the most important ones:</p>
+<table><thead><tr><th>Option</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><code>microvm.hypervisor</code></td><td>Hypervisor to use by default in <code>microvm.declaredRunner</code></td></tr>
+<tr><td><code>microvm.vcpu</code></td><td>Number of Virtual CPU cores</td></tr>
+<tr><td><code>microvm.mem</code></td><td>RAM allocation in MB</td></tr>
+<tr><td><code>microvm.interfaces</code></td><td>Network interfaces</td></tr>
+<tr><td><code>microvm.volumes</code></td><td>Block device images</td></tr>
+<tr><td><code>microvm.shares</code></td><td>Shared filesystem directories</td></tr>
+</tbody></table>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="network-interfaces"><a class="header" href="#network-interfaces">Network interfaces</a></h1>
+<h2 id="type--user"><a class="header" href="#type--user"><code>type = &quot;user&quot;</code></a></h2>
+<p>User-mode networking is only provided by qemu and kvmtool, providing
+outgoing connectivity to your MicroVM without any further setup.</p>
+<p>As kvmtool seems to lack a built-in DHCP server, additional static IP
+configuration is necessary inside the MicroVM.</p>
+<h2 id="type--tap"><a class="header" href="#type--tap"><code>type = &quot;tap&quot;</code></a></h2>
+<p>Use a virtual tuntap Ethernet interface. Its name is the value of
+<code>id</code>.</p>
+<p>Some Hypervisors may be able to automatically create these interfaces
+when running as root, which we advise against. Instead, create the
+interfaces before starting a microvm:</p>
+<pre><code class="language-bash">sudo ip tuntap add $IFACE_NAME mode tap user $USER
+</code></pre>
+<p>When running MicroVMs through the <code>host</code> module, the tap network
+interfaces are created through a systemd service dependency.</p>
+<h2 id="type--bridge"><a class="header" href="#type--bridge"><code>type = &quot;bridge&quot;</code></a></h2>
+<p>This mode lets qemu create a tap interface and attach it to a bridge.</p>
+<p>The <code>qemu-bridge-helper</code> binary needs to be setup with the proper
+permissions. See the <code>host</code> module for that. qemu will be run
+<em>without</em> <code>-sandbox on</code> in order for this contraption to work.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="shares"><a class="header" href="#shares">Shares</a></h1>
+<p>In <code>microvm.shares</code> elements the <code>proto</code> field allows either of two
+values:</p>
+<ul>
+<li>
+<p><code>9p</code> (default) is built into many hypervisors, allowing you to
+quickly share a directory tree</p>
+</li>
+<li>
+<p><code>virtiofs</code> requires a separate virtiofsd service which is only
+started as a prerequisite when you start MicroVMs through a systemd
+service that comes with the <code>microvm.nixosModules.host</code> module.</p>
+<p>Expect <code>virtiofs</code> to yield better performance over <code>9p</code>.</p>
+</li>
+</ul>
+<h2 id="sharing-a-hosts-nixstore"><a class="header" href="#sharing-a-hosts-nixstore">Sharing a host's <code>/nix/store</code></a></h2>
+<p>If a share with <code>source = &quot;/nix/store&quot;</code> is defined, size and build
+time of the stage1 squashfs for <code>/dev/vda</code> will be reduced
+drastically.</p>
+<pre><code class="language-nix">microvm.shares = [ {
+  tag = &quot;ro-store&quot;;
+  source = &quot;/nix/store&quot;;
+  mountPoint = &quot;/nix/.ro-store&quot;;
+} ];
+</code></pre>
+<h2 id="writable-nixstore-overlay"><a class="header" href="#writable-nixstore-overlay">Writable <code>/nix/store</code> overlay</a></h2>
+<p>The writable layer is mounted from the path
+<code>microvm.writableStoreOverlay</code>. You may choose to add a persistent
+volume or share for that mountPoint.</p>
+<p>Recommended configuration to disable this feature, making <code>/nix/store</code>
+read-only:</p>
+<pre><code class="language-nix">microvm.writableStoreOverlay = null;
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="microvm-output-options"><a class="header" href="#microvm-output-options">MicroVM output options</a></h1>
+<p>Hypervisor runners are provided in the <code>config</code> generated by a
+nixosSystem for you to use inside and outside your configuration.</p>
+<table><thead><tr><th>Option</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><code>microvm.runners</code></td><td>Attribute set of runner packages per known Hypervisor.</td></tr>
+<tr><td><code>microvm.declaredRunner</code></td><td>Runner package selected according to <code>microvm.hypervisor</code></td></tr>
+</tbody></table>
+<p>The <code>microvm.runners</code> option provides a runner for each known
+Hypervisor regardless of the <code>microvm.hypervisor</code> config setting. To
+build <em>my-microvm</em> for Firecracker for example:</p>
+<pre><code class="language-bash">nix run .#nixosConfigurations.my-microvm.config.microvm.runners.firecracker
+</code></pre>
+<p>The <code>microvm.declaredRunner</code> selects the hypervisor according to the
+configured <code>microvm.hypervisor</code>.</p>
+<pre><code class="language-bash">nix run .#nixosConfigurations.my-microvm.config.microvm.declaredRunner
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="running-a-microvm-as-a-package"><a class="header" href="#running-a-microvm-as-a-package">Running a MicroVM as a package</a></h1>
+<p>Quickly running a MicroVM interactively is great for testing. You get
+to interact with its console.</p>
+<p>There are drawbacks: no preparation for TAP network interfaces is done
+and no virtiofsd is started. These can be worked around by relying on
+9p shares and using qemu's <code>host</code> network interfaces.</p>
+<h2 id="immediately-running-a-nixosconfiguration"><a class="header" href="#immediately-running-a-nixosconfiguration">Immediately running a nixosConfiguration</a></h2>
+<p>To run a <code>nixosConfiguration</code> off your Flake directly use:</p>
+<pre><code class="language-bash">nix run .#nixosConfigurations.my-microvm.config.microvm.declaredRunner
+</code></pre>
+<h2 id="add-a-runner-package-to-your-flake"><a class="header" href="#add-a-runner-package-to-your-flake">Add a runner package to your Flake</a></h2>
+<p>To add this runner permanently add a package like this to the outputs
+of your <code>flake.nix</code>:</p>
+<pre><code class="language-nix">packages.x86_64-linux.my-microvm = self.nixosConfigurations.my-microvm.config.declaredRunner;
+</code></pre>
+<p>You can then run the MicroVM with a simple <code>nix run .#my-microvm</code></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="preparing-a-nixos-host-for-declarative-microvms"><a class="header" href="#preparing-a-nixos-host-for-declarative-microvms">Preparing a NixOS host for declarative MicroVMs</a></h1>
+<p><strong>microvm.nix</strong> adds the following configuration for servers to
+host MicroVMs reliably:</p>
+<ul>
+<li>a <code>/var/lib/microvm</code> state directory with one subdirectory per MicroVM</li>
+<li>systemd services <code>microvm-tap-interfaces@</code> to setup TAP network interfaces</li>
+<li>systemd services <code>microvm-virtiofsd@</code> to start virtiofsd instances</li>
+<li>systemd services <code>microvm@</code> to start a MicroVM</li>
+<li>configuration options to <a href="./declarative.html">declaratively build MicroVMs with the host
+system</a></li>
+<li>tools to <a href="./microvm-command.html">manage MicroVMs imperatively</a></li>
+</ul>
+<p>Prepare your host by including the microvm.nix <code>host</code> nixosModule:</p>
+<pre><code class="language-nix"># Your server's flake.nix
+{
+  inputs.nixpkgs.url = &quot;github:nixos/nixpkgs/unstable&quot;;
+  inputs.microvm.url = &quot;github:astro/microvm.nix&quot;;
+  inputs.microvm.inputs.nixpkgs.follows = &quot;nixpkgs&quot;;
+
+  outputs = { self, nixpkgs, microvm }: {
+    # Example nixosConfigurations entry
+    nixosConfigurations.server1 = nixpkgs.lib.nixosSystem {
+      system = &quot;x86_64-linux&quot;;
+      modules = [
+        # Include the microvm host module
+        microvm.nixosModules.host
+        # Add more modules here
+        {
+          networking.hostName = &quot;server1&quot;;
+        }
+      ];
+    };
+  };
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="a-simple-network-setup"><a class="header" href="#a-simple-network-setup">A simple network setup</a></h1>
+<p>While your network setup is out of scope for the <strong>microvm.nix</strong>
+flake, here is a simple guide for getting the MicroVMs on your server
+networked.</p>
+<p>Be aware that we dictate <code>systemd-networkd</code> on your server for maximum flexibility:</p>
+<pre><code class="language-nix">networking.useNetworkd = true;
+</code></pre>
+<h2 id="a-bridge-to-link-tap-interfaces"><a class="header" href="#a-bridge-to-link-tap-interfaces">A bridge to link TAP interfaces</a></h2>
+<p>To make your MicroVM available, use a TAP interface to get a virtual
+network interface on the host to represent the Ethernet segment to
+your network. It is possible to assign individual IP configuration to
+these individual interfaces but that comes at some configuration
+effort. Let networkd create a bridge instead:</p>
+<pre><code class="language-nix">systemd.network = {
+  netdevs.&quot;10-microvm&quot; = {
+    Kind = &quot;bridge&quot;;
+    Name = &quot;microvm&quot;;
+  };
+  networks.&quot;10-microvm&quot; = {
+    matchConfig.Name = &quot;microvm&quot;;
+    networkConfig = {
+      DHCPServer = true;
+      IPv6SendRA = true;
+    };
+    addresses = [ {
+      addressConfig.Address = &quot;10.0.0.1/24&quot;;
+    } {
+      addressConfig.Address = &quot;fd12:3456:789a::1/64&quot;;
+    } ];
+    ipv6Prefixes = [ {
+      ipv6PrefixConfig.Prefix = &quot;fd12:3456:789a::/64&quot;;
+    } ];
+  };
+};
+</code></pre>
+<p>You better leave out the DHCP server and opt for static configuration
+instead if you rely on stable IPv4 addresses.</p>
+<p>Now the TAP interfaces must be attached to this central bridge. Make
+sure your <code>matchConfig</code> matches just the interfaces you want!</p>
+<pre><code class="language-nix">systemd.network = {
+  networks.&quot;11-microvm&quot; = {
+    matchConfig.Name = &quot;vm-*&quot;;
+    networkConfig.Bridge = &quot;microvm&quot;;
+  };
+};
+</code></pre>
+<h2 id="provide-internet-access-with-nat"><a class="header" href="#provide-internet-access-with-nat">Provide Internet Access with NAT</a></h2>
+<p>IPv4 addresses are exhausted. In some server environments you may not
+get a dedicated /64 IPv6 prefix to route to your MicroVMs. <em>Network
+Address Translation</em> to the rescue!</p>
+<pre><code class="language-nix">networking.nat = {
+  enable = true;
+  enableIPv6 = true;
+  externalInterface = &quot;eth0&quot;;
+  internalInterfaces = [ &quot;microvm&quot; ];
+};
+</code></pre>
+<p>Check out <code>networking.nat.forwardPorts</code> to make your MicroVM's
+services available to networks outside your host!</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="declarative-microvms"><a class="header" href="#declarative-microvms">Declarative MicroVMs</a></h1>
+<p>Provided your NixOS host <a href="./host.html">includes the host nixosModule</a>,
+options are declared to build a MicroVM with the host so that it gets
+deployed and start on boot.</p>
+<p>Why <em>deployed</em>? The per-MicroVM subdirectory under <code>/var/lib/microvm</code>
+gets only created if it did not exist before. This behavior is
+intended to ensure existence of MicroVMs that are critical to
+operation. To update later use the <a href="./microvm-command.html">imperative microvm
+command</a>.</p>
+<pre><code class="language-nix">microvm.vms = {
+  my-microvm = {
+    # Host build-time reference to where the MicroVM NixOS is defined
+    # under nixosConfigurations
+    flake = self;
+    # Specify from where to let `microvm -u` update later on
+    updateFlake = &quot;git+file:///etc/nixos&quot;;
+  };
+};
+</code></pre>
+<p>Note that building MicroVMs with the host increases build time and
+closure size of the host's system.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="imperative-microvm-management-with-the-microvm-command"><a class="header" href="#imperative-microvm-management-with-the-microvm-command">Imperative MicroVM management with the MicroVM command</a></h1>
+<p>Compartmentizing services in an infrastructure landscape allows us to
+conduct maintainance individually and without affecting unrelated
+MicroVMs. The <code>microvm</code> command helps with that.</p>
+<h2 id="create-a-microvm"><a class="header" href="#create-a-microvm">Create a MicroVM</a></h2>
+<p>You can specify this MicroVM's source flake with <code>-f</code>. If omitted, the
+tool will assume <code>git+file:///etc/nixos</code>. The source flakeref will be
+kept in <code>/var/lib/microvm/*/flake</code> for future updating the MicroVM.</p>
+<pre><code class="language-bash">microvm -f git+https://... -c my-microvm
+</code></pre>
+<h2 id="update-a-microvm"><a class="header" href="#update-a-microvm">Update a MicroVM</a></h2>
+<pre><code class="language-bash">microvm -u my-microvm
+</code></pre>
+<h2 id="list-microvms"><a class="header" href="#list-microvms">List MicroVMs</a></h2>
+<p>Listing your MicroVMs is a basically as easy as <code>ls /var/lib/microvm</code></p>
+<p>For more insight, the following command will read the current system
+version of all MicroVMs and compare them to what the corresponding
+flake evaluates. It is therefore quite slow to run, yet useful.</p>
+<pre><code class="language-bash">microvm -l
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+    </body>
+</html>

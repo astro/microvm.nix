@@ -68,5 +68,7 @@ networking.nat = {
 };
 ```
 
-Check out `networking.nat.forwardPorts` to make your MicroVM's
-services available to networks outside your host!
+Check out
+[`networking.nat.forwardPorts`](https://search.nixos.org/options?channel=unstable&show=networking.nat.forwardPorts&query=networking.nat.forwardPorts)
+to make your MicroVM's services available to networks outside your
+host!

@@ -2,15 +2,6 @@
 let
   inherit (config.microvm) vcpu mem user interfaces volumes shares socket;
   rootDisk = config.system.build.squashfs;
-
-  firectl = pkgs.firectl.overrideAttrs (_oa: {
-    # allow read-only root-drive
-    postPatch = ''
-      substituteInPlace options.go \
-          --replace "IsReadOnly:   firecracker.Bool(false)," \
-          "IsReadOnly:   firecracker.Bool(true),"
-      '';
-    });
 in {
   microvm.runner.firecracker = import ../../../pkgs/runner.nix {
     hypervisor = "firecracker";
@@ -22,7 +13,7 @@ in {
       then throw "firecracker will not change user"
       else lib.escapeShellArgs (
         [
-          "${firectl}/bin/firectl"
+          "${pkgs.firectl}/bin/firectl"
           "--firecracker-binary=${pkgs.firecracker}/bin/firecracker"
           "-m" (toString mem)
           "-c" (toString vcpu)

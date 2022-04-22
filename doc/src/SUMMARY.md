@@ -11,3 +11,4 @@
   - [A simple network setup](./simple-network.md)
 - [Declarative MicroVMs](./declarative.md)
 - [Imperative MicroVM management with the MicroVM command](./microvm-command.md)
+- [Frequently Asked Questions](./faq.md)

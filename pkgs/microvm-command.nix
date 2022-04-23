@@ -125,6 +125,9 @@ EOF
             echo Reboot MicroVM $NAME for the new profile: systemctl restart microvm@$NAME.service
           fi
         fi
+      elif [ $RESTART = y ]; then
+        echo Booting MicroVM $NAME
+        systemctl restart microvm@$NAME.service
       fi
       ;;
 

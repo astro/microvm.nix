@@ -12,8 +12,3 @@ requires virtio drivers to be built in statically.
 Because we are building our own kernel anyway, we've got the
 opportunity of adding more custom config that is optimized for common
 MicroVM use-cases.
-
-## Why are all MicroVM packages named `microvm-run`?
-
-This makes `nix run` work because the command picks up `bin/${name}`
-as the default executable to run.

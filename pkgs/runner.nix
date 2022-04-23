@@ -29,7 +29,9 @@ let
 
 in
 
-pkgs.runCommand "microvm-run" {
+pkgs.runCommandNoCC "microvm-${config.microvm.hypervisor}-${config.networking.hostName}" {
+  # for `nix run`
+  meta.mainProgram = "microvm-run";
   passthru = {
     inherit canShutdown;
   };

@@ -17,6 +17,7 @@ in nixpkgs.lib.optionalAttrs microvm.canShutdown {
   # Test the shutdown command
   "${hypervisor}-shutdown-command" =
     pkgs.runCommandNoCCLocal "microvm-${hypervisor}-test-shutdown-command" {
+      requiredSystemFeatures = [ "kvm" ];
     } ''
       set -m
       ${microvm}/bin/microvm-run > $out &

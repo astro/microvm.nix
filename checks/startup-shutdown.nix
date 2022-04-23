@@ -42,6 +42,7 @@
         microvm
         pkgs.p7zip
       ];
+      requiredSystemFeatures = [ "kvm" ];
     } ''
       microvm-run
 

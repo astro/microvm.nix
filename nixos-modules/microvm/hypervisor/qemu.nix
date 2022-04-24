@@ -37,8 +37,8 @@ let
             if from == "host"
               then "hostfwd=${proto}:${host.address}:${toString host.port}-" +
                    "${guest.address}:${toString guest.port},"
-              else "'guestfwd=${proto}:${guest.address}:${toString guest.port}-" +
-                   "cmd:${pkgs.netcat}/bin/nc ${host.address} ${toString host.port}'"
+              else "guestfwd=${proto}:${guest.address}:${toString guest.port}-" +
+                   "cmd:${pkgs.netcat}/bin/nc ${host.address} ${toString host.port},"
           );
       in
       [

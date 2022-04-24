@@ -77,28 +77,27 @@ in {
       lib.optionals canSandbox [
         "-sandbox" "on"
       ] ++
-      (if user != null then [ "-user" user ] else []) ++
-      (if socket != null then [ "-qmp" "unix:${socket},server,nowait" ] else []) ++
+      lib.optionals (user != null) [ "-user" user ] ++
+      lib.optionals (socket != null) [ "-qmp" "unix:${socket},server,nowait" ] ++
       builtins.concatMap ({ image, letter, ... }:
         [ "-drive" "id=vd${letter},format=raw,file=${image},if=none,aio=io_uring" "-device" "virtio-blk-${devType},drive=vd${letter}" ]
       ) volumes ++
-      (if shares != []
-       then [
-         "-object" "memory-backend-memfd,id=mem,size=${toString mem}M,share=on"
-         "-numa" "node,memdev=mem"
-       ] ++ (
-         builtins.concatMap ({ proto, index, socket, source, tag, ... }: {
-           "virtiofs" = [
-             "-chardev" "socket,id=fs${toString index},path=${socket}"
-             "-device" "vhost-user-fs-${devType},chardev=fs${toString index},tag=${tag}"
-           ];
-           "9p" = [
-             "-fsdev" "local,id=fs${toString index},path=${source},security_model=none"
-             "-device" "virtio-9p-${devType},fsdev=fs${toString index},mount_tag=${tag}"
-           ];
-         }.${proto}) (enumerate 0 shares)
-       )
-       else []) ++
+      lib.optionals (shares != []) (
+        [
+          "-object" "memory-backend-memfd,id=mem,size=${toString mem}M,share=on"
+          "-numa" "node,memdev=mem"
+        ] ++
+        builtins.concatMap ({ proto, index, socket, source, tag, ... }: {
+          "virtiofs" = [
+            "-chardev" "socket,id=fs${toString index},path=${socket}"
+            "-device" "vhost-user-fs-${devType},chardev=fs${toString index},tag=${tag}"
+          ];
+          "9p" = [
+            "-fsdev" "local,id=fs${toString index},path=${source},security_model=none"
+            "-device" "virtio-9p-${devType},fsdev=fs${toString index},mount_tag=${tag}"
+          ];
+        }.${proto}) (enumerate 0 shares)
+      ) ++
       (builtins.concatMap ({ type, id, mac, bridge }: [
         "-netdev" (
           lib.concatStringsSep "," ([

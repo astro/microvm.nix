@@ -27,16 +27,19 @@ in {
           "--rng"
           "-k" "${config.system.build.kernel}/bzImage"
           "-p" "console=hvc0 reboot=k panic=1 nomodules ${toString config.microvm.kernelParams}"
-        ] ++
+        ]
+        ++
         builtins.concatMap ({ image, ... }:
           [ "-d" image ]
-        ) volumes ++
+        ) volumes
+        ++
         builtins.concatMap ({ proto, source, tag, ... }:
           if proto == "9p"
           then [
             "--9p" "${source},${tag}"
           ] else throw "virtiofs shares not implemented for kvmtool"
-        ) shares ++
+        ) shares
+        ++
         builtins.concatMap ({ type, id, mac, ... }:
           if builtins.elem type [ "user" "tap" ]
           then [

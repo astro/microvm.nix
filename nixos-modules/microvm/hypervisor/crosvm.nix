@@ -19,13 +19,16 @@ in {
           "-r" rootDisk
           "--serial" "type=stdout,console=true,stdin=true"
           "-p" "console=ttyS0 reboot=k panic=1 nomodules ${toString config.microvm.kernelParams}"
-        ] ++
+        ]
+        ++
         lib.optionals (socket != null) [
           "-s" socket
-        ] ++
+        ]
+        ++
         builtins.concatMap ({ image, ... }:
           [ "--rwdisk" image ]
-        ) volumes ++
+        ) volumes
+        ++
         builtins.concatMap ({ proto, tag, source, ... }:
           let
             type = {
@@ -35,7 +38,8 @@ in {
           in [
             "--shared-dir" "${source}:${tag}:type=${type}"
           ]
-        ) shares ++
+        ) shares
+        ++
         map (_:
           throw "CrosVM networking is not configurable"
         ) interfaces ++

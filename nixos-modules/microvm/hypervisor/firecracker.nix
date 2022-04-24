@@ -20,14 +20,18 @@ in {
           "--kernel=${config.system.build.kernel.dev}/vmlinux"
           "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off nomodules ${toString config.microvm.kernelParams}"
           "--root-drive=${rootDisk}:ro"
-        ] ++
-        (if socket != null then [ "-s" socket ] else []) ++
+        ]
+        ++
+        lib.optionals (socket != null) [ "-s" socket ]
+        ++
         map ({ image, ... }:
           "--add-drive=${image}:rw"
-        ) volumes ++
+        ) volumes
+        ++
         map (_:
           throw "9p/virtiofs shares not implemented for Firecracker"
-        ) shares ++
+        ) shares
+        ++
         map ({ type, id, mac, ... }:
           if type == "tap"
           then "--tap-device=${id}/${mac}"

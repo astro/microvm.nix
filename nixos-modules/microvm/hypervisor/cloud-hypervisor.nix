@@ -22,29 +22,31 @@ in {
           "--cmdline" "console=hvc0 reboot=t panic=-1 ${toString config.microvm.kernelParams}"
           "--seccomp" "true"
           "--disk" "path=${rootDisk},readonly=on"
-        ] ++
+        ]
+        ++
         map ({ image, ... }:
           "path=${image}"
-        ) volumes ++
-        (if shares != []
-         then [ "--fs" ] ++
-              (map ({ proto, socket, tag, ... }:
-                if proto == "virtiofs"
-                then "tag=${tag},socket=${socket}"
-                else throw "cloud-hypervisor supports only shares that are virtiofs"
-              ) shares)
-         else []) ++
-        (if socket != null
-         then [ "--api-socket" socket ]
-         else []) ++
-        (if interfaces != []
-         then [ "--net" ] ++
-              (map ({ type, id, mac, ... }:
-                if type == "tap"
-                then "tap=${id},mac=${mac}"
-                else throw "Unsupported interface type ${type} for Cloud-Hypervisor"
-              ) interfaces)
-         else [])
+        ) volumes
+        ++
+        lib.optionals (shares != []) (
+          [ "--fs" ] ++
+          map ({ proto, socket, tag, ... }:
+            if proto == "virtiofs"
+            then "tag=${tag},socket=${socket}"
+            else throw "cloud-hypervisor supports only shares that are virtiofs"
+          ) shares
+        )
+        ++
+        lib.optionals (socket != null) [ "--api-socket" socket ]
+        ++
+        lib.optionals (interfaces != []) (
+          [ "--net" ] ++
+          map ({ type, id, mac, ... }:
+            if type == "tap"
+            then "tap=${id},mac=${mac}"
+            else throw "Unsupported interface type ${type} for Cloud-Hypervisor"
+          ) interfaces
+        )
       );
 
     canShutdown = socket != null;

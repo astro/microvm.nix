@@ -11,11 +11,10 @@ networking.useNetworkd = true;
 
 ## A bridge to link TAP interfaces
 
-To make your MicroVM available, use a TAP interface to get a virtual
-network interface on the host to represent the Ethernet segment to
-your network. It is possible to assign individual IP configuration to
-these individual interfaces but that comes at some configuration
-effort. Let networkd create a bridge instead:
+To make your MicroVM reachable, use a TAP interface to get a virtual
+Ethernet interface on the host. Although it is possible to assign
+individual IP configuration to these individual interfaces, let us
+avoid the additional configuration effort and create a bridge instead:
 ```nix
 systemd.network = {
   netdevs."10-microvm" = {
@@ -40,10 +39,10 @@ systemd.network = {
 };
 ```
 
-You better leave out the DHCP server and opt for static configuration
+Better leave out the DHCP server and opt for static configuration
 instead if you rely on stable IPv4 addresses.
 
-Now the TAP interfaces must be attached to this central bridge. Make
+Last, the TAP interfaces shall be attached to this central bridge. Make
 sure your `matchConfig` matches just the interfaces you want!
 ```nix
 systemd.network = {

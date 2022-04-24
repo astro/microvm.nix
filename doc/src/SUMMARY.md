@@ -10,5 +10,5 @@
 - [Preparing a host for declarative MicroVMs](./host.md)
   - [A simple network setup](./simple-network.md)
 - [Declarative MicroVMs](./declarative.md)
-- [Imperative MicroVM management with the MicroVM command](./microvm-command.md)
+- [Imperative MicroVM management](./microvm-command.md)
 - [Frequently Asked Questions](./faq.md)

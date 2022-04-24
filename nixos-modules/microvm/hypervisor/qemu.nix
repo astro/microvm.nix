@@ -2,7 +2,7 @@
 
 let
   inherit (pkgs) system;
-  inherit (config.microvm) vcpu mem user interfaces shares socket;
+  inherit (config.microvm) vcpu mem user interfaces shares socket forwardPorts;
   rootDisk = config.system.build.squashfs;
 
   inherit (import ../../../lib { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
@@ -29,6 +29,21 @@ let
     ! lib.any ({ type, ... }:
       type == "bridge"
     ) config.microvm.interfaces;
+
+  forwardPortsOptions =
+      let
+        forwardingOptions = lib.flip lib.concatMapStrings forwardPorts
+          ({ proto, from, host, guest }:
+            if from == "host"
+              then "hostfwd=${proto}:${host.address}:${toString host.port}-" +
+                   "${guest.address}:${toString guest.port},"
+              else "guestfwd=${proto}:${guest.address}:${toString guest.port}-" +
+                   "cmd:${pkgs.netcat}/bin/nc ${host.address} ${toString host.port},"
+          );
+      in
+      [
+        "${forwardingOptions}"
+      ];
 in {
   microvm.runner.qemu = import ../../../pkgs/runner.nix {
     inherit config pkgs;
@@ -58,7 +73,8 @@ in {
         "-device" "virtio-blk-${devType},drive=root"
         "-kernel" "${config.system.build.kernel.dev}/vmlinux"
         "-append" "console=hvc0 acpi=off reboot=t panic=-1 ${toString config.microvm.kernelParams}"
-      ] ++ lib.optionals canSandbox [
+      ] ++
+      lib.optionals canSandbox [
         "-sandbox" "on"
       ] ++
       (if user != null then [ "-user" user ] else []) ++
@@ -88,7 +104,9 @@ in {
           lib.concatStringsSep "," ([
             "${type}"
             "id=${id}"
-          ] ++ lib.optionals (type == "bridge") [
+           ]
+          ++ (lib.warnIf (type != "user" && forwardPortsOptions != []) "forwardPortsOptions only running with user type" lib.optionals (type == "user" && forwardPorts != []) forwardPortsOptions)
+          ++ lib.optionals (type == "bridge") [
             "br=${bridge}" "helper=/run/wrappers/bin/qemu-bridge-helper"
           ] ++ lib.optionals (type == "tap") [
             "ifname=${id}"

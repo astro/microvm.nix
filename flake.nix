@@ -104,6 +104,15 @@
                       id = "qemu";
                       mac = "00:02:00:01:01:01";
                     };
+                    microvm.forwardPorts = lib.optional (hypervisor == "qemu") {
+                      host.port = 2222;
+                      guest.port = 22;
+                    };
+                    networking.firewall.allowedTCPPorts = lib.optional (hypervisor == "qemu") 22;
+                    services.openssh = lib.optionalAttrs (hypervisor == "qemu") {
+                      enable = true;
+                      permitRootLogin = "yes";
+                    };
                   })
                   config
                 ];

@@ -20,6 +20,12 @@ microvm -f git+https://... -c my-microvm
 microvm -u my-microvm
 ```
 
+Until ways have been found to safely transfer the profile into the
+target /nix/store, and subsequently activate it, you must restart the
+MicroVM for the update to take effect.
+
+Use the `-R` flag to automatically restart if an update was built.
+
 ## List MicroVMs
 
 Listing your MicroVMs is a basically as easy as `ls /var/lib/microvm`

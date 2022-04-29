@@ -426,6 +426,10 @@ kept in <code>/var/lib/microvm/*/flake</code> for future updating the MicroVM.</
 <h2 id="update-a-microvm"><a class="header" href="#update-a-microvm">Update a MicroVM</a></h2>
 <pre><code class="language-bash">microvm -u my-microvm
 </code></pre>
+<p>Until ways have been found to safely transfer the profile into the
+target /nix/store, and subsequently activate it, you must restart the
+MicroVM for the update to take effect.</p>
+<p>Use the <code>-R</code> flag to automatically restart if an update was built.</p>
 <h2 id="list-microvms"><a class="header" href="#list-microvms">List MicroVMs</a></h2>
 <p>Listing your MicroVMs is a basically as easy as <code>ls /var/lib/microvm</code></p>
 <p>For more insight, the following command will read the current system

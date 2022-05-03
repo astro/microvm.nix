@@ -1,9 +1,10 @@
-name: "build-kernel"
+name: "kernel-package"
 
 on:
   push:
     branches:
       - main
+      - update_flake_lock_action
 
 jobs:
   build:

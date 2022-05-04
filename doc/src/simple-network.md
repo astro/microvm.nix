@@ -17,7 +17,7 @@ individual IP configuration to these individual interfaces, let us
 avoid the additional configuration effort and create a bridge instead:
 ```nix
 systemd.network = {
-  netdevs."10-microvm" = {
+  netdevs."10-microvm".netdevConfig = {
     Kind = "bridge";
     Name = "microvm";
   };

@@ -462,5 +462,8 @@ in
     environment.etc."qemu/bridge.conf".text = lib.mkDefault ''
       allow all
     '';
+
+    # Enable Kernel Same-Page Merging
+    hardware.ksm.enable = true;
   };
 }

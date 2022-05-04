@@ -16,6 +16,9 @@ microvm -f git+https://... -c my-microvm
 
 ## Update a MicroVM
 
+*Updating* does not refresh your packages but simply rebuilds the
+MicroVM. Use `nix flake update` to get new package versions.
+
 ```bash
 microvm -u my-microvm
 ```

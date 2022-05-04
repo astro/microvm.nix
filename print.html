@@ -424,6 +424,8 @@ kept in <code>/var/lib/microvm/*/flake</code> for future updating the MicroVM.</
 <pre><code class="language-bash">microvm -f git+https://... -c my-microvm
 </code></pre>
 <h2 id="update-a-microvm"><a class="header" href="#update-a-microvm">Update a MicroVM</a></h2>
+<p><em>Updating</em> does not refresh your packages but simply rebuilds the
+MicroVM. Use <code>nix flake update</code> to get new package versions.</p>
 <pre><code class="language-bash">microvm -u my-microvm
 </code></pre>
 <p>Until ways have been found to safely transfer the profile into the

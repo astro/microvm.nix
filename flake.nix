@@ -4,6 +4,9 @@
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
+  nixConfig.extra-substituters = [ "https://microvm.cachix.org" ];
+  nixConfig.extra-trusted-public-keys = [ "microvm.cachix.org-1:oXnBc6hRE3eX5rSYdRyMYXnfzcCxC7yKPTbZXALsqys=" ];
+
   outputs = { self, nixpkgs, flake-utils }:
     let
       systems = [

@@ -345,7 +345,7 @@ Ethernet interface on the host. Although it is possible to assign
 individual IP configuration to these individual interfaces, let us
 avoid the additional configuration effort and create a bridge instead:</p>
 <pre><code class="language-nix">systemd.network = {
-  netdevs.&quot;10-microvm&quot; = {
+  netdevs.&quot;10-microvm&quot;.netdevConfig = {
     Kind = &quot;bridge&quot;;
     Name = &quot;microvm&quot;;
   };

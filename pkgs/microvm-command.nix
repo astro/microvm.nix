@@ -110,9 +110,13 @@ EOF
 
     update)
       pushd $DIR > /dev/null
+      OLD=""
+      [ -L current ] && OLD=$(readlink current)
       build $NAME
 
       BUILT=$(readlink current)
+      [ -n "$OLD" ] && nix store diff-closures $OLD $BUILT
+
       if [ -L booted ]; then
         BOOTED=$(readlink booted)
         if [ $BUILT = $BOOTED ]; then

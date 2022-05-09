@@ -55,7 +55,7 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
     testScript = ''
       vm.wait_for_unit("microvm@${hypervisor}-iperf-server.service")
       vm.succeed("ip addr add 10.0.0.2/24 dev microvm")
-      result = vm.wait_until_succeeds("iperf -c 10.0.0.1")
+      result = vm.wait_until_succeeds("iperf -c 10.0.0.1", 60)
       print(result)
     '';
     meta.timeout = 1800;

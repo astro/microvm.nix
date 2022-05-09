@@ -69,8 +69,7 @@ in
           let
             inherit (config.microvm.vms.${name}) flake updateFlake;
             microvmConfig = flake.nixosConfigurations.${name}.config;
-            inherit (microvmConfig.microvm) hypervisor;
-            runner = microvmConfig.microvm.runner.${hypervisor};
+            runner = microvmConfig.microvm.declaredRunner;
           in
           ''
             mkdir -p ${stateDir}/${name}

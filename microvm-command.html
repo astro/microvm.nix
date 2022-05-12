@@ -144,6 +144,15 @@ tool will assume <code>git+file:///etc/nixos</code>. The source flakeref will be
 kept in <code>/var/lib/microvm/*/flake</code> for future updating the MicroVM.</p>
 <pre><code class="language-bash">microvm -f git+https://... -c my-microvm
 </code></pre>
+<h3 id="enabling-microvm-autostart"><a class="header" href="#enabling-microvm-autostart">Enabling MicroVM autostart</a></h3>
+<p>Extension of the host's systemd units must happen declaratively in the
+host's NixOS configuration:</p>
+<pre><code class="language-nix">microvm.autostart = [
+  &quot;myvm1&quot;
+  &quot;myvm2&quot;
+  &quot;myvm3&quot;
+];
+</code></pre>
 <h2 id="update-a-microvm"><a class="header" href="#update-a-microvm">Update a MicroVM</a></h2>
 <p><em>Updating</em> does not refresh your packages but simply rebuilds the
 MicroVM. Use <code>nix flake update</code> to get new package versions.</p>

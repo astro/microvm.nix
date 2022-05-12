@@ -423,6 +423,15 @@ tool will assume <code>git+file:///etc/nixos</code>. The source flakeref will be
 kept in <code>/var/lib/microvm/*/flake</code> for future updating the MicroVM.</p>
 <pre><code class="language-bash">microvm -f git+https://... -c my-microvm
 </code></pre>
+<h3 id="enabling-microvm-autostart"><a class="header" href="#enabling-microvm-autostart">Enabling MicroVM autostart</a></h3>
+<p>Extension of the host's systemd units must happen declaratively in the
+host's NixOS configuration:</p>
+<pre><code class="language-nix">microvm.autostart = [
+  &quot;myvm1&quot;
+  &quot;myvm2&quot;
+  &quot;myvm3&quot;
+];
+</code></pre>
 <h2 id="update-a-microvm"><a class="header" href="#update-a-microvm">Update a MicroVM</a></h2>
 <p><em>Updating</em> does not refresh your packages but simply rebuilds the
 MicroVM. Use <code>nix flake update</code> to get new package versions.</p>
@@ -448,6 +457,40 @@ requires virtio drivers to be built into the kernel statically.</p>
 <p>Because we are building our own kernel anyway, we've got the
 opportunity of adding more custom config that is optimized for common
 MicroVM use-cases.</p>
+<h2 id="how-to-centralize-logging-with-journald"><a class="header" href="#how-to-centralize-logging-with-journald">How to centralize logging with journald?</a></h2>
+<p>That is possible without even requiring a network transport by just
+making the journals available to the host as a share. Because journald
+identifies hosts by their <code>/etc/machine-id</code>, we propose to use static
+content for that file. Add a NixOS module like the following to your
+MicroVM configuration:</p>
+<pre><code class="language-nix">environment.etc.&quot;machine-id&quot; = {
+  mode = &quot;0644&quot;;
+  text =
+    # change this to suit your flake's interface
+    self.lib.addresses.machineId.${config.networking.hostName} + &quot;\n&quot;;
+};
+
+microvm.shares = [ {
+  # On the host
+  source = &quot;/var/lib/microvms/${config.networking.hostName}/journal&quot;;
+  # In the MicroVM
+  mountPoint = &quot;/var/log/journal&quot;;
+  tag = &quot;journal&quot;;
+  proto = &quot;virtiofs&quot;;
+  socket = &quot;journal.sock&quot;;
+} ];
+</code></pre>
+<p>Last, make the MicroVM journals available to your host. The
+<code>machine-id</code> must be available.</p>
+<pre><code class="language-nix">systemd.tmpfiles.rules = map (vmHost:
+  let
+    machineId = self.lib.addresses.machineId.${vmHost};
+  in
+    # creates a symlink of each MicroVM's journal under the host's /var/log/journal
+    &quot;L+ /var/log/journal/${machineId} - - - /var/lib/microvms/${vmHost}/journal/${machineId}&quot;
+) (builtins.attrNames self.lib.addresses.machineId);
+</code></pre>
+<p><code>-m</code></p>
 
                     </main>
 

@@ -23,6 +23,11 @@ in
             type = nullOr str;
             default = null;
           };
+          autostart = mkOption {
+            description = "Add this MicroVM to config.microvm.autostart?";
+            type = bool;
+            default = true;
+          };
         };
       }));
       default = {};
@@ -36,6 +41,16 @@ in
       default = "/var/lib/microvms";
       description = ''
         Directory that contains the MicroVMs
+      '';
+    };
+
+    autostart = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = ''
+        MicroVMs to start by default.
+
+        This includes declarative `config.microvm.vms` as well as MicroVMs that are managed through the `microvm` command.
       '';
     };
   };
@@ -175,11 +190,13 @@ in
       };
     } (builtins.attrNames config.microvm.vms);
 
+    microvm.autostart = builtins.filter (vmName:
+      config.microvm.vms.${vmName}.autostart
+    ) (builtins.attrNames config.microvm.vms);
     # Starts all the containers after boot
     systemd.targets.microvms = {
       wantedBy = [ "multi-user.target" ];
-      wants = map (name: "microvm@${name}.service")
-        (builtins.attrNames config.microvm.vms);
+      wants = map (name: "microvm@${name}.service") config.microvm.autostart;
     };
 
     # This creates tap interfaces and attaches them to a bridge for

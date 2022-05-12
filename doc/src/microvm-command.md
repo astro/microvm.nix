@@ -14,6 +14,19 @@ kept in `/var/lib/microvm/*/flake` for future updating the MicroVM.
 microvm -f git+https://... -c my-microvm
 ```
 
+### Enabling MicroVM autostart
+
+Extension of the host's systemd units must happen declaratively in the
+host's NixOS configuration:
+
+```nix
+microvm.autostart = [
+  "myvm1"
+  "myvm2"
+  "myvm3"
+];
+```
+
 ## Update a MicroVM
 
 *Updating* does not refresh your packages but simply rebuilds the

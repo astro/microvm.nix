@@ -1,0 +1,21 @@
+name: "kernel-package-21.11"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: cachix/install-nix-action@v17
+    - uses: cachix/cachix-action@v10
+      with:
+        name: microvm
+        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+    - run: nix build -vL .#microvm-kernel --override-input nixpkgs github:nixos/nixpkgs/nixos-21.11

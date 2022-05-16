@@ -30,6 +30,13 @@ Prepare your host by including the microvm.nix `host` nixosModule:
         # Add more modules here
         {
           networking.hostName = "server1";
+
+          # try to automatically start these MicroVMs on bootup
+          microvm.autostart = [
+            "my-microvm"
+            "your-microvm"
+            "their-microvm"
+          ];
         }
       ];
     };

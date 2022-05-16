@@ -143,6 +143,9 @@ requires virtio drivers to be built into the kernel statically.</p>
 <p>Because we are building our own kernel anyway, we've got the
 opportunity of adding more custom config that is optimized for common
 MicroVM use-cases.</p>
+<p>The <strong>microvm.nix</strong> project contains instructions for Github to build
+the <code>microvm-kernel</code> package every night and push the binary to
+Cachix. In order to use that binary cache, try running <code>nix build github:astro/microvm.nix#microvm-kernel</code> and answer the prompts.</p>
 <h2 id="how-to-centralize-logging-with-journald"><a class="header" href="#how-to-centralize-logging-with-journald">How to centralize logging with journald?</a></h2>
 <p>That is possible without even requiring a network transport by just
 making the journals available to the host as a share. Because journald

@@ -200,6 +200,7 @@ augmented by importing this flake's <code>nixosModule.microvm</code>:</p>
   };
 }
 </code></pre>
+<p>To get you started quickly, a Flake template is included. Run <code>nix flake init -t github:astro/microvm.nix</code> in a new project directory.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="configuration-options"><a class="header" href="#configuration-options">Configuration options</a></h1>
 <p>By including the <code>microvm</code> module a set of NixOS options is made
 available for customization. These are the most important ones:</p>
@@ -457,6 +458,9 @@ requires virtio drivers to be built into the kernel statically.</p>
 <p>Because we are building our own kernel anyway, we've got the
 opportunity of adding more custom config that is optimized for common
 MicroVM use-cases.</p>
+<p>The <strong>microvm.nix</strong> project contains instructions for Github to build
+the <code>microvm-kernel</code> package every night and push the binary to
+Cachix. In order to use that binary cache, try running <code>nix build github:astro/microvm.nix#microvm-kernel</code> and answer the prompts.</p>
 <h2 id="how-to-centralize-logging-with-journald"><a class="header" href="#how-to-centralize-logging-with-journald">How to centralize logging with journald?</a></h2>
 <p>That is possible without even requiring a network transport by just
 making the journals available to the host as a share. Because journald

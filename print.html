@@ -494,7 +494,9 @@ microvm.shares = [ {
     &quot;L+ /var/log/journal/${machineId} - - - /var/lib/microvms/${vmHost}/journal/${machineId}&quot;
 ) (builtins.attrNames self.lib.addresses.machineId);
 </code></pre>
-<p><code>-m</code></p>
+<p>Once your MicroVM's journal data is visible in the
+<code>/var/log/journal/$machineId/</code> directories, <code>journalctl</code> can pick it
+up using the <code>-m</code>/<code>--merge</code> switch.</p>
 
                     </main>
 

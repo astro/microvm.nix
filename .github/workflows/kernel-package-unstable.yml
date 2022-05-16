@@ -1,4 +1,4 @@
-name: "kernel-package-21.11"
+name: "kernel-package-unstable"
 
 on:
   workflow_dispatch: # allows manual triggering
@@ -19,4 +19,4 @@ jobs:
       with:
         name: microvm
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - run: nix build -vL .#microvm-kernel --override-input nixpkgs github:nixos/nixpkgs/nixos-21.11
+    - run: nix build -vL .#microvm-kernel --override-input nixpkgs github:nixos/nixpkgs/nixos-unstable

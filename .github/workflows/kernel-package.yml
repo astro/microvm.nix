@@ -1,10 +1,11 @@
 name: "kernel-package"
 
 on:
+  workflow_dispatch: # allows manual triggering
+  schedule:
+    - cron: '0 0 * * *' # runs daily at 00:00
+on:
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
 

@@ -302,7 +302,7 @@ of your <code>flake.nix</code>:</p>
 <p><strong>microvm.nix</strong> adds the following configuration for servers to
 host MicroVMs reliably:</p>
 <ul>
-<li>a <code>/var/lib/microvm</code> state directory with one subdirectory per MicroVM</li>
+<li>a <code>/var/lib/microvms</code> state directory with one subdirectory per MicroVM</li>
 <li>systemd services <code>microvm-tap-interfaces@</code> to setup TAP network interfaces</li>
 <li>systemd services <code>microvm-virtiofsd@</code> to start virtiofsd instances</li>
 <li>systemd services <code>microvm@</code> to start a MicroVM</li>
@@ -397,7 +397,7 @@ host!</p>
 <p>Provided your NixOS host <a href="./host.html">includes the host nixosModule</a>,
 options are declared to build a MicroVM with the host so that it gets
 deployed and start on boot.</p>
-<p>Why <em>deployed</em>? The per-MicroVM subdirectory under <code>/var/lib/microvm</code>
+<p>Why <em>deployed</em>? The per-MicroVM subdirectory under <code>/var/lib/microvms</code>
 gets only created if it did not exist before. This behavior is
 intended to ensure existence of MicroVMs that are critical to
 operation. To update later use the <a href="./microvm-command.html">imperative microvm
@@ -421,7 +421,7 @@ MicroVMs. The <code>microvm</code> command helps with that.</p>
 <h2 id="create-a-microvm"><a class="header" href="#create-a-microvm">Create a MicroVM</a></h2>
 <p>You can specify this MicroVM's source flake with <code>-f</code>. If omitted, the
 tool will assume <code>git+file:///etc/nixos</code>. The source flakeref will be
-kept in <code>/var/lib/microvm/*/flake</code> for future updating the MicroVM.</p>
+kept in <code>/var/lib/microvms/*/flake</code> for future updating the MicroVM.</p>
 <pre><code class="language-bash">microvm -f git+https://... -c my-microvm
 </code></pre>
 <h3 id="enabling-microvm-autostart"><a class="header" href="#enabling-microvm-autostart">Enabling MicroVM autostart</a></h3>
@@ -443,7 +443,7 @@ target /nix/store, and subsequently activate it, you must restart the
 MicroVM for the update to take effect.</p>
 <p>Use the <code>-R</code> flag to automatically restart if an update was built.</p>
 <h2 id="list-microvms"><a class="header" href="#list-microvms">List MicroVMs</a></h2>
-<p>Listing your MicroVMs is a basically as easy as <code>ls /var/lib/microvm</code></p>
+<p>Listing your MicroVMs is a basically as easy as <code>ls /var/lib/microvms</code></p>
 <p>For more insight, the following command will read the current system
 version of all MicroVMs and compare them to what the corresponding
 flake evaluates. It is therefore quite slow to run, yet useful.</p>

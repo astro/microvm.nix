@@ -9,6 +9,7 @@
 - [Running a MicroVM as a package](./packages.md)
 - [Preparing a host for declarative MicroVMs](./host.md)
   - [A simple network setup](./simple-network.md)
+  - [Host systemd services](./host-systemd.md)
 - [Declarative MicroVMs](./declarative.md)
 - [Imperative MicroVM management](./microvm-command.md)
 - [Frequently Asked Questions](./faq.md)

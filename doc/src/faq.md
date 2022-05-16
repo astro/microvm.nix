@@ -58,4 +58,6 @@ systemd.tmpfiles.rules = map (vmHost:
 ) (builtins.attrNames self.lib.addresses.machineId);
 ```
 
-`-m`
+Once your MicroVM's journal data is visible in the
+`/var/log/journal/$machineId/` directories, `journalctl` can pick it
+up using the `-m`/`--merge` switch.

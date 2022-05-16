@@ -115,9 +115,3 @@ At last, check the validity of the symlinks in
 The author can be hired to implement the features that you wish, or to
 integrate this tool into your toolchain. If in doubt, just press the
 💗sponsor button.
-
-## Ideas
-
-- [x] Boot with root off virtiofs, avoiding overhead of creating squashfs image
-- [x] Provide a writable `/nix/store`
-- [ ] Distribute/fail-over MicroVMs at run-time within a cluster of hosts

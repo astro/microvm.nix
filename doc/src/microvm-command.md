@@ -44,7 +44,7 @@ Use the `-R` flag to automatically restart if an update was built.
 
 ## List MicroVMs
 
-Listing your MicroVMs is a basically as easy as `ls /var/lib/microvms`
+Listing your MicroVMs is as trivial as `ls -1 /var/lib/microvms`
 
 For more insight, the following command will read the current system
 version of all MicroVMs and compare them to what the corresponding

@@ -76,7 +76,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.4.</strong> Output options</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">7.</strong> Frequently Asked Questions</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.4.</strong> Output options</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.2.</strong> Host systemd services</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">7.</strong> Frequently Asked Questions</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -327,6 +327,13 @@ system</a></li>
         # Add more modules here
         {
           networking.hostName = &quot;server1&quot;;
+
+          # try to automatically start these MicroVMs on bootup
+          microvm.autostart = [
+            &quot;my-microvm&quot;
+            &quot;your-microvm&quot;
+            &quot;their-microvm&quot;
+          ];
         }
       ];
     };
@@ -393,6 +400,25 @@ Address Translation</em> to the rescue!</p>
 <a href="https://search.nixos.org/options?channel=unstable&amp;show=networking.nat.forwardPorts&amp;query=networking.nat.forwardPorts"><code>networking.nat.forwardPorts</code></a>
 to make your MicroVM's services available to networks outside your
 host!</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="systemd-services-on-a-microvm-host"><a class="header" href="#systemd-services-on-a-microvm-host">systemd services on a MicroVM host</a></h1>
+<p>The <code>host</code> nixosModule provides a few systemd services for additional
+bringup which is not available when running a MicroVM interactively
+from a package.</p>
+<h2 id="install-microvm-nameservice"><a class="header" href="#install-microvm-nameservice"><code>install-microvm-${name}.service</code></a></h2>
+<p>Creates and prepares a subdirectory under <code>/var/lib/microvms</code>
+according to the <code>microvm.vms</code> option if it does not already exist.</p>
+<h2 id="microvm-tap-interfacesservice"><a class="header" href="#microvm-tap-interfacesservice"><code>microvm-tap-interfaces@.service</code></a></h2>
+<p>Creates TAP virtual network interfaces for the user that will run MicroVMs.</p>
+<h2 id="microvm-virtiofsdservice"><a class="header" href="#microvm-virtiofsdservice"><code>microvm-virtiofsd@.service</code></a></h2>
+<p>Starts a fleet of virtiofsd servers, one for each <code>virtiofs</code>
+mountpoint in <code>microvm.shares</code>.</p>
+<h2 id="microvmservice"><a class="header" href="#microvmservice"><code>microvm@.service</code></a></h2>
+<p>Runs the actual MicroVM through
+<code>/var/lib/microvms/%i/current/bin/microvm-run</code> where <code>%i</code> is the
+MicroVM name.</p>
+<h2 id="microvmstarget"><a class="header" href="#microvmstarget"><code>microvms.target</code></a></h2>
+<p>Depends on the <code>microvm@.service</code> instance for all configured
+<code>microvm.autostart</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="declarative-microvms"><a class="header" href="#declarative-microvms">Declarative MicroVMs</a></h1>
 <p>Provided your NixOS host <a href="./host.html">includes the host nixosModule</a>,
 options are declared to build a MicroVM with the host so that it gets
@@ -443,7 +469,7 @@ target /nix/store, and subsequently activate it, you must restart the
 MicroVM for the update to take effect.</p>
 <p>Use the <code>-R</code> flag to automatically restart if an update was built.</p>
 <h2 id="list-microvms"><a class="header" href="#list-microvms">List MicroVMs</a></h2>
-<p>Listing your MicroVMs is a basically as easy as <code>ls /var/lib/microvms</code></p>
+<p>Listing your MicroVMs is as trivial as <code>ls -1 /var/lib/microvms</code></p>
 <p>For more insight, the following command will read the current system
 version of all MicroVMs and compare them to what the corresponding
 flake evaluates. It is therefore quite slow to run, yet useful.</p>

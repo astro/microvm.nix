@@ -13,6 +13,10 @@ Because we are building our own kernel anyway, we've got the
 opportunity of adding more custom config that is optimized for common
 MicroVM use-cases.
 
+The **microvm.nix** project contains instructions for Github to build
+the `microvm-kernel` package every night and push the binary to
+Cachix. In order to use that binary cache, try running `nix build
+github:astro/microvm.nix#microvm-kernel` and answer the prompts.
 
 ## How to centralize logging with journald?
 

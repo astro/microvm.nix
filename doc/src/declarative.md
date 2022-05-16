@@ -4,7 +4,7 @@ Provided your NixOS host [includes the host nixosModule](./host.md),
 options are declared to build a MicroVM with the host so that it gets
 deployed and start on boot.
 
-Why *deployed*? The per-MicroVM subdirectory under `/var/lib/microvm`
+Why *deployed*? The per-MicroVM subdirectory under `/var/lib/microvms`
 gets only created if it did not exist before. This behavior is
 intended to ensure existence of MicroVMs that are critical to
 operation. To update later use the [imperative microvm

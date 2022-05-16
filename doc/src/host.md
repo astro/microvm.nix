@@ -3,7 +3,7 @@
 **microvm.nix** adds the following configuration for servers to
 host MicroVMs reliably:
 
-- a `/var/lib/microvm` state directory with one subdirectory per MicroVM
+- a `/var/lib/microvms` state directory with one subdirectory per MicroVM
 - systemd services `microvm-tap-interfaces@` to setup TAP network interfaces
 - systemd services `microvm-virtiofsd@` to start virtiofsd instances
 - systemd services `microvm@` to start a MicroVM

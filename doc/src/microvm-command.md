@@ -8,7 +8,7 @@ MicroVMs. The `microvm` command helps with that.
 
 You can specify this MicroVM's source flake with `-f`. If omitted, the
 tool will assume `git+file:///etc/nixos`. The source flakeref will be
-kept in `/var/lib/microvm/*/flake` for future updating the MicroVM.
+kept in `/var/lib/microvms/*/flake` for future updating the MicroVM.
 
 ```bash
 microvm -f git+https://... -c my-microvm
@@ -44,7 +44,7 @@ Use the `-R` flag to automatically restart if an update was built.
 
 ## List MicroVMs
 
-Listing your MicroVMs is a basically as easy as `ls /var/lib/microvm`
+Listing your MicroVMs is a basically as easy as `ls /var/lib/microvms`
 
 For more insight, the following command will read the current system
 version of all MicroVMs and compare them to what the corresponding

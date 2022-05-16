@@ -33,3 +33,6 @@ augmented by importing this flake's `nixosModule.microvm`:
   };
 }
 ```
+
+To get you started quickly, a Flake template is included. Run `nix
+flake init -t github:astro/microvm.nix` in a new project directory.

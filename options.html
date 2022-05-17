@@ -144,6 +144,12 @@ available for customization. These are the most important ones:</p>
 <tr><td><code>microvm.interfaces</code></td><td>Network interfaces</td></tr>
 <tr><td><code>microvm.volumes</code></td><td>Block device images</td></tr>
 <tr><td><code>microvm.shares</code></td><td>Shared filesystem directories</td></tr>
+<tr><td><code>microvm.socket</code></td><td>Control socket for the Hypervisor so that a MicroVM can be shutdown cleanly</td></tr>
+<tr><td><code>microvm.user</code></td><td>(qemu only) User account which Qemu will switch to when started as root</td></tr>
+<tr><td><code>microvm.forwardPorts</code></td><td>(qemu user-networking only) TCP/UDP port forwarding</td></tr>
+<tr><td><code>microvm.kernelParams</code></td><td>Like <code>boot.kernelParams</code> but will not end up in <code>system.build.toplevel</code>, saving you rebuilds</td></tr>
+<tr><td><code>microvm.storeOnBootDisk</code></td><td>Enables the store on the boot squashfs even in the presence of a share with the host's <code>/nix/store</code></td></tr>
+<tr><td><code>microvm.writableStoreOverlay</code></td><td>Optional string of the path where all writes to <code>/nix/store</code> should go to.</td></tr>
 </tbody></table>
 
                     </main>

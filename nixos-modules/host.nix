@@ -5,7 +5,10 @@ let
   microvmCommand = import ../pkgs/microvm-command.nix {
     inherit pkgs;
   };
-  virtiofsd = pkgs.callPackage ../pkgs/virtiofsd.nix {};
+  virtiofsd =
+    if pkgs ? virtiofsd
+    then pkgs.virtiofsd
+    else pkgs.callPackage ../pkgs/virtiofsd.nix {};
   user = "microvm";
   group = "kvm";
 in

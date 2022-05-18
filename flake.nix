@@ -31,13 +31,15 @@
         };
 
         packages =
-          {
-            doc = nixpkgs.legacyPackages.${system}.callPackage ./pkgs/doc.nix {};
-            kvmtool = nixpkgs.legacyPackages.${system}.callPackage ./pkgs/kvmtool.nix {};
-            virtiofsd = nixpkgs.legacyPackages.${system}.callPackage ./pkgs/virtiofsd.nix {};
-            microvm-kernel = nixpkgs.legacyPackages.${system}.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
+          let
+            pkgs = nixpkgs.legacyPackages.${system};
+          in {
+            doc = pkgs.callPackage ./pkgs/doc.nix {};
+            kvmtool = pkgs.callPackage ./pkgs/kvmtool.nix {};
+            virtiofsd = pkgs.callPackage ./pkgs/virtiofsd.nix {};
+            microvm-kernel = pkgs.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
             microvm = import ./pkgs/microvm-command.nix {
-              pkgs = nixpkgs.legacyPackages.${system};
+              inherit pkgs;
             };
           } //
           # wrap self.nixosConfigurations in executable packages
@@ -59,7 +61,10 @@
         lib = import ./lib { nixpkgs-lib = nixpkgs.lib; };
 
         overlay = final: prev: {
-          kvmtool = prev.callPackage ./pkgs/kvmtool.nix {};
+          kvmtool =
+            if prev ? kvmtool
+            then prev.kvmtool
+            else prev.callPackage ./pkgs/kvmtool.nix {};
           microvm-kernel = prev.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
         };
 

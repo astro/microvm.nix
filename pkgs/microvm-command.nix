@@ -15,7 +15,8 @@ let
   colored = color: text: "${colors.${color}}${text}${colors.normal}";
 in
 writeScriptBin "microvm" ''
-  #! ${pkgs.runtimeShell} -e
+  #! ${pkgs.runtimeShell}
+  set -e
 
   PATH=${lib.makeBinPath ([
     git jq

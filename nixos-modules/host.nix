@@ -99,6 +99,7 @@ in
                     else flake}' > flake
             chown -R ${user}:${group} .
           '';
+        serviceConfig.SyslogIdentifier = "install-microvm-${name}";
       };
     }) {
       "microvm-tap-interfaces@" = {
@@ -119,6 +120,7 @@ in
                 done
               '';
             in "${stopScript} %i";
+          SyslogIdentifier = "microvm-tap-interfaces@%i";
         };
         # `ExecStart`
         scriptArgs = "%i";
@@ -147,6 +149,7 @@ in
           WorkingDirectory = "${stateDir}/%i";
           Restart = "always";
           RestartSec = "1s";
+          SyslogIdentifier = "microvm-virtiofsd@%i";
         };
         script = ''
           for d in current/share/microvm/virtiofs/*; do
@@ -186,6 +189,7 @@ in
           RestartSec = "1s";
           User = user;
           Group = group;
+          SyslogIdentifier = "microvm@%i";
         };
       };
     } (builtins.attrNames config.microvm.vms);

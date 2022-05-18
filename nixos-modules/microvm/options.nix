@@ -276,6 +276,15 @@ in
       }
     ) config.microvm.interfaces
     ++
+    # check for interface name length
+    map ({ id, ... }: {
+      assertion = builtins.stringLength id <= 15;
+      message = ''
+        MicroVM ${config.networking.hostName}: interface name ${id} is longer than the
+        the maximum length of 15 characters on Linux.
+      '';
+    }) config.microvm.interfaces
+    ++
     # check for duplicate share tags
     map (shares: {
       assertion = builtins.length shares == 1;

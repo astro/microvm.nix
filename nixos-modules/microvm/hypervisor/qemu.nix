@@ -52,7 +52,7 @@ in {
 
     command = lib.escapeShellArgs (
       [
-        "${pkgs.qemu}/bin/qemu-system-${arch}"
+        "${pkgs.qemu_kvm}/bin/qemu-system-${arch}"
         "-name" "qemu-${config.networking.hostName}"
         "-M" machine
         "-m" (toString mem)

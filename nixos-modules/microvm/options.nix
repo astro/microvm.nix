@@ -296,11 +296,22 @@ in
       '';
     }) (
       builtins.attrValues (
-        lib.groupBy ({ socket, ... }: socket) (
+        lib.groupBy ({ socket, ... }: toString socket) (
           builtins.filter ({ proto, ... }: proto == "virtiofs")
             config.microvm.shares
         )
       )
+    )
+    ++
+    # check for virtiofs shares without socket
+    map ({ tag, socket, ... }: {
+      assertion = socket != null;
+      message = ''
+        MicroVM ${config.networking.hostName}: virtiofs share with tag "${tag}" is missing a `socket` path.
+      '';
+    }) (
+      builtins.filter ({ proto, ... }: proto == "virtiofs")
+        config.microvm.shares
     )
     ++
     # blacklist forwardPorts

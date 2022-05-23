@@ -216,8 +216,13 @@ in
 
     writableStoreOverlay = mkOption {
       type = with types; nullOr str;
-      default = "/nix/.rw-store";
-      description = "Path to the writable /nix/store overlay";
+      default = null;
+      example = "/nix/.rw-store";
+      description = ''
+        Path to the writable /nix/store overlay.
+
+        Make sure that the path points to a writable filesystem (tmpfs, volume, or share).
+      '';
     };
 
     runner = mkOption {

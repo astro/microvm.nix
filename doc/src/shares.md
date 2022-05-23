@@ -28,13 +28,6 @@ microvm.shares = [ {
 
 ## Writable `/nix/store` overlay
 
-The writable layer is mounted from the path
-`microvm.writableStoreOverlay`. You may choose to add a persistent
-volume or share for that mountPoint.
-
-Recommended configuration to disable this feature, making `/nix/store`
-read-only:
-
-```nix
-microvm.writableStoreOverlay = null;
-```
+An optional writable layer will be mounted if the path
+`microvm.writableStoreOverlay` is set. Make sure that the path is
+located on a writable filesystem.

@@ -160,13 +160,9 @@ drastically.</p>
 } ];
 </code></pre>
 <h2 id="writable-nixstore-overlay"><a class="header" href="#writable-nixstore-overlay">Writable <code>/nix/store</code> overlay</a></h2>
-<p>The writable layer is mounted from the path
-<code>microvm.writableStoreOverlay</code>. You may choose to add a persistent
-volume or share for that mountPoint.</p>
-<p>Recommended configuration to disable this feature, making <code>/nix/store</code>
-read-only:</p>
-<pre><code class="language-nix">microvm.writableStoreOverlay = null;
-</code></pre>
+<p>An optional writable layer will be mounted if the path
+<code>microvm.writableStoreOverlay</code> is set. Make sure that the path is
+located on a writable filesystem.</p>
 
                     </main>
 

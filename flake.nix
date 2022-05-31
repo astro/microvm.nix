@@ -50,6 +50,8 @@
                 crosvm kvmtool
                 microvm-kernel virtiofsd
               ];
+              pathsToLink = [ "/" ];
+              extraOutputsToInstall = [ "dev" ];
             };
           } //
           # wrap self.nixosConfigurations in executable packages

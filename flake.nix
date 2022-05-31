@@ -41,6 +41,16 @@
             microvm = import ./pkgs/microvm-command.nix {
               inherit pkgs;
             };
+            # all compilation-heavy packages that shall be prebuilt for a binary cache
+            prebuilt = pkgs.buildEnv {
+              name = "prebuilt";
+              paths = with self.packages.${system}; with pkgs; [
+                qemu_kvm cloud-hypervisor
+                firectl firecracker
+                crosvm kvmtool
+                microvm-kernel virtiofsd
+              ];
+            };
           } //
           # wrap self.nixosConfigurations in executable packages
           builtins.foldl' (result: systemName:

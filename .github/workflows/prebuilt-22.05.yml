@@ -1,4 +1,4 @@
-name: "kernel-package-22.05"
+name: "prebuilt-22.05"
 
 on:
   workflow_dispatch: # allows manual triggering
@@ -18,4 +18,4 @@ jobs:
       with:
         name: microvm
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - run: nix build -vL .#microvm-kernel --override-input nixpkgs github:nixos/nixpkgs/release-22.05
+    - run: nix build -vL .#prebuilt --override-input nixpkgs github:nixos/nixpkgs/release-22.05

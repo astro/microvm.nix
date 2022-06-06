@@ -8,6 +8,13 @@ in {
 
     inherit config pkgs;
 
+    preStart = ''
+      ${config.microvm.preStart}
+      ${lib.optionalString (socket != null) ''
+        rm -f '${socket}'
+      ''}
+    '';
+
     command =
       if user != null
       then throw "cloud-hypervisor will not change user"

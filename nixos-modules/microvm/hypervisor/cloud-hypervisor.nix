@@ -11,6 +11,8 @@ in {
     preStart = ''
       ${config.microvm.preStart}
       ${lib.optionalString (socket != null) ''
+        # workaround cloud-hypervisor sometimes
+        # stumbling over a preexisting socket
         rm -f '${socket}'
       ''}
     '';

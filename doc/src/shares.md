@@ -31,3 +31,20 @@ microvm.shares = [ {
 An optional writable layer will be mounted if the path
 `microvm.writableStoreOverlay` is set. Make sure that the path is
 located on a writable filesystem.
+
+**Caveat:** The Linux overlay filesystem is very picky about the
+filesystems that can be the upper (writable) layer. 9p/virtiofs shares
+don't work currently, so resort to using a volume for that:
+
+```
+{ config, ... }:
+{
+  microvm.writableStoreOverlay = "/nix/.rw-store";
+
+  microvm.volumes = [ {
+    image = "nix-store-overlay.img";
+    mountPoint = config.microvm.writableStoreOverlay;
+    size = 2048;
+  } ];
+}
+```

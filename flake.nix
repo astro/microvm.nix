@@ -101,6 +101,8 @@
                 modules = [
                   self.nixosModules.microvm
                   ({ config, lib, ... }: {
+                    system.stateVersion = config.system.nixos.version;
+
                     networking.hostName = "${hypervisor}-microvm";
                     users.users.root.password = "";
                     services.getty.helpLine = ''

@@ -65,7 +65,7 @@ in {
       then ''
         api() {
           ${pkgs.curl}/bin/curl \
-            --unix-socket socket \
+            --unix-socket ${socket} \
             $@
         }
 

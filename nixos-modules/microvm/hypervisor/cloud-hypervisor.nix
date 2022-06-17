@@ -62,11 +62,20 @@ in {
 
     shutdownCommand =
       if socket != null
-      then lib.escapeShellArgs [
-        "${pkgs.curl}/bin/curl"
-        "--unix-socket" socket
-        "-X" "PUT" "http://localhost/api/v1/vm.power-button"
-      ]
+      then ''
+        api() {
+          ${pkgs.curl}/bin/curl \
+            --unix-socket socket \
+            $@
+        }
+
+        api -X PUT http://localhost/api/v1/vm.power-button
+
+        # wait for exit
+        while api http://localhost/api/v1/vm.info 2>/dev/null ; do
+          sleep 0.1
+        done
+      ''
       else throw "Cannot shutdown without socket";
   };
 }

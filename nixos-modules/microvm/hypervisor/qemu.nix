@@ -159,6 +159,9 @@ in {
                 };
               } ];
             }}
+
+            # wait for exit
+            cat
           ) | \
           ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none
       ''

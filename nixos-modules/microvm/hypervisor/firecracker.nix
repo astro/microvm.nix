@@ -43,16 +43,25 @@ in {
 
     shutdownCommand =
       if socket != null
-      then lib.escapeShellArgs [
-        "${pkgs.curl}/bin/curl"
-        "--unix-socket" socket
-        "-X" "PUT" "http://localhost/actions"
-        "-H"  "Accept: application/json"
-        "-H"  "Content-Type: application/json"
-        "-d" (builtins.toJSON {
-          action_type = "SendCtrlAltDel";
-        })
-      ]
+      then ''
+        api() {
+          ${pkgs.curl}/bin/curl \
+            --unix-socket ${socket} \
+            -H "Accept: application/json" \
+            $@
+        }
+
+        api -X PUT http://localhost/actions \
+          -H "Content-Type: application/json" \
+          -d '${builtins.toJSON {
+            action_type = "SendCtrlAltDel";
+          }}'
+
+        # wait for exit
+        while api http://localhost 2>/dev/null ; do
+          sleep 0.1
+        done
+      ''
       else throw "Cannot shutdown without socket";
   };
 }

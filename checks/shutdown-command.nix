@@ -25,6 +25,5 @@ in nixpkgs.lib.optionalAttrs microvm.canShutdown {
       sleep 10
       echo Now shutting down
       ${microvm}/bin/microvm-shutdown
-      fg
     '';
 }

@@ -72,9 +72,7 @@ in {
         api -X PUT http://localhost/api/v1/vm.power-button
 
         # wait for exit
-        while api http://localhost/api/v1/vm.info 2>/dev/null ; do
-          sleep 0.1
-        done
+        ${pkgs.socat}/bin/socat STDOUT UNIX:${socket},shut-none
       ''
       else throw "Cannot shutdown without socket";
   };

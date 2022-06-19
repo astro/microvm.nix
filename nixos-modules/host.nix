@@ -186,7 +186,7 @@ in
           Type = "simple";
           WorkingDirectory = "${stateDir}/%i";
           ExecStart = "${stateDir}/%i/current/bin/microvm-run";
-          ExecStop = "${stateDir}/%i/current/bin/microvm-shutdown";
+          ExecStop = "${stateDir}/%i/booted/bin/microvm-shutdown";
           TimeoutStopSec = 90;
           Restart = "always";
           RestartSec = "1s";

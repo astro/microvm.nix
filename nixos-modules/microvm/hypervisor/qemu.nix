@@ -98,19 +98,26 @@ in {
           ];
         }.${proto}) (enumerate 0 shares)
       ) ++
-      (builtins.concatMap ({ type, id, mac, bridge }: [
+      lib.warnIf (
+        forwardPorts != [] &&
+        ! builtins.any ({ type, ... }: type == "user") interfaces
+      ) "${config.networking.hostName}: forwardPortsOptions only running with user network" (
+      builtins.concatMap ({ type, id, mac, bridge }: [
         "-netdev" (
-          lib.concatStringsSep "," ([
-            "${type}"
-            "id=${id}"
-           ]
-          ++ (lib.warnIf (type != "user" && forwardPortsOptions != []) "forwardPortsOptions only running with user type" lib.optionals (type == "user" && forwardPorts != []) forwardPortsOptions)
-          ++ lib.optionals (type == "bridge") [
-            "br=${bridge}" "helper=/run/wrappers/bin/qemu-bridge-helper"
-          ] ++ lib.optionals (type == "tap") [
-            "ifname=${id}"
-            "script=no" "downscript=no"
-          ])
+          lib.concatStringsSep "," (
+            [
+              "${type}"
+              "id=${id}"
+            ]
+            ++ lib.optionals (type == "user" && forwardPortsOptions != []) forwardPortsOptions
+            ++ lib.optionals (type == "bridge") [
+              "br=${bridge}" "helper=/run/wrappers/bin/qemu-bridge-helper"
+            ]
+            ++ lib.optionals (type == "tap") [
+              "ifname=${id}"
+              "script=no" "downscript=no"
+            ]
+          )
         )
         "-device" "virtio-net-${devType},netdev=${id},mac=${mac}"
       ]) interfaces)

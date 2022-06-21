@@ -330,12 +330,13 @@ in
     ++
     # blacklist forwardPorts
     [ {
-      assertion = config.microvm.forwardPorts == [] || (
-        config.microvm.hypervisor == "qemu" &&
-        builtins.any ({ type, ... }: type == "user") config.microvm.interfaces
-      );
+      assertion =
+        config.microvm.forwardPorts != [] -> (
+          config.microvm.hypervisor == "qemu" &&
+          builtins.any ({ type, ... }: type == "user") config.microvm.interfaces
+        );
       message = ''
-        `config.microvm.forwardPorts` works only with qemu and one network interface with `type = "user"`
+        MicroVM ${config.networking.hostName}: `config.microvm.forwardPorts` works only with qemu and one network interface with `type = "user"`
       '';
     } ]
   ;

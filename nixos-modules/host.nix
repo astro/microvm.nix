@@ -208,7 +208,7 @@ in
 
     # This creates tap interfaces and attaches them to a bridge for
     # qemu regardless if it is run as root or not.
-    security.wrappers.qemu-bridge-helper = {
+    security.wrappers.qemu-bridge-helper = lib.mkIf (!config.virtualisation.libvirtd.enable) {
       source = "${pkgs.qemu}/libexec/qemu-bridge-helper";
       owner = "root";
       group = "root";

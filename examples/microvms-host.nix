@@ -9,7 +9,7 @@ nixpkgs.lib.nixosSystem {
     # this runs as a MicroVM that nests MicroVMs
     self.nixosModules.microvm
 
-    ({ pkgs, lib, ... }: {
+    ({ config, lib, pkgs, ... }: {
       networking.hostName = "microvms-host";
       users.users.root.password = "";
       nix = {
@@ -23,6 +23,7 @@ nixpkgs.lib.nixosSystem {
       environment.systemPackages = [
         pkgs.git
       ];
+      system.stateVersion = config.system.nixos.version;
       services = let
         service = if lib.versionAtLeast (lib.versions.majorMinor lib.version) "20.09" then "getty" else "mingetty";
       in {

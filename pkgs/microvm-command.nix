@@ -143,7 +143,7 @@ EOF
     list)
       for DIR in $STATE_DIR/* ; do
         NAME=$(basename $DIR)
-        if [ -d $DIR ] ; then
+        if [ -d $DIR ] && [ -L $DIR/current ] ; then
           CURRENT_SYSTEM=$(readlink $DIR/current/share/microvm/system)
           CURRENT=$(echo $CURRENT_SYSTEM | sed -e "s/.*-//")
 

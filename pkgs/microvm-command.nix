@@ -144,11 +144,12 @@ EOF
       for DIR in $STATE_DIR/* ; do
         NAME=$(basename $DIR)
         if [ -d $DIR ] ; then
-          CURRENT=$(basename $(readlink $DIR/current/share/microvm/system))
+          CURRENT_SYSTEM=$(readlink $DIR/current/share/microvm/system)
+          CURRENT=$(echo $CURRENT_SYSTEM | sed -e "s/.*-//")
 
           FLAKE=$(cat $DIR/flake)
           NEW_SYSTEM=$(nix eval --raw $FLAKE#nixosConfigurations.$NAME.config.system.build.toplevel)
-          NEW=$(basename $NEW_SYSTEM)
+          NEW=$(echo $NEW_SYSTEM | sed -e "s/.*-//")
 
           if systemctl is-active -q microvm@$NAME ; then
             echo -n -e "${colors.boldGreen}"
@@ -158,11 +159,12 @@ EOF
             echo -n -e "${colors.boldRed}"
           fi
           echo -n -e "$NAME${colors.normal}: "
-          if [ "$CURRENT" != "$NEW" ] ; then
+          if [ "$CURRENT_SYSTEM" != "$NEW_SYSTEM" ] ; then
             echo -e "${colored "red" "outdated"}(${colored "red" "$CURRENT"}), rebuild(${colored "green" "$NEW"}) and reboot: ${colored "boldCyan" "microvm -Ru $NAME"}"
           elif [ -L "$DIR/booted" ]; then
-            BOOTED=$(basename $(readlink "$DIR/booted/share/microvm/system"))
-            if [ "$NEW" = "$BOOTED" ]; then
+            BOOTED_SYSTEM=$(readlink "$DIR/booted/share/microvm/system")
+            BOOTED=$(echo $BOOTED_SYSTEM | sed -e "s/.*-//")
+            if [ "$NEW_SYSTEM" = "$BOOTED_SYSTEM" ]; then
               echo -e "${colored "green" "current"}(${colored "green" "$BOOTED"})"
             else
               echo -e "${colored "red" "stale"}(${colored "green" "$BOOTED"}), reboot(${colored "green" "$NEW"}): ${colored "boldCyan" "systemctl restart microvm@$NAME.service"}"

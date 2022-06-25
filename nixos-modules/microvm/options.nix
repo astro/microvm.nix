@@ -225,6 +225,12 @@ in
       '';
     };
 
+    qemu.extraArgs = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = "Extra arguments to pass to qemu.";
+    };
+
     runner = mkOption {
       description = "Generated Hypervisor runner for this NixOS";
       type = with types; attrsOf package;

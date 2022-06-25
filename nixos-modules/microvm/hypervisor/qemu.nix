@@ -3,6 +3,7 @@
 let
   inherit (pkgs) system;
   inherit (config.microvm) vcpu mem user interfaces shares socket forwardPorts;
+  inherit (config.microvm.qemu) extraArgs;
   rootDisk = config.system.build.squashfs;
 
   inherit (import ../../../lib { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
@@ -120,7 +121,8 @@ in {
           )
         )
         "-device" "virtio-net-${devType},netdev=${id},mac=${mac}"
-      ]) interfaces)
+      ]) interfaces) ++
+      extraArgs
     );
 
     canShutdown = socket != null;

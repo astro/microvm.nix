@@ -30,20 +30,22 @@ writeScriptBin "microvm" ''
   RESTART=n
 
   OPTERR=1
-  while getopts ":c:f:u:Rr:s:l" arg; do
+  while getopts ":c:f:uRr:s:l" arg; do
     case $arg in
       c)
         ACTION=create
         NAME=$OPTARG
         ;;
+
       u)
         ACTION=update
         NAME=$OPTARG
         ;;
+
       r)
         ACTION=run
-        NAME=$OPTARG
         ;;
+
       l)
         ACTION=list
         ;;
@@ -61,6 +63,8 @@ writeScriptBin "microvm" ''
         ;;
     esac
   done
+  # consume all $@ that were processed by getopts
+  shift $((OPTIND -1))
   DIR=$STATE_DIR/$NAME
 
   build() {
@@ -78,14 +82,14 @@ writeScriptBin "microvm" ''
 Usage: $0 <action> [flags]
 
 Actions:
-          -c <name>  Create a MicroVM
-          -u <name>  Rebuild (update) a MicroVM
-          -r <name>  Run a MicroVM in foreground
-          -l         List MicroVMs
+          -c <name>   Create a MicroVM
+          -u <names>  Rebuild (update) MicroVMs
+          -r <name>   Run a MicroVM in foreground
+          -l          List MicroVMs
 
 Flags:
-          -f <flake> Create using another flake than $FLAKE
-          -R         Restart after update
+          -f <flake>  Create using another flake than $FLAKE
+          -R          Restart after update
 EOF
       ;;
     create)
@@ -110,30 +114,32 @@ EOF
       ;;
 
     update)
-      pushd $DIR > /dev/null
-      OLD=""
-      [ -L current ] && OLD=$(readlink current)
-      build $NAME
+      for NAME in $@ ; do
+        pushd $DIR > /dev/null
+        OLD=""
+        [ -L current ] && OLD=$(readlink current)
+        build $NAME
 
-      BUILT=$(readlink current)
-      [ -n "$OLD" ] && nix store diff-closures $OLD $BUILT
+        BUILT=$(readlink current)
+        [ -n "$OLD" ] && nix store diff-closures $OLD $BUILT
 
-      if [ -L booted ]; then
-        BOOTED=$(readlink booted)
-        if [ $BUILT = $BOOTED ]; then
-          echo No reboot of MicroVM $NAME required
-        else
-          if [ $RESTART = y ]; then
-            echo Rebooting MicroVM $NAME
-            systemctl restart microvm@$NAME.service
+        if [ -L booted ]; then
+          BOOTED=$(readlink booted)
+          if [ $BUILT = $BOOTED ]; then
+            echo No reboot of MicroVM $NAME required
           else
-            echo Reboot MicroVM $NAME for the new profile: systemctl restart microvm@$NAME.service
+            if [ $RESTART = y ]; then
+              echo Rebooting MicroVM $NAME
+              systemctl restart microvm@$NAME.service
+            else
+              echo Reboot MicroVM $NAME for the new profile: systemctl restart microvm@$NAME.service
+            fi
           fi
+        elif [ $RESTART = y ]; then
+          echo Booting MicroVM $NAME
+          systemctl restart microvm@$NAME.service
         fi
-      elif [ $RESTART = y ]; then
-        echo Booting MicroVM $NAME
-        systemctl restart microvm@$NAME.service
-      fi
+      done
       ;;
 
     run)

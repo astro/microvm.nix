@@ -67,9 +67,12 @@ in
   # nix-daemon works only with a writable /nix/store
   systemd =
     let
-      enable = config.microvm.writableStoreOverlay != null;
+      enableNixDaemon = config.microvm.writableStoreOverlay != null;
     in {
-      services.nix-daemon.enable = lib.mkDefault enable;
-      sockets.nix-daemon.enable = lib.mkDefault enable;
+      services.nix-daemon.enable = lib.mkDefault enableNixDaemon;
+      sockets.nix-daemon.enable = lib.mkDefault enableNixDaemon;
+
+      # just fails in the usual usage of microvm.nix
+      generators = { systemd-gpt-auto-generator = "/dev/null"; };
     };
 }

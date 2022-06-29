@@ -100,7 +100,7 @@ in
             echo '${if updateFlake != null
                     then updateFlake
                     else flake}' > flake
-            chown -R ${user}:${group} .
+            chown ${user}:${group} . current flake
           '';
         serviceConfig.SyslogIdentifier = "install-microvm-${name}";
       };

@@ -82,6 +82,8 @@ in
         before = [ "microvm@${name}.service" "microvm-tap-interfaces@${name}.service" "microvm-virtiofsd@${name}.service" ];
         partOf = [ "microvm@${name}.service" ];
         wantedBy = [ "microvms.target" ];
+        # only run if /var/lib/microvms/$name does not exist yet
+        unitConfig.ConditionPathExists = "!${stateDir}/${name}";
         serviceConfig.Type = "oneshot";
         script =
           let
@@ -93,9 +95,7 @@ in
             mkdir -p ${stateDir}/${name}
             cd ${stateDir}/${name}
 
-            if [ ! -e current ]; then
-              ln -sf ${runner} current
-            fi
+            ln -sf ${runner} current
 
             echo '${if updateFlake != null
                     then updateFlake

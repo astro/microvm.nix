@@ -115,6 +115,7 @@ EOF
 
     update)
       for NAME in $@ ; do
+        DIR=$STATE_DIR/$NAME
         pushd $DIR > /dev/null
         OLD=""
         [ -L current ] && OLD=$(readlink current)

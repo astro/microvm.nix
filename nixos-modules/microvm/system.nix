@@ -5,6 +5,12 @@ let
   }) defaultFsType withDriveLetters;
 in
 {
+  assertions = [
+    {assertion = (config.microvm.writableStoreOverlay != null) -> (!config.nix.optimise.automatic && !config.nix.auto-optimise-store);
+     message = ''
+       `nix.optimise.automatic` and `nix.auto-optimise-store` do not work with `microvm.writableStoreOverlay`.
+     '';}];
+
   imports = [
     (modulesPath + "/profiles/minimal.nix")
   ];
@@ -75,4 +81,5 @@ in
       # just fails in the usual usage of microvm.nix
       generators = { systemd-gpt-auto-generator = "/dev/null"; };
     };
+
 }

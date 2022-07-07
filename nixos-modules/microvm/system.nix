@@ -6,9 +6,9 @@ let
 in
 {
   assertions = [
-    {assertion = (config.microvm.writableStoreOverlay != null) -> (!config.nix.optimise.automatic && !config.nix.auto-optimise-store);
+    {assertion = (config.microvm.writableStoreOverlay != null) -> (!config.nix.optimise.automatic && !config.nix.settings.auto-optimise-store);
      message = ''
-       `nix.optimise.automatic` and `nix.auto-optimise-store` do not work with `microvm.writableStoreOverlay`.
+       `nix.optimise.automatic` and `nix.settings.auto-optimise-store` do not work with `microvm.writableStoreOverlay`.
      '';}];
 
   imports = [

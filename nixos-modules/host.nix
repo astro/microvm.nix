@@ -95,12 +95,12 @@ in
             mkdir -p ${stateDir}/${name}
             cd ${stateDir}/${name}
 
-            ln -sf ${runner} current
+            ln -sTf ${runner} current
 
             echo '${if updateFlake != null
                     then updateFlake
                     else flake}' > flake
-            chown ${user}:${group} . current flake
+            chown -h ${user}:${group} . current flake
           '';
         serviceConfig.SyslogIdentifier = "install-microvm-${name}";
       };

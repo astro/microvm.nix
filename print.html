@@ -219,6 +219,22 @@ available for customization. These are the most important ones:</p>
 <tr><td><code>microvm.writableStoreOverlay</code></td><td>Optional string of the path where all writes to <code>/nix/store</code> should go to.</td></tr>
 </tbody></table>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="network-interfaces"><a class="header" href="#network-interfaces">Network interfaces</a></h1>
+<p>Declare a MicroVM's virtual network interfaces like this in its NixOS
+configuration:</p>
+<pre><code class="language-nix">{
+  microvm.interfaces = [ {
+    type = &quot;tap&quot;;
+
+    # interface name on the host
+    id = &quot;microvm-a1&quot;;
+
+    # Ethernet address of the MicroVM's interface, not the host's
+    #
+    # Locally administered have one of 2/6/A/E in the second nibble.
+    mac = &quot;02:00:00:00:00:01&quot;
+  } ];
+}
+</code></pre>
 <h2 id="type--user"><a class="header" href="#type--user"><code>type = &quot;user&quot;</code></a></h2>
 <p>User-mode networking is only provided by qemu and kvmtool, providing
 outgoing connectivity to your MicroVM without any further setup.</p>
@@ -493,6 +509,8 @@ flake evaluates. It is therefore quite slow to run, yet useful.</p>
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="frequently-asked-questions"><a class="header" href="#frequently-asked-questions">Frequently Asked Questions</a></h1>
 <p>A few caveats. Contributions to eliminate those are welcome.</p>
+<h2 id="can-i-support-the-development-and-maintenance-of-this-project"><a class="header" href="#can-i-support-the-development-and-maintenance-of-this-project">Can I support the development and maintenance of this project?</a></h2>
+<p><a href="https://github.com/sponsors/astro">❤ Sponsor</a></p>
 <h2 id="why-build-a-kernel-with-a-custom-config"><a class="header" href="#why-build-a-kernel-with-a-custom-config">Why build a kernel with a custom config?</a></h2>
 <p>Hypervisors are not required to be able to load an
 initrd/initramfs. Therefore we start init from a virtio disk which

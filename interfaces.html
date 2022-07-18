@@ -135,6 +135,22 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="network-interfaces"><a class="header" href="#network-interfaces">Network interfaces</a></h1>
+<p>Declare a MicroVM's virtual network interfaces like this in its NixOS
+configuration:</p>
+<pre><code class="language-nix">{
+  microvm.interfaces = [ {
+    type = &quot;tap&quot;;
+
+    # interface name on the host
+    id = &quot;microvm-a1&quot;;
+
+    # Ethernet address of the MicroVM's interface, not the host's
+    #
+    # Locally administered have one of 2/6/A/E in the second nibble.
+    mac = &quot;02:00:00:00:00:01&quot;
+  } ];
+}
+</code></pre>
 <h2 id="type--user"><a class="header" href="#type--user"><code>type = &quot;user&quot;</code></a></h2>
 <p>User-mode networking is only provided by qemu and kvmtool, providing
 outgoing connectivity to your MicroVM without any further setup.</p>

@@ -125,7 +125,7 @@
                     microvm.interfaces = lib.optional (builtins.elem hypervisor hypervisorsWithUserNet) {
                       type = "user";
                       id = "qemu";
-                      mac = "00:02:00:01:01:01";
+                      mac = "02:00:00:01:01:01";
                     };
                     microvm.forwardPorts = lib.optional (hypervisor == "qemu") {
                       host.port = 2222;
@@ -155,7 +155,7 @@
                       microvm.interfaces = [ {
                         type = "tap";
                         id = "vm-${builtins.substring 0 4 hypervisor}";
-                        mac = "00:02:00:01:01:0${toString n}";
+                        mac = "02:00:00:01:01:0${toString n}";
                       } ];
                       networking.interfaces.eth0.useDHCP = true;
                       networking.firewall.allowedTCPPorts = [ 22 ];

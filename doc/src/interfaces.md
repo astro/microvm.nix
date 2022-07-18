@@ -1,5 +1,23 @@
 # Network interfaces
 
+Declare a MicroVM's virtual network interfaces like this in its NixOS
+configuration:
+```nix
+{
+  microvm.interfaces = [ {
+    type = "tap";
+
+    # interface name on the host
+    id = "microvm-a1";
+
+    # Ethernet address of the MicroVM's interface, not the host's
+    #
+    # Locally administered have one of 2/6/A/E in the second nibble.
+    mac = "02:00:00:00:00:01"
+  } ];
+}
+```
+
 ## `type = "user"`
 
 User-mode networking is only provided by qemu and kvmtool, providing

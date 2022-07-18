@@ -2,6 +2,9 @@
 
 A few caveats. Contributions to eliminate those are welcome.
 
+## Can I support the development and maintenance of this project?
+
+[❤ Sponsor](https://github.com/sponsors/astro)
 
 ## Why build a kernel with a custom config?
 

@@ -18,4 +18,4 @@ jobs:
       with:
         name: microvm
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - run: nix build -vL .#prebuilt --override-input nixpkgs github:nixos/nixpkgs/nixos-21.11
+    - run: nix build -L .#prebuilt --override-input nixpkgs github:nixos/nixpkgs/nixos-21.11

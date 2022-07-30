@@ -18,4 +18,4 @@ jobs:
       with:
         name: microvm
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - run: nix build -vL .#prebuilt
+    - run: nix build -L .#prebuilt

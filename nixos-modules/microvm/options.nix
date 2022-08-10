@@ -3,6 +3,8 @@ let
   self-lib = import ../../lib {
     nixpkgs-lib = lib;
   };
+
+  inherit (config.networking) hostName;
 in
 {
   options.microvm = with lib; {
@@ -24,7 +26,7 @@ in
 
     socket = mkOption {
       description = "Hypervisor control socket path";
-      default = "${config.networking.hostName}.sock";
+      default = "${hostName}.sock";
       type = with types; nullOr str;
     };
 
@@ -173,7 +175,7 @@ in
     shares = mkOption {
       description = "Shared directory trees";
       default = [];
-      type = with types; listOf (submodule {
+      type = with types; listOf (submodule ({ config, ... }: {
         options = {
           tag = mkOption {
             type = str;
@@ -181,7 +183,10 @@ in
           };
           socket = mkOption {
             type = nullOr str;
-            default = null;
+            default =
+              if config.proto == "virtiofs"
+              then "${hostName}-virtiofs-${config.tag}.sock"
+              else null;
             description = "Socket for communication with virtiofs daemon";
           };
           source = mkOption {
@@ -198,7 +203,7 @@ in
             default = "9p";
           };
         };
-      });
+      }));
     };
 
     kernelParams = mkOption {
@@ -248,7 +253,7 @@ in
     map (volumes: {
       assertion = builtins.length volumes == 1;
       message = ''
-        MicroVM ${config.networking.hostName}: volume image "${(builtins.head volumes).image}" is used ${toString (builtins.length volumes)} > 1 times.
+        MicroVM ${hostName}: volume image "${(builtins.head volumes).image}" is used ${toString (builtins.length volumes)} > 1 times.
       '';
     }) (
       builtins.attrValues (
@@ -260,7 +265,7 @@ in
     map (interfaces: {
       assertion = builtins.length interfaces == 1;
       message = ''
-        MicroVM ${config.networking.hostName}: interface id "${(builtins.head interfaces).id}" is used ${toString (builtins.length interfaces)} > 1 times.
+        MicroVM ${hostName}: interface id "${(builtins.head interfaces).id}" is used ${toString (builtins.length interfaces)} > 1 times.
       '';
     }) (
       builtins.attrValues (
@@ -274,14 +279,14 @@ in
       then {
         assertion = bridge != null;
         message = ''
-          MicroVM ${config.networking.hostName}: interface ${id} is of type "bridge"
+          MicroVM ${hostName}: interface ${id} is of type "bridge"
           but doesn't have a bridge to attach to defined.
         '';
       }
       else {
         assertion = bridge == null;
         message = ''
-          MicroVM ${config.networking.hostName}: interface ${id} is not of type "bridge"
+          MicroVM ${hostName}: interface ${id} is not of type "bridge"
           and therefore shouldn't have a "bridge" option defined.
         '';
       }
@@ -291,7 +296,7 @@ in
     map ({ id, ... }: {
       assertion = builtins.stringLength id <= 15;
       message = ''
-        MicroVM ${config.networking.hostName}: interface name ${id} is longer than the
+        MicroVM ${hostName}: interface name ${id} is longer than the
         the maximum length of 15 characters on Linux.
       '';
     }) config.microvm.interfaces
@@ -300,7 +305,7 @@ in
     map (shares: {
       assertion = builtins.length shares == 1;
       message = ''
-        MicroVM ${config.networking.hostName}: share tag "${(builtins.head shares).tag}" is used ${toString (builtins.length shares)} > 1 times.
+        MicroVM ${hostName}: share tag "${(builtins.head shares).tag}" is used ${toString (builtins.length shares)} > 1 times.
       '';
     }) (
       builtins.attrValues (
@@ -312,7 +317,7 @@ in
     map (shares: {
       assertion = builtins.length shares == 1;
       message = ''
-        MicroVM ${config.networking.hostName}: share socket "${(builtins.head shares).socket}" is used ${toString (builtins.length shares)} > 1 times.
+        MicroVM ${hostName}: share socket "${(builtins.head shares).socket}" is used ${toString (builtins.length shares)} > 1 times.
       '';
     }) (
       builtins.attrValues (
@@ -327,7 +332,7 @@ in
     map ({ tag, socket, ... }: {
       assertion = socket != null;
       message = ''
-        MicroVM ${config.networking.hostName}: virtiofs share with tag "${tag}" is missing a `socket` path.
+        MicroVM ${hostName}: virtiofs share with tag "${tag}" is missing a `socket` path.
       '';
     }) (
       builtins.filter ({ proto, ... }: proto == "virtiofs")
@@ -342,7 +347,7 @@ in
           builtins.any ({ type, ... }: type == "user") config.microvm.interfaces
         );
       message = ''
-        MicroVM ${config.networking.hostName}: `config.microvm.forwardPorts` works only with qemu and one network interface with `type = "user"`
+        MicroVM ${hostName}: `config.microvm.forwardPorts` works only with qemu and one network interface with `type = "user"`
       '';
     } ]
   ;
@@ -350,6 +355,6 @@ in
   config.warnings =
     # 32 MB is just an optimistic guess, not based on experience
     lib.optional (config.microvm.mem < 32) ''
-      MicroVM ${config.networking.hostName}: ${toString config.microvm.mem} MB of RAM is uncomfortably narrow.
+      MicroVM ${hostName}: ${toString config.microvm.mem} MB of RAM is uncomfortably narrow.
     '';
 }

@@ -137,7 +137,7 @@
                         <h1 id="configuration-options"><a class="header" href="#configuration-options">Configuration options</a></h1>
 <p>By including the <code>microvm</code> module a set of NixOS options is made
 available for customization. These are the most important ones:</p>
-<table><thead><tr><th>Option</th><th>Purpose</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Purpose</th></tr></thead><tbody>
 <tr><td><code>microvm.hypervisor</code></td><td>Hypervisor to use by default in <code>microvm.declaredRunner</code></td></tr>
 <tr><td><code>microvm.vcpu</code></td><td>Number of Virtual CPU cores</td></tr>
 <tr><td><code>microvm.mem</code></td><td>RAM allocation in MB</td></tr>
@@ -151,7 +151,7 @@ available for customization. These are the most important ones:</p>
 <tr><td><code>microvm.storeOnBootDisk</code></td><td>Enables the store on the boot squashfs even in the presence of a share with the host's <code>/nix/store</code></td></tr>
 <tr><td><code>microvm.writableStoreOverlay</code></td><td>Optional string of the path where all writes to <code>/nix/store</code> should go to.</td></tr>
 </tbody></table>
-
+</div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">

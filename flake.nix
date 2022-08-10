@@ -93,7 +93,11 @@
 
         nixosConfigurations =
           let
-            hypervisorsWith9p = [ "qemu" "crosvm" ];
+            hypervisorsWith9p = [
+              "qemu"
+              # currently broken:
+              # "crosvm"
+            ];
             hypervisorsWithUserNet = [ "qemu" "kvmtool" ];
             makeExample = { system, hypervisor, config ? {} }:
               nixpkgs.lib.nixosSystem {

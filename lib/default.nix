@@ -8,10 +8,7 @@ rec {
     "kvmtool"
   ];
 
-  hypervisorsWithNetwork =
-    builtins.filter (hypervisor:
-      ! builtins.elem hypervisor ["crosvm"]
-    ) hypervisors;
+  hypervisorsWithNetwork = hypervisors;
 
   defaultFsType = "ext4";
 

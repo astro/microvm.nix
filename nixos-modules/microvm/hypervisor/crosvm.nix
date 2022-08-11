@@ -2,6 +2,8 @@
 let
   inherit (config.microvm) vcpu mem user interfaces volumes shares socket;
   rootDisk = config.system.build.squashfs;
+  mktuntap = pkgs.callPackage ../../../pkgs/mktuntap.nix {};
+  interfaceFdOffset = 3;
 in {
   microvm.runner.crosvm = import ../../../pkgs/runner.nix {
     hypervisor = "crosvm";
@@ -12,6 +14,13 @@ in {
       if user != null
       then throw "crosvm will not change user"
       else lib.escapeShellArgs (
+        lib.concatLists (lib.imap0 (i: ({ id, ... }: [
+          "${mktuntap}/bin/mktuntap"
+          "-i" id
+          "-p" "-v" "-B"
+          (toString (interfaceFdOffset + i))
+        ])) config.microvm.interfaces)
+        ++
         [
           "${pkgs.crosvm}/bin/crosvm" "run"
           "-m" (toString mem)
@@ -42,9 +51,9 @@ in {
           ]
         ) shares
         ++
-        map (_:
-          throw "CrosVM networking is not configurable"
-        ) interfaces ++
+        lib.concatLists (lib.imap0 (i: (_: [
+          "--tap-fd" (toString (interfaceFdOffset + i))
+        ])) interfaces) ++
         [ "${config.system.build.kernel.dev}/vmlinux" ]
       );
 

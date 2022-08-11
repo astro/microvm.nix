@@ -52,7 +52,7 @@ nixpkgs.lib.nixosSystem {
         flake = self;
         updateFlake = "microvm";
       };
-      microvm.vms."${system}-crosvm-example" = {
+      microvm.vms."${system}-crosvm-example-with-tap" = {
         flake = self;
         updateFlake = "microvm";
       };

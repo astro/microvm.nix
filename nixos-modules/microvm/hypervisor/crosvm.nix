@@ -27,7 +27,7 @@ in {
           "-c" (toString vcpu)
           "-r" rootDisk
           "--serial" "type=stdout,console=true,stdin=true"
-          "-p" "console=ttyS0 reboot=k panic=1 nomodules ${toString config.microvm.kernelParams}"
+          "-p" "console=ttyS0 reboot=k panic=1 ${toString config.microvm.kernelParams}"
           # workarounds
           "--seccomp-log-failures"
         ]

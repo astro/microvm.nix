@@ -5,10 +5,6 @@ let
   microvmCommand = import ../pkgs/microvm-command.nix {
     inherit pkgs;
   };
-  virtiofsd =
-    if pkgs ? virtiofsd
-    then pkgs.virtiofsd
-    else pkgs.callPackage ../pkgs/virtiofsd.nix {};
   user = "microvm";
   group = "kvm";
 in
@@ -160,7 +156,7 @@ in
             SOURCE=$(cat $d/source)
             mkdir -p $SOURCE
 
-            ${virtiofsd}/bin/virtiofsd \
+            ${pkgs.virtiofsd}/bin/virtiofsd \
               --socket-path=$SOCKET \
               --socket-group=${config.users.users.microvm.group} \
               --shared-dir $SOURCE &

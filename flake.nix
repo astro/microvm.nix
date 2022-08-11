@@ -36,7 +36,6 @@
           in {
             doc = pkgs.callPackage ./pkgs/doc.nix {};
             kvmtool = pkgs.callPackage ./pkgs/kvmtool.nix {};
-            virtiofsd = pkgs.callPackage ./pkgs/virtiofsd.nix {};
             microvm-kernel = pkgs.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
             microvm = import ./pkgs/microvm-command.nix {
               inherit pkgs;

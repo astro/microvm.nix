@@ -59,4 +59,8 @@ pkgs.runCommandNoCC "microvm-${config.microvm.hypervisor}-${config.networking.ho
         echo "${source}" > $out/share/microvm/virtiofs/${tag}/source
       ''
     ) config.microvm.shares}
+
+  ${pkgs.lib.concatMapStrings ({ bus, path, ... }: ''
+    echo "${path}" >> $out/share/microvm/${bus}-devices
+  '') config.microvm.devices}
 ''

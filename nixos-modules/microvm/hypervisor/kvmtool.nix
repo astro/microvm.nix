@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 let
-  inherit (config.microvm) vcpu mem user interfaces volumes shares preStart;
+  inherit (config.microvm) vcpu mem user interfaces volumes shares preStart devices;
   rootDisk = config.system.build.squashfs;
 in {
   microvm.runner.kvmtool = import ../../../pkgs/runner.nix {
@@ -46,6 +46,11 @@ in {
             "-n" "mode=${type},tapif=${id},guest_mac=${mac}"
           ] else throw "interface type ${type} is not supported by kvmtool"
         ) interfaces
+        ++
+        map ({ bus, path }: {
+          pci = "--vfio-pci=${path}";
+          usb = throw "USB passthrough is not supported on kvmtool";
+        }.${bus}) devices
       );
 
     # `lkvm stop` works but is not graceful.

@@ -2,7 +2,20 @@
 
 let
   inherit (pkgs) system;
-  inherit (config.microvm) vcpu mem user interfaces shares socket forwardPorts;
+
+  qemu =
+    if lib.any ({ bus, ... }: bus == "usb") config.microvm.devices
+    then pkgs.qemu_kvm.overrideAttrs (oa: {
+      configureFlags = oa.configureFlags ++ [
+        "--enable-libusb"
+      ];
+      buildInputs = oa.buildInputs ++ (with pkgs; [
+        libusb
+      ]);
+    })
+    else pkgs.qemu_kvm;
+
+  inherit (config.microvm) vcpu mem user interfaces shares socket forwardPorts devices;
   inherit (config.microvm.qemu) extraArgs;
   rootDisk = config.system.build.squashfs;
 
@@ -53,7 +66,7 @@ in {
 
     command = lib.escapeShellArgs (
       [
-        "${pkgs.qemu_kvm}/bin/qemu-system-${arch}"
+        "${qemu}/bin/qemu-system-${arch}"
         "-name" "qemu-${config.networking.hostName}"
         "-M" machine
         "-m" (toString mem)
@@ -98,30 +111,49 @@ in {
             "-device" "virtio-9p-${devType},fsdev=fs${toString index},mount_tag=${tag}"
           ];
         }.${proto}) (enumerate 0 shares)
-      ) ++
+      )
+      ++
       lib.warnIf (
         forwardPorts != [] &&
         ! builtins.any ({ type, ... }: type == "user") interfaces
       ) "${config.networking.hostName}: forwardPortsOptions only running with user network" (
-      builtins.concatMap ({ type, id, mac, bridge }: [
-        "-netdev" (
-          lib.concatStringsSep "," (
-            [
-              "${type}"
-              "id=${id}"
-            ]
-            ++ lib.optionals (type == "user" && forwardPortsOptions != []) forwardPortsOptions
-            ++ lib.optionals (type == "bridge") [
-              "br=${bridge}" "helper=/run/wrappers/bin/qemu-bridge-helper"
-            ]
-            ++ lib.optionals (type == "tap") [
-              "ifname=${id}"
-              "script=no" "downscript=no"
-            ]
+        builtins.concatMap ({ type, id, mac, bridge }: [
+          "-netdev" (
+            lib.concatStringsSep "," (
+              [
+                "${type}"
+                "id=${id}"
+              ]
+              ++ lib.optionals (type == "user" && forwardPortsOptions != []) forwardPortsOptions
+              ++ lib.optionals (type == "bridge") [
+                "br=${bridge}" "helper=/run/wrappers/bin/qemu-bridge-helper"
+              ]
+              ++ lib.optionals (type == "tap") [
+                "ifname=${id}"
+                "script=no" "downscript=no"
+              ]
+            )
           )
-        )
-        "-device" "virtio-net-${devType},netdev=${id},mac=${mac}"
-      ]) interfaces) ++
+          "-device" "virtio-net-${devType},netdev=${id},mac=${mac}"
+        ]) interfaces
+      )
+      ++
+      lib.optionals (lib.any ({ bus, ... }:
+        bus == "usb"
+      ) devices) [
+        "-usb"
+        "-device" "usb-ehci"
+      ]
+      ++
+      builtins.concatMap ({ bus, path, ... }: {
+          pci = [
+            "-device" "vfio-pci,host=${path},multifunction=on"
+          ];
+          usb = [
+            "-device" "usb-host,${path}"
+          ];
+      }.${bus}) devices
+      ++
       extraArgs
     );
 

@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 let
-  inherit (config.microvm) vcpu mem user interfaces volumes shares socket;
+  inherit (config.microvm) vcpu mem user interfaces volumes shares socket devices;
   rootDisk = config.system.build.squashfs;
 in {
   microvm.runner.firecracker = import ../../../pkgs/runner.nix {
@@ -37,6 +37,10 @@ in {
           then "--tap-device=${id}/${mac}"
           else throw "Unsupported interface type ${type} for Firecracker"
         ) interfaces
+        ++
+        map (_:
+          throw "devices passthrough is not implemented for Firecracker"
+        ) devices
       );
 
     canShutdown = socket != null;

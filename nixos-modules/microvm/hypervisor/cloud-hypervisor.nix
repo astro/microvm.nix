@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 let
-  inherit (config.microvm) vcpu mem user interfaces volumes shares socket;
+  inherit (config.microvm) vcpu mem user interfaces volumes shares socket devices;
   rootDisk = config.system.build.squashfs;
 in {
   microvm.runner.cloud-hypervisor = import ../../../pkgs/runner.nix {
@@ -55,6 +55,14 @@ in {
             then "tap=${id},mac=${mac}"
             else throw "Unsupported interface type ${type} for Cloud-Hypervisor"
           ) interfaces
+        )
+        ++
+        lib.optionals (devices != []) (
+          [ "--device" ] ++
+          map ({ bus, path }: {
+            pci = "path=/sys/bus/pci/devices/${path}";
+            usb = throw "USB passthrough is not supported on cloud-hypervisor";
+          }.${bus}) devices
         )
       );
 

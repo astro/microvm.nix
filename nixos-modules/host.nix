@@ -75,7 +75,12 @@ in
     systemd.services = builtins.foldl' (result: name: result // {
       "install-microvm-${name}" = {
         description = "Install MicroVM '${name}'";
-        before = [ "microvm@${name}.service" "microvm-tap-interfaces@${name}.service" "microvm-virtiofsd@${name}.service" ];
+        before = [
+          "microvm@${name}.service"
+          "microvm-tap-interfaces@${name}.service"
+          "microvm-pci-devices@${name}.service"
+          "microvm-virtiofsd@${name}.service"
+        ];
         partOf = [ "microvm@${name}.service" ];
         wantedBy = [ "microvms.target" ];
         # only run if /var/lib/microvms/$name does not exist yet
@@ -137,6 +142,35 @@ in
         '';
       };
 
+      "microvm-pci-devices@" = {
+        description = "Setup MicroVM '%i' devices for passthrough";
+        before = [ "microvm@%i.service" ];
+        partOf = [ "microvm@%i.service" ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          SyslogIdentifier = "microvm-pci-devices@%i";
+        };
+        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/pci-devices";
+        # `ExecStart`
+        scriptArgs = "%i";
+        script = ''
+          cd ${stateDir}/$1
+
+          modprobe vfio-pci
+
+          for path in $(cat current/share/microvm/pci-devices); do
+            pushd /sys/bus/pci/devices/$path
+            if [ -e driver ]; then
+              echo $path > driver/unbind
+            fi
+            echo vfio-pci > driver_override
+            echo $path > /sys/bus/pci/drivers_probe
+            popd
+          done
+        '';
+      };
+
       "microvm-virtiofsd@" = {
         description = "VirtioFS daemons for MicroVM '%i'";
         before = [ "microvm@%i.service" ];
@@ -169,7 +203,7 @@ in
 
       "microvm@" = {
         description = "MicroVM '%i'";
-        requires = [ "microvm-tap-interfaces@%i.service" "microvm-virtiofsd@%i.service" ];
+        requires = [ "microvm-tap-interfaces@%i.service" "microvm-pci-devices@%i.service" "microvm-virtiofsd@%i.service" ];
         after = [ "network.target" ];
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/microvm-run";
         preStart = ''

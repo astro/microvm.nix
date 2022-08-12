@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 let
-  inherit (config.microvm) vcpu mem user interfaces volumes shares socket;
+  inherit (config.microvm) vcpu mem user interfaces volumes shares socket devices;
   rootDisk = config.system.build.squashfs;
   mktuntap = pkgs.callPackage ../../../pkgs/mktuntap.nix {};
   interfaceFdOffset = 3;
@@ -53,12 +53,23 @@ in {
         ++
         lib.concatLists (lib.imap0 (i: (_: [
           "--tap-fd" (toString (interfaceFdOffset + i))
-        ])) interfaces) ++
+        ])) interfaces)
+        ++
+        builtins.concatMap ({ bus, path }: {
+          pci = [ "--vfio" "/sys/bus/pci/devices/${path},iommu=viommu" ];
+          usb = throw "USB passthrough is not supported on crosvm";
+        }.${bus}) devices
+        ++
         [ "${config.system.build.kernel.dev}/vmlinux" ]
       );
 
-    canShutdown = false;
+    canShutdown = socket != null;
+
     shutdownCommand =
-      throw "'crosvm stop' is not graceful";
+      if socket != null
+      then ''
+        ${pkgs.crosvm}/bin/crosvm powerbtn ${socket}
+      ''
+      else throw "Cannot shutdown without socket";
   };
 }

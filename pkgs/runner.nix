@@ -52,13 +52,11 @@ pkgs.runCommandNoCC "microvm-${config.microvm.hypervisor}-${config.networking.ho
     else ""
   ) config.microvm.interfaces}" > $out/share/microvm/tap-interfaces
 
-  ${pkgs.lib.optionalString (config.microvm.shares != []) (
-    pkgs.lib.concatMapStringsSep "\n" ({ tag, socket, source, proto, ... }:
+  ${pkgs.lib.concatMapStrings ({ tag, socket, source, proto, ... }:
       pkgs.lib.optionalString (proto == "virtiofs") ''
         mkdir -p $out/share/microvm/virtiofs/${tag}
         echo "${socket}" > $out/share/microvm/virtiofs/${tag}/socket
         echo "${source}" > $out/share/microvm/virtiofs/${tag}/source
       ''
-    ) config.microvm.shares
-  )}
+    ) config.microvm.shares}
 ''

@@ -121,6 +121,7 @@ in
             in "${stopScript} %i";
           SyslogIdentifier = "microvm-tap-interfaces@%i";
         };
+        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/tap-interfaces";
         # `ExecStart`
         scriptArgs = "%i";
         script = ''

@@ -12,5 +12,6 @@
   - [Host systemd services](./host-systemd.md)
 - [Declarative MicroVMs](./declarative.md)
 - [Imperative MicroVM management](./microvm-command.md)
+- [Conventions](./conventions.md)
 - [Frequently Asked Questions](./faq.md)
 

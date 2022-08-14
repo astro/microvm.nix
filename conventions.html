@@ -142,10 +142,10 @@ MicroVM deployments using the information on this page.</p>
 <div class="table-wrapper"><table><thead><tr><th><code>nixosModule.microvm</code> option</th><th>MicroVM package file</th><th><code>nixosModules.host</code> systemd service</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>microvm.hypervisor</code></td><td><code>bin/microvm-run</code></td><td><code>microvm@.service</code></td><td>Start script for the main MicroVM process</td></tr>
 <tr><td><code>microvm.hypervisor</code></td><td><code>bin/microvm-shutdown</code></td><td><code>microvm@.service</code></td><td>Script for graceful shutdown of the MicroVM (ie. triggering the power button)</td></tr>
-<tr><td><code>microvm.interfaces</code></td><td><code>share/microvm/tap-interfaces</code></td><td><code>microvm-tap-interfaces@.service</code></td><td>Names of the tap network interfaces to setup for the proper user</td></tr>
-<tr><td><code>microvm.devices</code></td><td><code>share/microvm/pci-devices</code></td><td><code>microvm-pci-devices@.service</code></td><td>PCI devices that must be bound to the <strong>vfio-pci</strong> driver on the host</td></tr>
-<tr><td><code>microvm.shares</code></td><td><code>share/microvm/virtiofs/${tag}/source</code></td><td><code>microvm-virtiofsd@.service</code></td><td>Source directory of a <strong>virtiofs</strong> instance by tag</td></tr>
-<tr><td><code>microvm.shares</code></td><td><code>share/microvm/virtiofs/${tag}/socket</code></td><td><code>microvm-virtiofsd@.service</code></td><td><strong>virtiofsd</strong> socket path by tag</td></tr>
+<tr><td><code>microvm.interfaces.*.id</code></td><td><code>share/microvm/tap-interfaces</code></td><td><code>microvm-tap-interfaces@.service</code></td><td>Names of the tap network interfaces to setup for the proper user</td></tr>
+<tr><td><code>microvm.devices.*.path</code></td><td><code>share/microvm/pci-devices</code></td><td><code>microvm-pci-devices@.service</code></td><td>PCI devices that must be bound to the <strong>vfio-pci</strong> driver on the host</td></tr>
+<tr><td><code>microvm.shares.*.source</code></td><td><code>share/microvm/virtiofs/${tag}/source</code></td><td><code>microvm-virtiofsd@.service</code></td><td>Source directory of a <strong>virtiofs</strong> instance by tag</td></tr>
+<tr><td><code>microvm.shares.*.socket</code></td><td><code>share/microvm/virtiofs/${tag}/socket</code></td><td><code>microvm-virtiofsd@.service</code></td><td><strong>virtiofsd</strong> socket path by tag</td></tr>
 <tr><td></td><td><code>share/microvm/system</code></td><td></td><td><code>config.system.build.toplevel</code> symlink, used for comparing versions when running <code>microvm -l</code></td></tr>
 </tbody></table>
 </div>

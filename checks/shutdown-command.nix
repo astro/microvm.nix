@@ -3,7 +3,7 @@
 let
   pkgs = nixpkgs.legacyPackages.${system};
   microvm = (nixpkgs.lib.nixosSystem {
-    inherit system ;
+    inherit system;
     modules = [
       self.nixosModules.microvm
       {

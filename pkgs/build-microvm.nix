@@ -9,19 +9,21 @@
 writeScriptBin "build-microvm" ''
   #! ${runtimeShell} -e
 
+  IFS=`echo`
   PATH=${lib.makeBinPath [ coreutils git nix ]}
 
-  if [ $# -ne 1 ]; then
+  if [ $# -lt 1 ]; then
     echo Usage: $0 flakeref#nixos
     exit 1
   fi
 
   FLAKE=$(echo $1|cut -d "#" -f 1)
   NAME=$(echo $1|cut -d "#" -f 2)
+  shift
 
   echo Building a MicroVM runner for NixOS configuration $NAME from Flake $FLAKE
   # --impure so that we can getFlake /nix/store/...
-  nix build --show-trace --impure --expr "let
+  nix build $@ --impure --expr "let
     self = builtins.getFlake \"${self}\";
     pkgs = self.inputs.nixpkgs.legacyPackages.${targetPlatform.system};
     flake = builtins.getFlake \"$FLAKE\";

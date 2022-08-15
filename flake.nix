@@ -35,7 +35,6 @@
             pkgs = nixpkgs.legacyPackages.${system};
           in {
             doc = pkgs.callPackage ./pkgs/doc.nix {};
-            kvmtool = pkgs.callPackage ./pkgs/kvmtool.nix {};
             mktuntap = pkgs.callPackage ./pkgs/mktuntap.nix {};
             microvm-kernel = pkgs.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
             microvm = import ./pkgs/microvm-command.nix {
@@ -73,10 +72,6 @@
         lib = import ./lib { nixpkgs-lib = nixpkgs.lib; };
 
         overlay = final: prev: {
-          kvmtool =
-            if prev ? kvmtool
-            then prev.kvmtool
-            else prev.callPackage ./pkgs/kvmtool.nix {};
           microvm-kernel = prev.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
         };
 

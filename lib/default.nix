@@ -37,4 +37,6 @@ rec {
     '');
 
   buildRunner = import ./runner.nix;
+
+  buildSquashfs = import ./squashfs.nix;
 }

@@ -34,6 +34,7 @@
           let
             pkgs = nixpkgs.legacyPackages.${system};
           in {
+            build-microvm = pkgs.callPackage ./pkgs/build-microvm.nix { inherit self; };
             doc = pkgs.callPackage ./pkgs/doc.nix {};
             mktuntap = pkgs.callPackage ./pkgs/mktuntap.nix {};
             microvm-kernel = pkgs.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};

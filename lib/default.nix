@@ -35,4 +35,6 @@ rec {
         mkfs.${fsType} ${image}
       fi
     '');
+
+  buildRunner = import ./runner.nix;
 }

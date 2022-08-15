@@ -1,35 +1,40 @@
 { pkgs
-, config
-, hypervisor
-, preStart ? config.microvm.preStart
-, command
-, canShutdown ? false
-, shutdownCommand ? throw "shutdownCommand not implemented"
+, microvmConfig
+, kernel ? pkgs.callPackage ../pkgs/microvm-kernel.nix {
+  inherit (pkgs.linuxPackages_latest) kernel;
+}
+, rootDisk
+, toplevel
 }:
 
 let
   inherit (import ../lib { nixpkgs-lib = pkgs.lib; }) createVolumesScript;
+
+  hypervisorConfig = import (./runners + "/${microvmConfig.hypervisor}.nix") {
+    inherit pkgs microvmConfig kernel rootDisk;
+  };
+
+  inherit (hypervisorConfig) command canShutdown shutdownCommand;
+  preStart = hypervisorConfig.preStart or microvmConfig.preStart;
   
-  run = ''
+  runScriptBin = pkgs.writeScriptBin "microvm-run" ''
     #! ${pkgs.runtimeShell} -e
 
-    ${createVolumesScript pkgs config.microvm.volumes}
+    ${createVolumesScript pkgs microvmConfig.volumes}
     ${preStart}
 
     exec ${command}
   '';
-  runScriptBin = pkgs.writeScriptBin "microvm-run" run;
 
-  shutdown = ''
+  shutdownScriptBin = pkgs.writeScriptBin "microvm-shutdown" ''
     #! ${pkgs.runtimeShell} -e
 
     ${shutdownCommand}
   '';
-  shutdownScriptBin = pkgs.writeScriptBin "microvm-shutdown" shutdown;
 
 in
 
-pkgs.runCommandNoCC "microvm-${config.microvm.hypervisor}-${config.networking.hostName}" {
+pkgs.runCommandNoCC "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}" {
   # for `nix run`
   meta.mainProgram = "microvm-run";
   passthru = {
@@ -44,13 +49,12 @@ pkgs.runCommandNoCC "microvm-${config.microvm.hypervisor}-${config.networking.ho
     else ""}
 
   mkdir -p $out/share/microvm
-  ln -s ${config.system.build.toplevel} $out/share/microvm/system
+  ln -s ${toplevel} $out/share/microvm/system
 
-  echo "${pkgs.lib.concatMapStringsSep " " (interface:
-    if interface.type == "tap" && interface ? id
-    then interface.id
-    else ""
-  ) config.microvm.interfaces}" > $out/share/microvm/tap-interfaces
+  ${pkgs.lib.concatMapStringsSep " " (interface:
+    pkgs.lib.optionalString (interface.type == "tap" && interface ? id) ''
+      echo "${interface.id}" >> $out/share/microvm/tap-interfaces
+    '') microvmConfig.interfaces}
 
   ${pkgs.lib.concatMapStrings ({ tag, socket, source, proto, ... }:
       pkgs.lib.optionalString (proto == "virtiofs") ''
@@ -58,9 +62,9 @@ pkgs.runCommandNoCC "microvm-${config.microvm.hypervisor}-${config.networking.ho
         echo "${socket}" > $out/share/microvm/virtiofs/${tag}/socket
         echo "${source}" > $out/share/microvm/virtiofs/${tag}/source
       ''
-    ) config.microvm.shares}
+    ) microvmConfig.shares}
 
   ${pkgs.lib.concatMapStrings ({ bus, path, ... }: ''
     echo "${path}" >> $out/share/microvm/${bus}-devices
-  '') config.microvm.devices}
+  '') microvmConfig.devices}
 ''

@@ -20,10 +20,11 @@ writeScriptBin "build-microvm" ''
   FLAKE=$(echo $1|cut -d "#" -f 1)
   NAME=$(echo $1|cut -d "#" -f 2)
   shift
+  ARGS=("$@")
 
   echo Building a MicroVM runner for NixOS configuration $NAME from Flake $FLAKE
   # --impure so that we can getFlake /nix/store/...
-  nix build $@ --impure --expr "let
+  nix build "''${ARGS[@]}" --impure --expr "let
     self = builtins.getFlake \"${self}\";
     pkgs = self.inputs.nixpkgs.legacyPackages.${targetPlatform.system};
     flake = builtins.getFlake \"$FLAKE\";

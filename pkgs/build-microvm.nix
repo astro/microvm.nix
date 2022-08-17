@@ -9,7 +9,6 @@
 writeScriptBin "build-microvm" ''
   #! ${runtimeShell} -e
 
-  IFS=`echo`
   PATH=${lib.makeBinPath [ coreutils git nix ]}
 
   if [ $# -lt 1 ]; then
@@ -24,22 +23,42 @@ writeScriptBin "build-microvm" ''
 
   echo Building a MicroVM runner for NixOS configuration $NAME from Flake $FLAKE
   # --impure so that we can getFlake /nix/store/...
-  nix build "''${ARGS[@]}" --impure --expr "let
+  exec nix build "''${ARGS[@]}" --impure --expr "let
     self = builtins.getFlake \"${self}\";
     pkgs = self.inputs.nixpkgs.legacyPackages.${targetPlatform.system};
     flake = builtins.getFlake \"$FLAKE\";
+    # The imported NixOS system
     original = flake.nixosConfigurations.\"$NAME\";
-    extended =
-      if original.config ? microvm
-      # Already a MicroVM
-      then original
-      # Otherwise turn into one
-      else original.extendModules {
-        modules = [
-          self.nixosModules.microvm
-        ];
-      };
+    # Customizations to the imported NixOS system
+    extended = original.extendModules {
+      modules = [ {
+        # Overrrite with custom-built squashfs
+        system.build.squashfs = rootDisk;
+        # Prepend (override) regInfo with our custom-built
+        microvm.kernelParams = pkgs.lib.mkBefore [ \"regInfo=\''${rootDisk.regInfo}\" ];
+        # Override other microvm.nix defaults
+        microvm.hypervisor = pkgs.lib.mkForce \"qemu\";
+        microvm.shares = pkgs.lib.mkForce [ {
+          proto = \"9p\";
+          tag = \"ro-store\";
+          source = \"/nix/store\";
+          mountPoint = \"/nix/.ro-store\";
+        } ];
+        microvm.volumes = pkgs.lib.mkForce [];
+        microvm.writableStoreOverlay = pkgs.lib.mkForce null;
+        microvm.interfaces = pkgs.lib.mkForce [ {
+          type = \"user\";
+          id = \"n\";
+          mac = \"02:00:00:00:00:01\";
+        } ];
+      } ] ++ pkgs.lib.optionals (! original.config ? microvm) [
+        # If this NixOS system was not already a MicroVM configuration,
+        # add the module.
+        self.nixosModules.microvm
+      ];
+    };
     inherit (extended.config.boot.kernelPackages) kernel;
+    # Build the squashfs ourselves
     rootDisk = self.lib.buildSquashfs {
       inherit pkgs;
       inherit (extended) config;

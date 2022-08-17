@@ -32,7 +32,7 @@ writeScriptBin "build-microvm" ''
     # Customizations to the imported NixOS system
     extended = original.extendModules {
       modules = [ {
-        # Overrrite with custom-built squashfs
+        # Overrride with custom-built squashfs
         system.build.squashfs = rootDisk;
         # Prepend (override) regInfo with our custom-built
         microvm.kernelParams = pkgs.lib.mkBefore [ \"regInfo=\''${rootDisk.regInfo}\" ];

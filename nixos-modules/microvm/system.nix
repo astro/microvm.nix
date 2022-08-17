@@ -53,21 +53,23 @@ in
         options = [ "bind" ];
         neededForBoot = true;
       };
-    } else if config.microvm.writableStoreOverlay == null
-      then let
+    } else
+      let
         hostStore = builtins.head (
           builtins.filter ({ source, ... }:
             source == "/nix/store"
           ) config.microvm.shares
         );
-      in {
-        "/nix/store" = {
-          device = hostStore.mountPoint;
-          options = [ "bind" ];
-          neededForBoot = true;
-        };
-      }
-      else {}
+      in if config.microvm.writableStoreOverlay == null &&
+            hostStore.mountPoint != "/nix/store"
+         then {
+           "/nix/store" = {
+             device = hostStore.mountPoint;
+             options = [ "bind" ];
+             neededForBoot = true;
+           };
+         }
+         else {}
   );
 
   # nix-daemon works only with a writable /nix/store

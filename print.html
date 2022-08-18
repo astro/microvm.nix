@@ -576,6 +576,10 @@ microvm.shares = [ {
 <p>Once your MicroVM's journal data is visible in the
 <code>/var/log/journal/$machineId/</code> directories, <code>journalctl</code> can pick it
 up using the <code>-m</code>/<code>--merge</code> switch.</p>
+<h2 id="can-i-build-with-hypervisors-from-the-hosts-nixpkgs-instead-of-the-microvms"><a class="header" href="#can-i-build-with-hypervisors-from-the-hosts-nixpkgs-instead-of-the-microvms">Can I build with hypervisors from the host's nixpkgs instead of the MicroVM's?</a></h2>
+<p>Yes. This scenario is enabled through the flake's <code>lib.buildRunner</code>
+function. See the <a href="https://github.com/astro/microvm.nix/blob/main/pkgs/build-microvm.nix"><code>nix run microvm#build-microvm</code></a>
+script that you will need to customize to fit your deployment scnario.</p>
 
                     </main>
 

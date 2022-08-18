@@ -64,3 +64,10 @@ systemd.tmpfiles.rules = map (vmHost:
 Once your MicroVM's journal data is visible in the
 `/var/log/journal/$machineId/` directories, `journalctl` can pick it
 up using the `-m`/`--merge` switch.
+
+## Can I build with hypervisors from the host's nixpkgs instead of the MicroVM's?
+
+Yes. This scenario is enabled through the flake's `lib.buildRunner`
+function. See the [`nix run
+microvm#build-microvm`](https://github.com/astro/microvm.nix/blob/main/pkgs/build-microvm.nix)
+script that you will need to customize to fit your deployment scnario.

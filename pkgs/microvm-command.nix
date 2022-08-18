@@ -111,6 +111,8 @@ EOF
       mkdir -p /nix/var/nix/gcroots/microvm
       rm -f /nix/var/nix/gcroots/microvm/$NAME
       ln -s $DIR/current /nix/var/nix/gcroots/microvm/$NAME
+      rm -f /nix/var/nix/gcroots/microvm/booted-$NAME
+      ln -s $DIR/booted /nix/var/nix/gcroots/microvm/booted-$NAME
       ;;
 
     update)

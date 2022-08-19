@@ -7,7 +7,7 @@
 let
   inherit (pkgs) lib;
   inherit (microvmConfig) vcpu mem user interfaces volumes shares socket devices;
-  mktuntap = pkgs.callPackage ../../../pkgs/mktuntap.nix {};
+  mktuntap = pkgs.callPackage ../../pkgs/mktuntap.nix {};
   interfaceFdOffset = 3;
 in {
   command =

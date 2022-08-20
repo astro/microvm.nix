@@ -3,7 +3,7 @@
 , kernel ? pkgs.callPackage ../pkgs/microvm-kernel.nix {
   inherit (pkgs.linuxPackages_latest) kernel;
 }
-, rootDisk
+, bootDisk
 , toplevel
 }:
 
@@ -11,7 +11,7 @@ let
   inherit (import ../lib { nixpkgs-lib = pkgs.lib; }) createVolumesScript;
 
   hypervisorConfig = import (./runners + "/${microvmConfig.hypervisor}.nix") {
-    inherit pkgs microvmConfig kernel rootDisk;
+    inherit pkgs microvmConfig kernel bootDisk;
   };
 
   inherit (hypervisorConfig) command canShutdown shutdownCommand;

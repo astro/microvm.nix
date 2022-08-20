@@ -1,7 +1,7 @@
 { pkgs
 , microvmConfig
 , kernel
-, rootDisk
+, bootDisk
 }:
 
 let
@@ -22,7 +22,7 @@ in {
         "--name" hostName
         "-m" (toString mem)
         "-c" (toString vcpu)
-        "-d" "${rootDisk},ro"
+        "-d" "${bootDisk},ro"
         "--console" "virtio"
         "--rng"
         "-k" "${kernel}/bzImage"

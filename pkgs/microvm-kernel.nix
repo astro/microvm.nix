@@ -27,6 +27,7 @@ kernel.override {
     EXT4_FS y
     SQUASHFS y
     SQUASHFS_XZ y
+    EROFS_FS y
     # for Firecracker SendCtrlAltDel
     SERIO_I8042 y
     KEYBOARD_ATKBD y

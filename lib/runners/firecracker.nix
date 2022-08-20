@@ -1,7 +1,7 @@
 { pkgs
 , microvmConfig
 , kernel
-, rootDisk
+, bootDisk
 }:
 
 let
@@ -19,7 +19,7 @@ in {
         "-c" (toString vcpu)
         "--kernel=${kernel.dev}/vmlinux"
         "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off nomodules ${toString microvmConfig.kernelParams}"
-        "--root-drive=${rootDisk}:ro"
+        "--root-drive=${bootDisk}:ro"
       ]
       ++
       lib.optionals (socket != null) [ "-s" socket ]

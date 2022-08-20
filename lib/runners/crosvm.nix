@@ -1,7 +1,7 @@
 { pkgs
 , microvmConfig
 , kernel
-, rootDisk
+, bootDisk
 }:
 
 let
@@ -25,7 +25,7 @@ in {
         "${pkgs.crosvm}/bin/crosvm" "run"
         "-m" (toString mem)
         "-c" (toString vcpu)
-        "-r" rootDisk
+        "-r" bootDisk
         "--serial" "type=stdout,console=true,stdin=true"
         "-p" "console=ttyS0 reboot=k panic=1 ${toString microvmConfig.kernelParams}"
         # workarounds

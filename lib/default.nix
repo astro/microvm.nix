@@ -39,4 +39,5 @@ rec {
   buildRunner = import ./runner.nix;
 
   buildSquashfs = import ./squashfs.nix;
+  buildErofs = import ./erofs.nix;
 }

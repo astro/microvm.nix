@@ -1,7 +1,7 @@
 { pkgs
 , microvmConfig
 , kernel
-, rootDisk
+, bootDisk
 }:
 
 let
@@ -81,7 +81,7 @@ in {
       "-device" "virtconsole,chardev=virtiocon0"
       "-device" "i8042"
       "-device" "virtio-rng-${devType}"
-      "-drive" "id=root,format=raw,media=cdrom,file=${rootDisk},if=none,aio=io_uring"
+      "-drive" "id=root,format=raw,media=cdrom,file=${bootDisk},if=none,aio=io_uring"
       "-device" "virtio-blk-${devType},drive=root"
       "-kernel" "${kernel.dev}/vmlinux"
       "-append" "console=hvc0 acpi=off reboot=t panic=-1 ${toString microvmConfig.kernelParams}"

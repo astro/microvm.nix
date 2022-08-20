@@ -1,7 +1,7 @@
 { pkgs
 , microvmConfig
 , kernel
-, rootDisk
+, bootDisk
 }:
 
 let
@@ -30,7 +30,7 @@ in {
         "--kernel" "${kernel.dev}/vmlinux"
         "--cmdline" "console=hvc0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
         "--seccomp" "true"
-        "--disk" "path=${rootDisk},readonly=on"
+        "--disk" "path=${bootDisk},readonly=on"
       ]
       ++
       map ({ image, ... }:

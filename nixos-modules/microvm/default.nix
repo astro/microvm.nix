@@ -2,7 +2,7 @@ self:
 { config, lib, pkgs, ... }:
 {
   imports = [
-    ./squashfs.nix
+    ./root-disk.nix
     ./stage-1.nix
     ./options.nix
     ./system.nix
@@ -21,7 +21,7 @@ self:
       } // config.microvm;
       inherit (config.boot.kernelPackages) kernel;
       inherit (config.system.build) toplevel;
-      rootDisk = config.system.build.squashfs;
+      bootDisk = config.microvm.bootDisk;
     }
   );
 }

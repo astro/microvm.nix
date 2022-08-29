@@ -59,6 +59,10 @@ let
           );
       in
       [ forwardingOptions ];
+
+  writeQmp = data: ''
+    echo '${builtins.toJSON data}'
+  '';
 in {
   hypervisor = "qemu";
 
@@ -77,14 +81,18 @@ in {
       "-no-reboot"
       "-serial" "null"
       "-device" "virtio-serial-${devType}"
-      "-chardev" "stdio,mux=on,id=virtiocon0,signal=off"
-      "-device" "virtconsole,chardev=virtiocon0"
+      "-chardev" "pty,id=con0"
+      "-device" "virtconsole,chardev=con0"
+      "-chardev" "stdio,mux=off,id=con1,signal=off"
+      "-device" "virtconsole,chardev=con1"
       "-device" "i8042"
       "-device" "virtio-rng-${devType}"
       "-drive" "id=root,format=raw,media=cdrom,file=${bootDisk},if=none,aio=io_uring"
       "-device" "virtio-blk-${devType},drive=root"
       "-kernel" "${kernel.dev}/vmlinux"
-      "-append" "console=hvc0 acpi=off reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+      # hvc1 precedes hvc0 so that nixos starts serial-agetty@ on both
+      # without further config
+      "-append" "console=hvc1 console=hvc0 acpi=off reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
     ] ++
     lib.optionals canSandbox [
       "-sandbox" "on"
@@ -160,49 +168,64 @@ in {
   shutdownCommand =
     if socket != null
     then
-      let
-        writeQmp = data: ''
-          echo '${builtins.toJSON data}'
-        '';
-      in ''
-          (
-            ${writeQmp { execute = "qmp_capabilities"; }}
-            ${writeQmp {
-              execute = "input-send-event";
-              arguments.events = [ {
-                type = "key";
-                data = {
-                  down = true;
-                  key = {
-                    type = "qcode";
-                    data = "ctrl";
-                  };
-                };
-              } {
-                type = "key";
-                data = {
-                  down = true;
-                  key = {
-                    type = "qcode";
-                    data = "alt";
-                  };
-                };
-              } {
-                type = "key";
-                data = {
-                  down = true;
-                  key = {
-                    type = "qcode";
-                    data = "delete";
-                  };
-                };
-              } ];
-            }}
-
-            # wait for exit
-            cat
-          ) | \
-          ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none
       ''
+        (
+          ${writeQmp { execute = "qmp_capabilities"; }}
+          ${writeQmp {
+            execute = "input-send-event";
+            arguments.events = [ {
+              type = "key";
+              data = {
+                down = true;
+                key = {
+                  type = "qcode";
+                  data = "ctrl";
+                };
+              };
+            } {
+              type = "key";
+              data = {
+                down = true;
+                key = {
+                  type = "qcode";
+                  data = "alt";
+                };
+              };
+            } {
+              type = "key";
+              data = {
+                down = true;
+                key = {
+                  type = "qcode";
+                  data = "delete";
+                };
+              };
+            } ];
+          }}
+           # wait for exit
+          cat
+        ) | \
+        ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none
+    ''
     else throw "Cannot shutdown without socket";
+
+  getConsoleScript =
+    if socket != null
+    then ''
+      PTY=$( (
+        ${writeQmp { execute = "qmp_capabilities"; }}
+        ${writeQmp { execute = "query-chardev"; }}
+      ) | \
+        ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none | \
+        tail -n 1 | \
+        jq -r '.return | .[] | select(.label == "con0") | .filename' \
+      )
+      if [[ $PTY =~ ^pty:(.+)$ ]]; then
+        PTY="''${BASH_REMATCH[1]}"
+      else
+        echo "No valid pty opened by qemu" >&2
+        exit 1
+      fi
+    ''
+    else null;
 }

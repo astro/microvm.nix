@@ -32,6 +32,15 @@ let
     ${shutdownCommand}
   '';
 
+  hasConsole = (hypervisorConfig.getConsoleScript or null) != null;
+
+  consoleScriptBin = pkgs.writeScriptBin "microvm-console" ''
+    #! ${pkgs.runtimeShell} -e
+
+    ${hypervisorConfig.getConsoleScript}
+    exec ${pkgs.screen}/bin/screen -S microvm-${microvmConfig.hostName} $PTY
+  '';
+
 in
 
 pkgs.runCommandNoCC "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}" {
@@ -46,6 +55,9 @@ pkgs.runCommandNoCC "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostNam
   ln -s ${runScriptBin}/bin/microvm-run $out/bin/microvm-run
   ${if canShutdown
     then "ln -s ${shutdownScriptBin}/bin/microvm-shutdown $out/bin/microvm-shutdown"
+    else ""}
+  ${if hasConsole
+    then "ln -s ${consoleScriptBin}/bin/microvm-console $out/bin/microvm-console"
     else ""}
 
   mkdir -p $out/share/microvm

@@ -27,8 +27,9 @@ in {
         "--cpus" "boot=${toString vcpu}"
         "--watchdog"
         "--console" "tty"
+        "--serial" "pty"
         "--kernel" "${kernel.dev}/vmlinux"
-        "--cmdline" "console=hvc0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+        "--cmdline" "console=hvc0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
         "--seccomp" "true"
         "--disk" "path=${bootDisk},readonly=on"
       ]
@@ -83,4 +84,13 @@ in {
         ${pkgs.socat}/bin/socat STDOUT UNIX:${socket},shut-none
       ''
     else throw "Cannot shutdown without socket";
+
+  getConsoleScript =
+    if socket != null
+    then ''
+      PTY=$(${pkgs.cloud-hypervisor}/bin/ch-remote --api-socket ${socket} info | \
+        jq -r .config.serial.file \
+      )
+    ''
+    else null;
 }

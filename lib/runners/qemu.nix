@@ -19,7 +19,7 @@ let
     })
     else pkgs.qemu_kvm;
 
-  inherit (microvmConfig) hostName vcpu mem user interfaces shares socket forwardPorts devices;
+  inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces shares socket forwardPorts devices;
   inherit (microvmConfig.qemu) extraArgs;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
@@ -28,8 +28,8 @@ let
   arch = builtins.head (builtins.split "-" system);
   requirePci = shares != [];
   machine = if requirePci
-            then "q35"
-            else "microvm,x-option-roms=off,isa-serial=off,pit=off,pic=off,rtc=off";
+            then "q35,mem-merge=on"
+            else "microvm,x-option-roms=off,isa-serial=off,pit=off,pic=off,rtc=off,mem-merge=on";
   devType = if requirePci
             then "pci"
             else "device";
@@ -71,7 +71,7 @@ in {
       "${qemu}/bin/qemu-system-${arch}"
       "-name" hostName
       "-M" machine
-      "-m" (toString mem)
+      "-m" (toString (mem + balloonMem))
       "-cpu" "host,+x2apic"
       "-smp" (toString vcpu)
       "-no-acpi" "-enable-kvm"
@@ -99,12 +99,13 @@ in {
     ] ++
     lib.optionals (user != null) [ "-user" user ] ++
     lib.optionals (socket != null) [ "-qmp" "unix:${socket},server,nowait" ] ++
+    lib.optionals (balloonMem > 0) [ "-device" "virtio-balloon" ] ++
     builtins.concatMap ({ image, letter, ... }:
       [ "-drive" "id=vd${letter},format=raw,file=${image},if=none,aio=io_uring" "-device" "virtio-blk-${devType},drive=vd${letter}" ]
     ) volumes ++
     lib.optionals (shares != []) (
       [
-        "-object" "memory-backend-memfd,id=mem,size=${toString mem}M,share=on"
+        "-object" "memory-backend-memfd,id=mem,size=${toString (mem + balloonMem)}M,share=on"
         "-numa" "node,memdev=mem"
       ] ++
       builtins.concatMap ({ proto, index, socket, source, tag, ... }: {
@@ -218,7 +219,7 @@ in {
       ) | \
         ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none | \
         tail -n 1 | \
-        jq -r '.return | .[] | select(.label == "con0") | .filename' \
+        ${pkgs.jq}/bin/jq -r '.return | .[] | select(.label == "con0") | .filename' \
       )
       if [[ $PTY =~ ^pty:(.+)$ ]]; then
         PTY="''${BASH_REMATCH[1]}"
@@ -226,6 +227,22 @@ in {
         echo "No valid pty opened by qemu" >&2
         exit 1
       fi
+    ''
+    else null;
+
+  setBalloonScript =
+    if socket != null
+    then ''
+      VALUE=$(( $SIZE * 1024 * 1024 ))
+      SIZE=$( (
+        ${writeQmp { execute = "qmp_capabilities"; }}
+        ${writeQmp { execute = "balloon"; arguments.value = 987; }}
+      ) | sed -e s/987/$VALUE/ | \
+        ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none | \
+        tail -n 1 | \
+        ${pkgs.jq}/bin/jq -r .data.actual \
+      )
+      echo $(( $SIZE / 1024 / 1024 ))
     ''
     else null;
 }

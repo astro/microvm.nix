@@ -6,7 +6,7 @@
 
 let
   inherit (pkgs) lib;
-  inherit (microvmConfig) vcpu mem user interfaces volumes shares socket devices;
+  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices;
 in {
   preStart = ''
     ${microvmConfig.preStart}
@@ -23,7 +23,6 @@ in {
     else lib.escapeShellArgs (
       [
         "${pkgs.cloud-hypervisor}/bin/cloud-hypervisor"
-        "--memory" "size=${toString mem}M,mergeable=on,shared=on"
         "--cpus" "boot=${toString vcpu}"
         "--watchdog"
         "--console" "tty"
@@ -31,8 +30,18 @@ in {
         "--kernel" "${kernel.dev}/vmlinux"
         "--cmdline" "console=hvc0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
         "--seccomp" "true"
-        "--disk" "path=${bootDisk},readonly=on"
       ]
+      ++
+      (if balloonMem > 0
+      then [
+        "--memory" "size=${toString (mem + balloonMem)}M,mergeable=on,shared=on,hotplug_method=virtio-mem,hotplug_size=${toString balloonMem}M,hotplugged_size=${toString balloonMem}M"
+        "--balloon" "size=${toString balloonMem}M,deflate_on_oom=on,free_page_reporting=on"
+      ]
+      else [
+        "--memory" "size=${toString mem}M,mergeable=on,shared=on"
+      ])
+      ++
+      [ "--disk" "path=${bootDisk},readonly=on" ]
       ++
       map ({ image, ... }:
         "path=${image}"
@@ -91,6 +100,13 @@ in {
       PTY=$(${pkgs.cloud-hypervisor}/bin/ch-remote --api-socket ${socket} info | \
         jq -r .config.serial.file \
       )
+    ''
+    else null;
+
+  setBalloonScript =
+    if socket != null
+    then ''
+      ${pkgs.cloud-hypervisor}/bin/ch-remote --api-socket ${socket} resize --balloon $SIZE"M"
     ''
     else null;
 }

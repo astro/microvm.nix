@@ -8,7 +8,9 @@
 }:
 
 let
-  inherit (import ../lib { nixpkgs-lib = pkgs.lib; }) createVolumesScript;
+  inherit (pkgs) lib writeScriptBin;
+
+  inherit (import ../lib { nixpkgs-lib = lib; }) createVolumesScript;
 
   hypervisorConfig = import (./runners + "/${microvmConfig.hypervisor}.nix") {
     inherit pkgs microvmConfig kernel bootDisk;
@@ -32,8 +34,6 @@ let
     ${shutdownCommand}
   '';
 
-  hasConsole = (hypervisorConfig.getConsoleScript or null) != null;
-
   consoleScriptBin = pkgs.writeScriptBin "microvm-console" ''
     #! ${pkgs.runtimeShell} -e
 
@@ -41,6 +41,17 @@ let
     exec ${pkgs.screen}/bin/screen -S microvm-${microvmConfig.hostName} $PTY
   '';
 
+  balloonScriptBin = pkgs.writeScriptBin "microvm-balloon" ''
+    #! ${pkgs.runtimeShell} -e
+
+    if [ -z "$1" ]; then
+      echo "Usage: $0 <balloon-size-mb>"
+      exit 1
+    fi
+
+    SIZE=$1
+    ${hypervisorConfig.setBalloonScript}
+  '';
 in
 
 pkgs.runCommandNoCC "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}" {
@@ -56,27 +67,30 @@ pkgs.runCommandNoCC "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostNam
   ${if canShutdown
     then "ln -s ${shutdownScriptBin}/bin/microvm-shutdown $out/bin/microvm-shutdown"
     else ""}
-  ${if hasConsole
-    then "ln -s ${consoleScriptBin}/bin/microvm-console $out/bin/microvm-console"
-    else ""}
+  ${lib.optionalString ((hypervisorConfig.getConsoleScript or null) != null) ''
+    ln -s ${consoleScriptBin}/bin/microvm-console $out/bin/microvm-console
+  ''}
+  ${lib.optionalString ((hypervisorConfig.setBalloonScript or null) != null) ''
+    ln -s ${balloonScriptBin}/bin/microvm-balloon $out/bin/microvm-balloon
+  ''}
 
   mkdir -p $out/share/microvm
   ln -s ${toplevel} $out/share/microvm/system
 
-  ${pkgs.lib.concatMapStringsSep " " (interface:
-    pkgs.lib.optionalString (interface.type == "tap" && interface ? id) ''
+  ${lib.concatMapStringsSep " " (interface:
+    lib.optionalString (interface.type == "tap" && interface ? id) ''
       echo "${interface.id}" >> $out/share/microvm/tap-interfaces
     '') microvmConfig.interfaces}
 
-  ${pkgs.lib.concatMapStrings ({ tag, socket, source, proto, ... }:
-      pkgs.lib.optionalString (proto == "virtiofs") ''
+  ${lib.concatMapStrings ({ tag, socket, source, proto, ... }:
+      lib.optionalString (proto == "virtiofs") ''
         mkdir -p $out/share/microvm/virtiofs/${tag}
         echo "${socket}" > $out/share/microvm/virtiofs/${tag}/socket
         echo "${source}" > $out/share/microvm/virtiofs/${tag}/source
       ''
     ) microvmConfig.shares}
 
-  ${pkgs.lib.concatMapStrings ({ bus, path, ... }: ''
+  ${lib.concatMapStrings ({ bus, path, ... }: ''
     echo "${path}" >> $out/share/microvm/${bus}-devices
   '') microvmConfig.devices}
 ''

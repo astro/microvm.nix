@@ -48,6 +48,18 @@ in
       type = types.int;
     };
 
+    balloonMem = mkOption {
+      description = ''
+        Amount of balloon memory in megabytes
+
+        The way virtio-balloon works is that this is the memory size
+        that the host can request to be freed by the VM. Initial
+        booting of the VM allocates mem+balloonMem megabytes of RAM.
+      '';
+      default = 0;
+      type = types.int;
+    };
+
     forwardPorts = mkOption {
       type = types.listOf
         (types.submodule {

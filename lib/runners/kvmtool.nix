@@ -6,7 +6,7 @@
 
 let
   inherit (pkgs) lib;
-  inherit (microvmConfig) hostName vcpu mem user interfaces volumes shares preStart devices;
+  inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces volumes shares preStart devices;
 in {
   preStart = ''
     ${preStart}
@@ -20,7 +20,7 @@ in {
       [
         "${pkgs.kvmtool}/bin/lkvm" "run"
         "--name" hostName
-        "-m" (toString mem)
+        "-m" (toString (mem + balloonMem))
         "-c" (toString vcpu)
         "-d" "${bootDisk},ro"
         "--console" "virtio"
@@ -28,6 +28,8 @@ in {
         "-k" "${kernel}/bzImage"
         "-p" "console=hvc0 reboot=k panic=1 nomodules ${toString microvmConfig.kernelParams}"
       ]
+      ++
+      lib.optionals (balloonMem > 0) [ "--balloon" ]
       ++
       builtins.concatMap ({ image, ... }:
         [ "-d" image ]
@@ -55,4 +57,13 @@ in {
 
   # `lkvm stop` works but is not graceful.
   canShutdown = false;
+
+  setBalloonScript = ''
+    if [[ $SIZE =~ ^-(\d+)$ ]]; then
+      ARGS="-d ''${BASH_REMATCH[1]}"
+    else
+      ARGS="-i $SIZE"
+    fi
+    HOME=$PWD ${pkgs.kvmtool}/bin/lkvm balloon $ARGS -n ${hostName}
+  '';
 }

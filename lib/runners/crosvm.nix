@@ -6,7 +6,7 @@
 
 let
   inherit (pkgs) lib;
-  inherit (microvmConfig) vcpu mem user interfaces volumes shares socket devices;
+  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices;
   mktuntap = pkgs.callPackage ../../pkgs/mktuntap.nix {};
   interfaceFdOffset = 3;
 in {
@@ -23,7 +23,7 @@ in {
       ++
       [
         "${pkgs.crosvm}/bin/crosvm" "run"
-        "-m" (toString mem)
+        "-m" (toString (mem + balloonMem))
         "-c" (toString vcpu)
         "-r" bootDisk
         "--serial" "type=stdout,console=true,stdin=true"
@@ -71,4 +71,16 @@ in {
         ${pkgs.crosvm}/bin/crosvm powerbtn ${socket}
       ''
     else throw "Cannot shutdown without socket";
+
+  setBalloonScript =
+    if socket != null
+    then ''
+      VALUE=$(( $SIZE * 1024 * 1024 ))
+      ${pkgs.crosvm}/bin/crosvm balloon $VALUE ${socket}
+      SIZE=$( ${pkgs.crosvm}/bin/crosvm balloon_stats ${socket} | \
+        ${pkgs.jq}/bin/jq -r .BalloonStats.balloon_actual \
+      )
+      echo $(( $SIZE / 1024 / 1024 ))
+    ''
+    else null;
 }

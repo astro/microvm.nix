@@ -157,7 +157,7 @@ EOF
           CURRENT=$(echo $CURRENT_SYSTEM | sed -e "s/.*-//")
 
           FLAKE=$(cat $DIR/flake)
-          NEW_SYSTEM=$(nix eval --raw $FLAKE#nixosConfigurations.$NAME.config.system.build.toplevel)
+          NEW_SYSTEM=$(nix --option narinfo-cache-negative-ttl 10 eval --raw $FLAKE#nixosConfigurations.$NAME.config.system.build.toplevel)
           NEW=$(echo $NEW_SYSTEM | sed -e "s/.*-//")
 
           if systemctl is-active -q microvm@$NAME ; then

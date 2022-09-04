@@ -149,7 +149,7 @@ system</a></li>
 <p>Prepare your host by including the microvm.nix <code>host</code> nixosModule:</p>
 <pre><code class="language-nix"># Your server's flake.nix
 {
-  inputs.nixpkgs.url = &quot;github:nixos/nixpkgs/unstable&quot;;
+  inputs.nixpkgs.url = &quot;github:nixos/nixpkgs/nixos-unstable&quot;;
   inputs.microvm.url = &quot;github:astro/microvm.nix&quot;;
   inputs.microvm.inputs.nixpkgs.follows = &quot;nixpkgs&quot;;
 

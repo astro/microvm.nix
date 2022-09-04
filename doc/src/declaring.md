@@ -12,7 +12,7 @@ augmented by importing this flake's `nixosModule.microvm`:
 ```nix
 # Example flake.nix
 {
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/unstable";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   inputs.microvm.url = "github:astro/microvm.nix";
   inputs.microvm.inputs.nixpkgs.follows = "nixpkgs";
 

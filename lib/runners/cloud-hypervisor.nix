@@ -98,7 +98,7 @@ in {
     if socket != null
     then ''
       PTY=$(${pkgs.cloud-hypervisor}/bin/ch-remote --api-socket ${socket} info | \
-        jq -r .config.serial.file \
+        ${pkgs.jq}/bin/jq -r .config.serial.file \
       )
     ''
     else null;

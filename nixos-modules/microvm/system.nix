@@ -72,13 +72,19 @@ in
          else {}
   );
 
-  # nix-daemon works only with a writable /nix/store
+  # modules that consume boot time but have rare use-cases
+  boot.blacklistedKernelModules = [ "drm" "rfkill" "intel_pstate" ];
+
   systemd =
     let
+      # nix-daemon works only with a writable /nix/store
       enableNixDaemon = config.microvm.writableStoreOverlay != null;
     in {
       services.nix-daemon.enable = lib.mkDefault enableNixDaemon;
       sockets.nix-daemon.enable = lib.mkDefault enableNixDaemon;
+
+      # consumes a lot of boot time
+      services.mount-pstore.enable = false;
 
       # just fails in the usual usage of microvm.nix
       generators = { systemd-gpt-auto-generator = "/dev/null"; };

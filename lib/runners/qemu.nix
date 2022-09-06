@@ -83,7 +83,7 @@ in {
       "-device" "virtio-serial-${devType}"
       "-chardev" "pty,id=con0"
       "-device" "virtconsole,chardev=con0"
-      "-chardev" "stdio,mux=off,id=con1,signal=off"
+      "-chardev" "stdio,mux=on,id=con1,signal=off"
       "-device" "virtconsole,chardev=con1"
       "-device" "i8042"
       "-device" "virtio-rng-${devType}"

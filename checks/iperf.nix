@@ -54,7 +54,7 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
           {
             "aarch64-linux" = "cortex-a72";
             "x86_64-linux" = "kvm64,vmx=on";
-          }.${system};
+          }.${system}
         ];
       };
     };

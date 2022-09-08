@@ -49,7 +49,13 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
         # writableStore = true;
         # # keep the store paths built inside the VM across reboots
         # writableStoreUseTmpfs = false;
-        qemu.options = [ "-cpu" "kvm64,vmx=on" ];
+        qemu.options = [
+          "-cpu"
+          {
+            "aarch64-linux" = "cortex-a72";
+            "x86_64-linux" = "kvm64,vmx=on";
+          }.${system};
+        ];
       };
     };
     testScript = ''

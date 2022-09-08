@@ -6,7 +6,13 @@
     name = "vm-${hypervisor}";
     nodes.vm = {
       imports = [ self.nixosModules.host ];
-      virtualisation.qemu.options = [ "-cpu" "kvm64,vmx=on" ];
+      virtualisation.qemu.options = [
+        "-cpu"
+        {
+          "aarch64-linux" = "cortex-a72";
+          "x86_64-linux" = "kvm64,vmx=on";
+        }.${system};
+      ];
       microvm.vms."${system}-${hypervisor}-example".flake = self;
     };
     testScript = ''

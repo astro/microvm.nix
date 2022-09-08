@@ -19,6 +19,7 @@ in {
       default = {
         inherit (config.system.build) squashfs erofs;
       }.${config.microvm.bootDiskType};
+      defaultText = literalExpression ''"''${config.system.build.squashfs}"'';
     };
   };
 

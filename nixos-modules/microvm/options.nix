@@ -27,6 +27,7 @@ in
     socket = mkOption {
       description = "Hypervisor control socket path";
       default = "${hostName}.sock";
+      defaultText = literalExpression ''"''${hostName}.sock"'';
       type = with types; nullOr str;
     };
 
@@ -283,6 +284,7 @@ in
       description = "Generated Hypervisor declared by `config.microvm.hypervisor`";
       type = types.package;
       default = config.microvm.runner.${config.microvm.hypervisor};
+      defaultText = literalExpression ''"config.microvm.runner.''${config.microvm.hypervisor}"'';
     };
   };
 

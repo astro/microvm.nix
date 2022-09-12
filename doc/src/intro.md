@@ -9,7 +9,7 @@ on your NixOS machine.
 
 NixOS makes running services a breeze. Being able to quickly rollback
 configuration is a life-saver. Not so much however on systems that are
-shared by multiple services where maintainance of one affects others.
+shared by multiple services where maintenance of one affects others.
 
 Increase stability by partitioning services into virtual NixOS systems
 that can be updated individually.
@@ -24,7 +24,7 @@ with a huge attack surface.
 Virtual machines on the other hand run their own OS kernel, reducing
 the attack surface to the hypervisor and its device drivers. The
 resource usage however incurs some overhead when compared with
-containers, with memory alloction being especially inflexible.
+containers, with memory allocation being especially inflexible.
 
 **microvm.nix** ships an additional security feature: the root
 filesystem is a read-only squashfs that includes only the binaries of

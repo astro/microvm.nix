@@ -1,4 +1,4 @@
-# Summary
+# Table of Contents
 
 - [Intro](./intro.md)
 - [Declaring MicroVMs](./declaring.md)

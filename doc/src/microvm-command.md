@@ -1,7 +1,7 @@
 # Imperative MicroVM management with the `microvm` command
 
-Compartmentizing services in an infrastructure landscape allows us to
-conduct maintainance individually and without affecting unrelated
+Compartmentalizing services in an infrastructure landscape allows us to
+conduct maintenance individually and without affecting unrelated
 MicroVMs. The `microvm` command helps with that.
 
 ## Create a MicroVM

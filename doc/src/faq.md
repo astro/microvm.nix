@@ -6,14 +6,14 @@ A few caveats. Contributions to eliminate those are welcome.
 
 [❤ Sponsor](https://github.com/sponsors/astro)
 
-## Why build a kernel with a custom config?
+## Why build a kernel with a custom configuration?
 
 Hypervisors are not required to be able to load an
 initrd/initramfs. Therefore we start init from a virtio disk which
 requires virtio drivers to be built into the kernel statically.
 
 Because we are building our own kernel anyway, we've got the
-opportunity of adding more custom config that is optimized for common
+opportunity of adding more custom configuration that is optimized for common
 MicroVM use-cases.
 
 The **microvm.nix** project contains instructions for Github to build

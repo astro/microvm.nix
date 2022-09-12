@@ -8,7 +8,7 @@ MicroVM deployments using the information on this page.
 | `nixosModule.microvm` option | MicroVM package file                   | `nixosModules.host` systemd service | Description                                                                                   |
 |------------------------------|----------------------------------------|-------------------------------------|-----------------------------------------------------------------------------------------------|
 | `microvm.hypervisor`         | `bin/microvm-run`                      | `microvm@.service`                  | Start script for the main MicroVM process                                                     |
-| `microvm.hypervisor`         | `bin/microvm-shutdown`                 | `microvm@.service`                  | Script for graceful shutdown of the MicroVM (ie. triggering the power button)                 |
+| `microvm.hypervisor`         | `bin/microvm-shutdown`                 | `microvm@.service`                  | Script for graceful shutdown of the MicroVM (e.g. triggering the power button)                |
 | `microvm.interfaces.*.id`    | `share/microvm/tap-interfaces`         | `microvm-tap-interfaces@.service`   | Names of the tap network interfaces to setup for the proper user                              |
 | `microvm.devices.*.path`     | `share/microvm/pci-devices`            | `microvm-pci-devices@.service`      | PCI devices that must be bound to the **vfio-pci** driver on the host                         |
 | `microvm.shares.*.source`    | `share/microvm/virtiofs/${tag}/source` | `microvm-virtiofsd@.service`        | Source directory of a **virtiofs** instance by tag                                            |

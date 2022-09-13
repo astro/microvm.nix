@@ -13,7 +13,7 @@ configuration:
     # Ethernet address of the MicroVM's interface, not the host's
     #
     # Locally administered have one of 2/6/A/E in the second nibble.
-    mac = "02:00:00:00:00:01"
+    mac = "02:00:00:00:00:01";
   } ];
 }
 ```

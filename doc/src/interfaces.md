@@ -33,7 +33,7 @@ Use a virtual tuntap Ethernet interface. Its name is the value of
 
 Some Hypervisors may be able to automatically create these interfaces
 when running as root, which we advise against. Instead, create the
-interfaces before starting a microvm:
+interfaces before starting a MicroVM:
 
 ```bash
 sudo ip tuntap add $IFACE_NAME mode tap user $USER
@@ -49,4 +49,3 @@ This mode lets qemu create a tap interface and attach it to a bridge.
 The `qemu-bridge-helper` binary needs to be setup with the proper
 permissions. See the `host` module for that. qemu will be run
 *without* `-sandbox on` in order for this contraption to work.
-

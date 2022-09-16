@@ -1,7 +1,6 @@
 {
   description = "NixOS in MicroVMs";
 
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-21.11";
   inputs.microvm.url = "github:astro/microvm.nix";
   inputs.microvm.inputs.nixpkgs.follows = "nixpkgs";
 

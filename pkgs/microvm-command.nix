@@ -30,10 +30,15 @@ writeScriptBin "microvm" ''
   RESTART=n
 
   OPTERR=1
-  while getopts ":c:f:uRr:s:l" arg; do
+  while getopts ":c:C:f:uRr:s:l" arg; do
     case $arg in
       c)
         ACTION=create
+        NAME=$OPTARG
+        ;;
+
+      C)
+        ACTION=console
         NAME=$OPTARG
         ;;
 
@@ -83,6 +88,7 @@ Usage: $0 <action> [flags]
 
 Actions:
           -c <name>   Create a MicroVM
+          -C <name>   Attach to MicroVM's console
           -u <names>  Rebuild (update) MicroVMs
           -r <name>   Run a MicroVM in foreground
           -l          List MicroVMs
@@ -113,6 +119,12 @@ EOF
       ln -s $DIR/current /nix/var/nix/gcroots/microvm/$NAME
       rm -f /nix/var/nix/gcroots/microvm/booted-$NAME
       ln -s $DIR/booted /nix/var/nix/gcroots/microvm/booted-$NAME
+      ;;
+
+    console)
+      pushd $DIR
+      ./booted/bin/microvm-console
+      popd > /dev/null
       ;;
 
     update)

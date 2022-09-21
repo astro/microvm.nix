@@ -1,10 +1,10 @@
 # MicroVM.nix
 
 <p align="center">
-**Handbook:**
-[HTML](https://astro.github.io/microvm.nix/)
-[Markdown](./doc/src/SUMMARY.md)
-**[Support the project](https://github.com/sponsors/astro)**
+  <strong>Handbook:</strong>
+  <a href="https://astro.github.io/microvm.nix/">HTML</a>
+  <a href="doc/src/SUMMARY.md">Markdown</a>
+  <strong><a href="https://github.com/sponsors/astro">Support the project</a></strong>
 </p>
 <p align="center">
   <img src="doc/src/demo.gif" alt="Demo GIF">

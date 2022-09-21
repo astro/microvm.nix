@@ -1,5 +1,7 @@
 # Declaring NixOS MicroVMs
 
+![Demo](demo.gif)
+
 microvm.nix creates virtual machine disk images and runner script
 packages for the entries of the `nixosConfigurations` section of a
 `flake.nix` file.

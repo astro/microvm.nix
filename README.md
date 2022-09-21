@@ -1,6 +1,14 @@
 # MicroVM.nix
 
-**Handbook:** [HTML](https://astro.github.io/microvm.nix/) [Markdown](./doc/src/SUMMARY.md)
+<p align="center">
+**Handbook:**
+[HTML](https://astro.github.io/microvm.nix/)
+[Markdown](./doc/src/SUMMARY.md)
+**[Support the project](https://github.com/sponsors/astro)**
+</p>
+<p align="center">
+  <img src="doc/src/demo.gif" alt="Demo GIF">
+</p>
 
 A Nix Flake to build NixOS and run it on one of several Type-2
 Hypervisors on NixOS/Linux. The project is intended to provide a more

@@ -3,7 +3,7 @@
 <p align="center">
   <strong>Handbook:</strong>
   <a href="https://astro.github.io/microvm.nix/">HTML</a>
-  <a href="doc/src/SUMMARY.md">Markdown</a>
+  <a href="doc/src/TOC.md">Markdown</a>
   •
   <strong><a href="https://github.com/sponsors/astro">Support the project</a></strong>
 </p>

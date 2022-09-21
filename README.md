@@ -18,7 +18,7 @@ run MicroVMs like Nix packages, or alternatively install them as
 systemd services declaratively in your host's Nix Flake or
 imperatively with the provided `microvm` command.
 
-**Warning:** This is a *Nix Flakes*-only project. Use with `nix-shell -p nixFlakes`
+**Warning:** This is a *Nix Flakes*-only project.
 
 ## At a glance
 

@@ -147,7 +147,7 @@ configuration:</p>
     # Ethernet address of the MicroVM's interface, not the host's
     #
     # Locally administered have one of 2/6/A/E in the second nibble.
-    mac = &quot;02:00:00:00:00:01&quot;
+    mac = &quot;02:00:00:00:00:01&quot;;
   } ];
 }
 </code></pre>
@@ -161,7 +161,7 @@ configuration is necessary inside the MicroVM.</p>
 <code>id</code>.</p>
 <p>Some Hypervisors may be able to automatically create these interfaces
 when running as root, which we advise against. Instead, create the
-interfaces before starting a microvm:</p>
+interfaces before starting a MicroVM:</p>
 <pre><code class="language-bash">sudo ip tuntap add $IFACE_NAME mode tap user $USER
 </code></pre>
 <p>When running MicroVMs through the <code>host</code> module, the tap network

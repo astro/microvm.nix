@@ -142,7 +142,7 @@ on your NixOS machine.</p>
 <h2 id="compartmentalization"><a class="header" href="#compartmentalization">Compartmentalization</a></h2>
 <p>NixOS makes running services a breeze. Being able to quickly rollback
 configuration is a life-saver. Not so much however on systems that are
-shared by multiple services where maintainance of one affects others.</p>
+shared by multiple services where maintenance of one affects others.</p>
 <p>Increase stability by partitioning services into virtual NixOS systems
 that can be updated individually.</p>
 <h2 id="the-case-against-containers"><a class="header" href="#the-case-against-containers">The Case Against Containers</a></h2>
@@ -153,7 +153,7 @@ with a huge attack surface.</p>
 <p>Virtual machines on the other hand run their own OS kernel, reducing
 the attack surface to the hypervisor and its device drivers. The
 resource usage however incurs some overhead when compared with
-containers, with memory alloction being especially inflexible.</p>
+containers, with memory allocation being especially inflexible.</p>
 <p><strong>microvm.nix</strong> ships an additional security feature: the root
 filesystem is a read-only squashfs that includes only the binaries of
 your configuration. That of course holds only true unless you mount the

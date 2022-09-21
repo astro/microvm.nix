@@ -143,7 +143,7 @@ on your NixOS machine.</p>
 <h2 id="compartmentalization"><a class="header" href="#compartmentalization">Compartmentalization</a></h2>
 <p>NixOS makes running services a breeze. Being able to quickly rollback
 configuration is a life-saver. Not so much however on systems that are
-shared by multiple services where maintainance of one affects others.</p>
+shared by multiple services where maintenance of one affects others.</p>
 <p>Increase stability by partitioning services into virtual NixOS systems
 that can be updated individually.</p>
 <h2 id="the-case-against-containers"><a class="header" href="#the-case-against-containers">The Case Against Containers</a></h2>
@@ -154,7 +154,7 @@ with a huge attack surface.</p>
 <p>Virtual machines on the other hand run their own OS kernel, reducing
 the attack surface to the hypervisor and its device drivers. The
 resource usage however incurs some overhead when compared with
-containers, with memory alloction being especially inflexible.</p>
+containers, with memory allocation being especially inflexible.</p>
 <p><strong>microvm.nix</strong> ships an additional security feature: the root
 filesystem is a read-only squashfs that includes only the binaries of
 your configuration. That of course holds only true unless you mount the
@@ -171,6 +171,7 @@ other Hypervisors that have been explicitly authored for
 <em>virtio</em>. Some of them are written in Rust, a programming language
 that is renowned for being safer than C.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="declaring-nixos-microvms"><a class="header" href="#declaring-nixos-microvms">Declaring NixOS MicroVMs</a></h1>
+<p><img src="demo.gif" alt="Demo" /></p>
 <p>microvm.nix creates virtual machine disk images and runner script
 packages for the entries of the <code>nixosConfigurations</code> section of a
 <code>flake.nix</code> file.</p>
@@ -235,7 +236,7 @@ configuration:</p>
     # Ethernet address of the MicroVM's interface, not the host's
     #
     # Locally administered have one of 2/6/A/E in the second nibble.
-    mac = &quot;02:00:00:00:00:01&quot;
+    mac = &quot;02:00:00:00:00:01&quot;;
   } ];
 }
 </code></pre>
@@ -249,7 +250,7 @@ configuration is necessary inside the MicroVM.</p>
 <code>id</code>.</p>
 <p>Some Hypervisors may be able to automatically create these interfaces
 when running as root, which we advise against. Instead, create the
-interfaces before starting a microvm:</p>
+interfaces before starting a MicroVM:</p>
 <pre><code class="language-bash">sudo ip tuntap add $IFACE_NAME mode tap user $USER
 </code></pre>
 <p>When running MicroVMs through the <code>host</code> module, the tap network
@@ -478,8 +479,8 @@ command</a>.</p>
 <p>Note that building MicroVMs with the host increases build time and
 closure size of the host's system.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="imperative-microvm-management-with-the-microvm-command"><a class="header" href="#imperative-microvm-management-with-the-microvm-command">Imperative MicroVM management with the <code>microvm</code> command</a></h1>
-<p>Compartmentizing services in an infrastructure landscape allows us to
-conduct maintainance individually and without affecting unrelated
+<p>Compartmentalizing services in an infrastructure landscape allows us to
+conduct maintenance individually and without affecting unrelated
 MicroVMs. The <code>microvm</code> command helps with that.</p>
 <h2 id="create-a-microvm"><a class="header" href="#create-a-microvm">Create a MicroVM</a></h2>
 <p>You can specify this MicroVM's source flake with <code>-f</code>. If omitted, the
@@ -519,7 +520,7 @@ flake was designed for single-server usage, you can build different
 MicroVM deployments using the information on this page.</p>
 <div class="table-wrapper"><table><thead><tr><th><code>nixosModule.microvm</code> option</th><th>MicroVM package file</th><th><code>nixosModules.host</code> systemd service</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>microvm.hypervisor</code></td><td><code>bin/microvm-run</code></td><td><code>microvm@.service</code></td><td>Start script for the main MicroVM process</td></tr>
-<tr><td><code>microvm.hypervisor</code></td><td><code>bin/microvm-shutdown</code></td><td><code>microvm@.service</code></td><td>Script for graceful shutdown of the MicroVM (ie. triggering the power button)</td></tr>
+<tr><td><code>microvm.hypervisor</code></td><td><code>bin/microvm-shutdown</code></td><td><code>microvm@.service</code></td><td>Script for graceful shutdown of the MicroVM (i.e. triggering the power button)</td></tr>
 <tr><td><code>microvm.interfaces.*.id</code></td><td><code>share/microvm/tap-interfaces</code></td><td><code>microvm-tap-interfaces@.service</code></td><td>Names of the tap network interfaces to setup for the proper user</td></tr>
 <tr><td><code>microvm.devices.*.path</code></td><td><code>share/microvm/pci-devices</code></td><td><code>microvm-pci-devices@.service</code></td><td>PCI devices that must be bound to the <strong>vfio-pci</strong> driver on the host</td></tr>
 <tr><td><code>microvm.shares.*.source</code></td><td><code>share/microvm/virtiofs/${tag}/source</code></td><td><code>microvm-virtiofsd@.service</code></td><td>Source directory of a <strong>virtiofs</strong> instance by tag</td></tr>
@@ -530,12 +531,12 @@ MicroVM deployments using the information on this page.</p>
 <p>A few caveats. Contributions to eliminate those are welcome.</p>
 <h2 id="can-i-support-the-development-and-maintenance-of-this-project"><a class="header" href="#can-i-support-the-development-and-maintenance-of-this-project">Can I support the development and maintenance of this project?</a></h2>
 <p><a href="https://github.com/sponsors/astro">❤ Sponsor</a></p>
-<h2 id="why-build-a-kernel-with-a-custom-config"><a class="header" href="#why-build-a-kernel-with-a-custom-config">Why build a kernel with a custom config?</a></h2>
+<h2 id="why-build-a-kernel-with-a-custom-configuration"><a class="header" href="#why-build-a-kernel-with-a-custom-configuration">Why build a kernel with a custom configuration?</a></h2>
 <p>Hypervisors are not required to be able to load an
 initrd/initramfs. Therefore we start init from a virtio disk which
 requires virtio drivers to be built into the kernel statically.</p>
 <p>Because we are building our own kernel anyway, we've got the
-opportunity of adding more custom config that is optimized for common
+opportunity of adding more custom configuration that is optimized for common
 MicroVM use-cases.</p>
 <p>The <strong>microvm.nix</strong> project contains instructions for Github to build
 the <code>microvm-kernel</code> package every night and push the binary to

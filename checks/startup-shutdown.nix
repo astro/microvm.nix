@@ -37,7 +37,7 @@
           })
         ];
       }).config.microvm.runner.${hypervisor};
-    in pkgs.runCommandNoCCLocal "microvm-${hypervisor}-test-startup-shutdown" {
+    in pkgs.runCommandLocal "microvm-${hypervisor}-test-startup-shutdown" {
       buildInputs = [
         microvm
         pkgs.p7zip

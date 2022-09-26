@@ -54,7 +54,7 @@ let
   '';
 in
 
-pkgs.runCommandNoCC "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}" {
+pkgs.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}" {
   # for `nix run`
   meta.mainProgram = "microvm-run";
   passthru = {

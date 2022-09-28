@@ -19,10 +19,7 @@ writeScriptBin "microvm" ''
   set -e
 
   PATH=${lib.makeBinPath ([
-    git jq
-    (if pkgs ? nixFlakes
-     then nixFlakes
-     else nix)
+    git jq nix
   ])}:$PATH
   STATE_DIR=/var/lib/microvms
   ACTION=help

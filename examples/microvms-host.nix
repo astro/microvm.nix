@@ -13,7 +13,6 @@ nixpkgs.lib.nixosSystem {
       networking.hostName = "microvms-host";
       users.users.root.password = "";
       nix = {
-        package = pkgs.nixFlakes;
         extraOptions = "experimental-features = nix-command flakes";
         registry = {
           nixpkgs.flake = nixpkgs;

@@ -18,6 +18,8 @@ run MicroVMs like Nix packages, or alternatively install them as
 systemd services declaratively in your host's Nix Flake or
 imperatively with the provided `microvm` command.
 
+*(de)* [Projektvorstellung](https://media.ccc.de/v/ds22-174-microvm-nix)
+
 **Warning:** This is a *Nix Flakes*-only project.
 
 ## At a glance

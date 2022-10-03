@@ -20,39 +20,39 @@ imperatively with the provided `microvm` command.
 
 *(de)* [Projektvorstellung](https://media.ccc.de/v/ds22-174-microvm-nix)
 
-**Warning:** This is a *Nix Flakes*-only project.
+**Attention:** This is a *Nix Flakes*-only project.
 
 ## At a glance
 
 - MicroVMs are Virtual Machines but use special device interfaces
-  (virtio) for high performance
-- This project runs them on NixOS hosts
-- You can choose one of five hypervisors for each MicroVM
-- MicroVMs have a fixed RAM allocation (default: 512 MB)
+  (virtio) for high performance.
+- This project runs them on NixOS hosts.
+- You can choose one of five hypervisors for each MicroVM.
+- MicroVMs have a fixed RAM allocation (default: 512 MB) but can be
+  shrunk using `microvm-balloon`
 - MicroVMs have a read-only root disk with either a prepopulated
   `/nix/store` or by mounting the host's along with an optional
-  writable overlay
+  writable overlay. This filesystem can be built as either *squashfs*
+  (smaller) or *erofs* (faster).
 - You define your MicroVMs in a Nix Flake's `nixosConfigurations`
-  section, reusing the `nixosModules` that are exported by this Flake
+  section, reusing the `nixosModules` that are exported by this Flake.
 - MicroVMs can access stateful filesystems either on a image volume as
-  a block device or as a shared directory hierarchy through 9p or
-  virtiofs.
+  a block device, or alternatively as a shared directory hierarchy
+  through *9p* or *virtiofs*.
 - Zero, one, or more virtual tap ethernet network interfaces can be
-  attached to a MicroVM.
+  attached to a MicroVM. `qemu` and `kvmtool` also support *user*
+  networking which requires no additional setup on the host.
 
 ## Hypervisors
 
-| Hypervisor                                                              | Language | Restrictions                             |
-|-------------------------------------------------------------------------|----------|------------------------------------------|
-| [qemu](https://www.qemu.org/)                                           | C        |                                          |
-| [cloud-hypervisor](https://www.cloudhypervisor.org/)                    | Rust     | no 9p shares                             |
-| [firecracker](https://firecracker-microvm.github.io/)                   | Rust     | no 9p/virtiofs shares                    |
-| [crosvm](https://chromium.googlesource.com/chromiumos/platform/crosvm/) | Rust     | no control socket |
-| [kvmtool](https://github.com/kvmtool/kvmtool)                           | C        | no virtiofs shares, no control socket    |
+| Hypervisor                                                              | Language | Restrictions                          |
+|-------------------------------------------------------------------------|----------|---------------------------------------|
+| [qemu](https://www.qemu.org/)                                           | C        |                                       |
+| [cloud-hypervisor](https://www.cloudhypervisor.org/)                    | Rust     | no 9p shares                          |
+| [firecracker](https://firecracker-microvm.github.io/)                   | Rust     | no 9p/virtiofs shares                 |
+| [crosvm](https://chromium.googlesource.com/chromiumos/platform/crosvm/) | Rust     | no control socket                     |
+| [kvmtool](https://github.com/kvmtool/kvmtool)                           | C        | no virtiofs shares, no control socket |
 
-While ubiquitous qemu seems to work in most situations, other
-hypervisors tend to break with Linux kernel updates. Especially crosvm
-and kvmtool need a lot of luck to get going.
 
 ## Installation
 
@@ -64,7 +64,7 @@ nix registry add microvm github:astro/microvm.nix
 replace `microvm` with `github:astro/microvm.nix` in the following
 examples.)
 
-## Start your own NixOS MicroVM definitions
+## Start writing your own NixOS MicroVM definitions
 
 ```shell
 nix flake init -t microvm
@@ -88,11 +88,14 @@ nix run microvm#kvmtool-example
 nix run microvm#vm
 ```
 
-Check `networkctl status virbr0` for the DHCP leases of the
+Check `networkctl status virbr0` for the DHCP leases of the nested
 MicroVMs. They listen for ssh with an empty root password.
 
 ## Commercial support
 
-The author can be hired to implement the features that you wish, or to
-integrate this tool into your toolchain. If in doubt, just press the
-💗sponsor button.
+The author can implement additional features. Re-use our experience in
+building infrastructure with these techologies!
+
+If the project is already working fine for you, I will be very happy
+if you pressed the 💗sponsor button. This income allows me to spend
+more time maintaining my open-source projects.

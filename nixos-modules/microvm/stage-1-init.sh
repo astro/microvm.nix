@@ -302,6 +302,8 @@ while read -u 3 mountPoint; do
             ;;
         /*)
             device=/mnt-root$device
+            # Ensure existence of source dir
+            mkdir -p $device
             ;;
         *)
             # Not an absolute path; assume that it's a pseudo-device

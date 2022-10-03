@@ -184,6 +184,7 @@ in
           Restart = "always";
           RestartSec = "1s";
           SyslogIdentifier = "microvm-virtiofsd@%i";
+          LimitNOFILE = 1048576;
         };
         script = ''
           for d in current/share/microvm/virtiofs/*; do
@@ -224,6 +225,7 @@ in
           User = user;
           Group = group;
           SyslogIdentifier = "microvm@%i";
+          LimitNOFILE = 1048576;
         };
       };
     } (builtins.attrNames config.microvm.vms);

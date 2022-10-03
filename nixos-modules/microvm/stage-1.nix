@@ -23,7 +23,7 @@ in {
     checkJournalingFS = 1;
     fsInfo =
       let f = fs: [ fs.mountPoint (if fs.device != null then fs.device else "/dev/disk/by-label/${fs.label}") fs.fsType (builtins.concatStringsSep "," fs.options) ];
-      in pkgs.writeText "initrd-fsinfo" (builtins.concatStringsSep "\n" (builtins.concatMap f (builtins.filter utils.fsNeededForBoot (builtins.attrValues config.fileSystems))));
+      in pkgs.writeText "initrd-fsinfo" (builtins.concatStringsSep "\n" (builtins.concatMap f (builtins.filter utils.fsNeededForBoot config.system.build.fileSystems)));
     postMountCommands =
       ''
         # Mark this as a NixOS machine.

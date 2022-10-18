@@ -78,7 +78,7 @@ in {
       "-m" (toString (mem + balloonMem))
       "-cpu" "host,+x2apic"
       "-smp" (toString vcpu)
-      "-no-acpi" "-enable-kvm"
+      "-enable-kvm"
       "-nodefaults" "-no-user-config"
       "-nographic"
       # qemu just hangs after shutdown, allow to exit by rebooting
@@ -96,7 +96,7 @@ in {
       "-kernel" "${kernel.dev}/vmlinux"
       # hvc1 precedes hvc0 so that nixos starts serial-agetty@ on both
       # without further config
-      "-append" "console=hvc1 console=hvc0 acpi=off reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+      "-append" "console=hvc1 console=hvc0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
     ] ++
     lib.optionals canSandbox [
       "-sandbox" "on"

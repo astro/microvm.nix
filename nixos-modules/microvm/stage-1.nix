@@ -64,7 +64,7 @@ in {
     "boot.panic_on_fail" # "boot.shell_on_fail"
   ] ++ config.boot.kernelParams;
 
-  fileSystems."/" = {
+  fileSystems."/" = lib.mkDefault {
     device = "rootfs";
     fsType = "tmpfs";
     options = [ "size=50%,mode=0755" ];

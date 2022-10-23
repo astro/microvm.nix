@@ -105,7 +105,7 @@ in {
     lib.optionals (socket != null) [ "-qmp" "unix:${socket},server,nowait" ] ++
     lib.optionals (balloonMem > 0) [ "-device" "virtio-balloon" ] ++
     builtins.concatMap ({ image, letter, ... }:
-      [ "-drive" "id=vd${letter},format=raw,file=${image},if=none,aio=io_uring" "-device" "virtio-blk-${devType},drive=vd${letter}" ]
+      [ "-drive" "id=vd${letter},format=raw,file=${image},if=none,aio=io_uring,discard=unmap,detect-zeroes=unmap" "-device" "virtio-blk-${devType},drive=vd${letter}" ]
     ) volumes ++
     lib.optionals (shares != []) (
       [

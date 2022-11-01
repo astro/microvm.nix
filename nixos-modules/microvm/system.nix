@@ -22,7 +22,7 @@ in
 
   fileSystems = (
     # Volumes
-    builtins.foldl' (result: { mountPoint, letter, fsType ? defaultFsType, ... }: result // {
+    builtins.foldl' (result: { mountPoint, letter, fsType ? defaultFsType, ... }: result // lib.optionalAttrs (mountPoint != null) {
       "${mountPoint}" = {
         inherit fsType;
         device = "/dev/vd${letter}";

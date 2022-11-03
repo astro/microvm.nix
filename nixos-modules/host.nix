@@ -1,7 +1,7 @@
 { pkgs, config, lib, ... }:
 let
   inherit (pkgs) system;
-  stateDir = "/var/lib/microvms";
+  stateDir = config.microvm.stateDir;
   microvmCommand = import ../pkgs/microvm-command.nix {
     inherit pkgs;
   };

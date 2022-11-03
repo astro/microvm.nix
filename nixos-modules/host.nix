@@ -10,6 +10,14 @@ let
 in
 {
   options.microvm = with lib; {
+    host.enable = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Whether to enable the microvm.nix host module.
+      '';
+    };
+
     vms = mkOption {
       type = with types; attrsOf (submodule ({ ... }: {
         options = {
@@ -54,7 +62,7 @@ in
     };
   };
 
-  config = {
+  config = lib.mkIf config.microvm.host.enable {
     system.activationScripts.microvm-host = ''
       mkdir -p ${stateDir}
       chown ${user}:${group} ${stateDir}

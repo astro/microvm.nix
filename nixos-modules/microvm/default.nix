@@ -8,20 +8,22 @@ self:
     ./system.nix
   ];
 
-  nixpkgs.overlays = [
-    self.overlay
-  ];
+  config = {
+    nixpkgs.overlays = [
+      self.overlay
+    ];
 
-  microvm.runner = lib.genAttrs self.lib.hypervisors (hypervisor:
-    self.lib.buildRunner {
-      inherit pkgs;
-      microvmConfig = {
-        inherit (config.networking) hostName;
-        inherit hypervisor;
-      } // config.microvm;
-      inherit (config.boot.kernelPackages) kernel;
-      inherit (config.system.build) toplevel;
-      bootDisk = config.microvm.bootDisk;
-    }
-  );
+    microvm.runner = lib.genAttrs self.lib.hypervisors (hypervisor:
+      self.lib.buildRunner {
+        inherit pkgs;
+        microvmConfig = {
+          inherit (config.networking) hostName;
+          inherit hypervisor;
+        } // config.microvm;
+        inherit (config.boot.kernelPackages) kernel;
+        inherit (config.system.build) toplevel;
+        bootDisk = config.microvm.bootDisk;
+      }
+    );
+  };
 }

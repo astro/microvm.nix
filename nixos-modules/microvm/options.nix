@@ -8,6 +8,14 @@ let
 in
 {
   options.microvm = with lib; {
+    guest.enable = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Whether to enable the microvm.nix guest module.
+      '';
+    };
+
     hypervisor = mkOption {
       type = types.enum self-lib.hypervisors;
       default = "qemu";
@@ -288,7 +296,8 @@ in
     };
   };
 
-  config.assertions =
+  config = lib.mkIf config.microvm.guest.enable {
+  assertions =
     # check for duplicate volume images
     map (volumes: {
       assertion = builtins.length volumes == 1;
@@ -392,9 +401,10 @@ in
     } ]
   ;
 
-  config.warnings =
+  warnings =
     # 32 MB is just an optimistic guess, not based on experience
     lib.optional (config.microvm.mem < 32) ''
       MicroVM ${hostName}: ${toString config.microvm.mem} MB of RAM is uncomfortably narrow.
     '';
+  };
 }

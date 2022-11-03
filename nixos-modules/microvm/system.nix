@@ -5,15 +5,17 @@ let
   }) defaultFsType withDriveLetters;
 in
 {
+  imports = [
+    (modulesPath + "/profiles/minimal.nix")
+  ];
+
+  config = lib.mkIf config.microvm.guest.enable {
   assertions = [
     {assertion = (config.microvm.writableStoreOverlay != null) -> (!config.nix.optimise.automatic && !config.nix.settings.auto-optimise-store);
      message = ''
        `nix.optimise.automatic` and `nix.settings.auto-optimise-store` do not work with `microvm.writableStoreOverlay`.
      '';}];
 
-  imports = [
-    (modulesPath + "/profiles/minimal.nix")
-  ];
 
   boot.loader.grub.enable = false;
   boot.kernelPackages = pkgs.linuxPackages_latest.extend (_: _: {
@@ -90,4 +92,5 @@ in
       generators = { systemd-gpt-auto-generator = "/dev/null"; };
     };
 
+};
 }

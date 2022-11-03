@@ -23,7 +23,7 @@ in {
     };
   };
 
-  config = {
+  config = lib.mkIf config.microvm.guest.enable {
     system.build.squashfs = self-lib.buildSquashfs {
       inherit config pkgs;
     };

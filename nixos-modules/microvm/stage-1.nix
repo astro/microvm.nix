@@ -14,6 +14,7 @@ let
       )
     ).mountPoint;
 in {
+  config = lib.mkIf config.microvm.guest.enable {
   system.build.microvmStage1 = pkgs.substituteAll rec {
     src = ./stage-1-init.sh;
 
@@ -69,4 +70,5 @@ in {
     fsType = "tmpfs";
     options = [ "size=50%,mode=0755" ];
   };
+};
 }

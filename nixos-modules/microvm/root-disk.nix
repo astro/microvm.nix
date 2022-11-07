@@ -4,7 +4,8 @@ let
   self-lib = import ../../lib {
     nixpkgs-lib = lib;
   };
-in {
+in
+{
   options.microvm = with lib; {
     bootDiskType = mkOption {
       type = types.enum [ "squashfs" "erofs" ];

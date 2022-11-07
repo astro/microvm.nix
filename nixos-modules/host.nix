@@ -37,7 +37,7 @@ in
           };
         };
       }));
-      default = {};
+      default = { };
       description = ''
         The MicroVMs that shall be built declaratively with the host NixOS.
       '';
@@ -53,7 +53,7 @@ in
 
     autostart = mkOption {
       type = with types; listOf str;
-      default = [];
+      default = [ ];
       description = ''
         MicroVMs to start by default.
 
@@ -80,167 +80,173 @@ in
       extraGroups = [ "disk" ];
     };
 
-    systemd.services = builtins.foldl' (result: name: result // {
-      "install-microvm-${name}" = {
-        description = "Install MicroVM '${name}'";
-        before = [
-          "microvm@${name}.service"
-          "microvm-tap-interfaces@${name}.service"
-          "microvm-pci-devices@${name}.service"
-          "microvm-virtiofsd@${name}.service"
-        ];
-        partOf = [ "microvm@${name}.service" ];
-        wantedBy = [ "microvms.target" ];
-        # only run if /var/lib/microvms/$name does not exist yet
-        unitConfig.ConditionPathExists = "!${stateDir}/${name}";
-        serviceConfig.Type = "oneshot";
-        script =
-          let
-            inherit (config.microvm.vms.${name}) flake updateFlake;
-            microvmConfig = flake.nixosConfigurations.${name}.config;
-            runner = microvmConfig.microvm.declaredRunner;
-          in
-          ''
-            mkdir -p ${stateDir}/${name}
-            cd ${stateDir}/${name}
-
-            ln -sTf ${runner} current
-
-            echo '${if updateFlake != null
-                    then updateFlake
-                    else flake}' > flake
-            chown -h ${user}:${group} . current flake
-          '';
-        serviceConfig.SyslogIdentifier = "install-microvm-${name}";
-      };
-    }) {
-      "microvm-tap-interfaces@" = {
-        description = "Setup MicroVM '%i' TAP interfaces";
-        before = [ "microvm@%i.service" ];
-        partOf = [ "microvm@%i.service" ];
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-          ExecStop =
+    systemd.services = builtins.foldl'
+      (result: name: result // {
+        "install-microvm-${name}" = {
+          description = "Install MicroVM '${name}'";
+          before = [
+            "microvm@${name}.service"
+            "microvm-tap-interfaces@${name}.service"
+            "microvm-pci-devices@${name}.service"
+            "microvm-virtiofsd@${name}.service"
+          ];
+          partOf = [ "microvm@${name}.service" ];
+          wantedBy = [ "microvms.target" ];
+          # only run if /var/lib/microvms/$name does not exist yet
+          unitConfig.ConditionPathExists = "!${stateDir}/${name}";
+          serviceConfig.Type = "oneshot";
+          script =
             let
-              stopScript = pkgs.writeScript "stop-microvm-tap-interfaces" ''
-                #! ${pkgs.runtimeShell} -e
+              inherit (config.microvm.vms.${name}) flake updateFlake;
+              microvmConfig = flake.nixosConfigurations.${name}.config;
+              runner = microvmConfig.microvm.declaredRunner;
+            in
+            ''
+              mkdir -p ${stateDir}/${name}
+              cd ${stateDir}/${name}
 
-                cd ${stateDir}/$1
-                for id in $(cat current/share/microvm/tap-interfaces); do
-                  ${pkgs.iproute2}/bin/ip tuntap del name $id mode tap
-                done
-              '';
-            in "${stopScript} %i";
-          SyslogIdentifier = "microvm-tap-interfaces@%i";
+              ln -sTf ${runner} current
+
+              echo '${if updateFlake != null
+                      then updateFlake
+                      else flake}' > flake
+              chown -h ${user}:${group} . current flake
+            '';
+          serviceConfig.SyslogIdentifier = "install-microvm-${name}";
         };
-        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/tap-interfaces";
-        # `ExecStart`
-        scriptArgs = "%i";
-        script = ''
-          cd ${stateDir}/$1
-          for id in $(cat current/share/microvm/tap-interfaces); do
-            if [ -e /sys/class/net/$id ]; then
-              ${pkgs.iproute2}/bin/ip tuntap del name $id mode tap
-            fi
+      })
+      {
+        "microvm-tap-interfaces@" = {
+          description = "Setup MicroVM '%i' TAP interfaces";
+          before = [ "microvm@%i.service" ];
+          partOf = [ "microvm@%i.service" ];
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            ExecStop =
+              let
+                stopScript = pkgs.writeScript "stop-microvm-tap-interfaces" ''
+                  #! ${pkgs.runtimeShell} -e
 
-            ${pkgs.iproute2}/bin/ip tuntap add name $id mode tap user ${user}
-            ${pkgs.iproute2}/bin/ip link set $id up
-          done
-        '';
-      };
+                  cd ${stateDir}/$1
+                  for id in $(cat current/share/microvm/tap-interfaces); do
+                    ${pkgs.iproute2}/bin/ip tuntap del name $id mode tap
+                  done
+                '';
+              in
+              "${stopScript} %i";
+            SyslogIdentifier = "microvm-tap-interfaces@%i";
+          };
+          unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/tap-interfaces";
+          # `ExecStart`
+          scriptArgs = "%i";
+          script = ''
+            cd ${stateDir}/$1
+            for id in $(cat current/share/microvm/tap-interfaces); do
+              if [ -e /sys/class/net/$id ]; then
+                ${pkgs.iproute2}/bin/ip tuntap del name $id mode tap
+              fi
 
-      "microvm-pci-devices@" = {
-        description = "Setup MicroVM '%i' devices for passthrough";
-        before = [ "microvm@%i.service" ];
-        partOf = [ "microvm@%i.service" ];
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-          SyslogIdentifier = "microvm-pci-devices@%i";
+              ${pkgs.iproute2}/bin/ip tuntap add name $id mode tap user ${user}
+              ${pkgs.iproute2}/bin/ip link set $id up
+            done
+          '';
         };
-        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/pci-devices";
-        # `ExecStart`
-        scriptArgs = "%i";
-        script = ''
-          cd ${stateDir}/$1
 
-          modprobe vfio-pci
+        "microvm-pci-devices@" = {
+          description = "Setup MicroVM '%i' devices for passthrough";
+          before = [ "microvm@%i.service" ];
+          partOf = [ "microvm@%i.service" ];
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            SyslogIdentifier = "microvm-pci-devices@%i";
+          };
+          unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/pci-devices";
+          # `ExecStart`
+          scriptArgs = "%i";
+          script = ''
+            cd ${stateDir}/$1
 
-          for path in $(cat current/share/microvm/pci-devices); do
-            pushd /sys/bus/pci/devices/$path
-            if [ -e driver ]; then
-              echo $path > driver/unbind
-            fi
-            echo vfio-pci > driver_override
-            echo $path > /sys/bus/pci/drivers_probe
-            popd
-          done
-        '';
-      };
+            modprobe vfio-pci
 
-      "microvm-virtiofsd@" = {
-        description = "VirtioFS daemons for MicroVM '%i'";
-        before = [ "microvm@%i.service" ];
-        after = [ "local-fs.target" ];
-        partOf = [ "microvm@%i.service" ];
-        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/virtiofs";
-        serviceConfig = {
-          Type = "forking";
-          GuessMainPID = "no";
-          WorkingDirectory = "${stateDir}/%i";
-          Restart = "always";
-          RestartSec = "1s";
-          SyslogIdentifier = "microvm-virtiofsd@%i";
-          LimitNOFILE = 1048576;
+            for path in $(cat current/share/microvm/pci-devices); do
+              pushd /sys/bus/pci/devices/$path
+              if [ -e driver ]; then
+                echo $path > driver/unbind
+              fi
+              echo vfio-pci > driver_override
+              echo $path > /sys/bus/pci/drivers_probe
+              popd
+            done
+          '';
         };
-        script = ''
-          for d in current/share/microvm/virtiofs/*; do
-            SOCKET=$(cat $d/socket)
-            SOURCE=$(cat $d/source)
-            mkdir -p $SOURCE
 
-            ${pkgs.virtiofsd}/bin/virtiofsd \
-              --socket-path=$SOCKET \
-              --socket-group=${config.users.users.microvm.group} \
-              --shared-dir $SOURCE &
-            # detach from shell, but remain in systemd cgroup
-            disown
-          done
-        '';
-      };
+        "microvm-virtiofsd@" = {
+          description = "VirtioFS daemons for MicroVM '%i'";
+          before = [ "microvm@%i.service" ];
+          after = [ "local-fs.target" ];
+          partOf = [ "microvm@%i.service" ];
+          unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/virtiofs";
+          serviceConfig = {
+            Type = "forking";
+            GuessMainPID = "no";
+            WorkingDirectory = "${stateDir}/%i";
+            Restart = "always";
+            RestartSec = "1s";
+            SyslogIdentifier = "microvm-virtiofsd@%i";
+            LimitNOFILE = 1048576;
+          };
+          script = ''
+            for d in current/share/microvm/virtiofs/*; do
+              SOCKET=$(cat $d/socket)
+              SOURCE=$(cat $d/source)
+              mkdir -p $SOURCE
 
-      "microvm@" = {
-        description = "MicroVM '%i'";
-        requires = [ "microvm-tap-interfaces@%i.service" "microvm-pci-devices@%i.service" "microvm-virtiofsd@%i.service" ];
-        after = [ "network.target" ];
-        unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/microvm-run";
-        preStart = ''
-          rm -f booted
-          ln -s $(readlink current) booted
-        '';
-        postStop = ''
-          rm booted
-        '';
-        serviceConfig = {
-          Type = "simple";
-          WorkingDirectory = "${stateDir}/%i";
-          ExecStart = "${stateDir}/%i/current/bin/microvm-run";
-          ExecStop = "${stateDir}/%i/booted/bin/microvm-shutdown";
-          TimeoutStopSec = 90;
-          Restart = "always";
-          RestartSec = "1s";
-          User = user;
-          Group = group;
-          SyslogIdentifier = "microvm@%i";
-          LimitNOFILE = 1048576;
+              ${pkgs.virtiofsd}/bin/virtiofsd \
+                --socket-path=$SOCKET \
+                --socket-group=${config.users.users.microvm.group} \
+                --shared-dir $SOURCE &
+              # detach from shell, but remain in systemd cgroup
+              disown
+            done
+          '';
         };
-      };
-    } (builtins.attrNames config.microvm.vms);
 
-    microvm.autostart = builtins.filter (vmName:
-      config.microvm.vms.${vmName}.autostart
-    ) (builtins.attrNames config.microvm.vms);
+        "microvm@" = {
+          description = "MicroVM '%i'";
+          requires = [ "microvm-tap-interfaces@%i.service" "microvm-pci-devices@%i.service" "microvm-virtiofsd@%i.service" ];
+          after = [ "network.target" ];
+          unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/microvm-run";
+          preStart = ''
+            rm -f booted
+            ln -s $(readlink current) booted
+          '';
+          postStop = ''
+            rm booted
+          '';
+          serviceConfig = {
+            Type = "simple";
+            WorkingDirectory = "${stateDir}/%i";
+            ExecStart = "${stateDir}/%i/current/bin/microvm-run";
+            ExecStop = "${stateDir}/%i/booted/bin/microvm-shutdown";
+            TimeoutStopSec = 90;
+            Restart = "always";
+            RestartSec = "1s";
+            User = user;
+            Group = group;
+            SyslogIdentifier = "microvm@%i";
+            LimitNOFILE = 1048576;
+          };
+        };
+      }
+      (builtins.attrNames config.microvm.vms);
+
+    microvm.autostart = builtins.filter
+      (vmName:
+        config.microvm.vms.${vmName}.autostart
+      )
+      (builtins.attrNames config.microvm.vms);
     # Starts all the containers after boot
     systemd.targets.microvms = {
       wantedBy = [ "multi-user.target" ];

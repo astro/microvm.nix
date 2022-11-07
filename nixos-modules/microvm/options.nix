@@ -110,18 +110,18 @@ in
             description = "The guest port to be mapped.";
           };
         });
-      default = [];
+      default = [ ];
       example = lib.literalExpression
         ''
-        [ # forward local port 2222 -> 22, to ssh into the VM
-          { from = "host"; host.port = 2222; guest.port = 22; }
+          [ # forward local port 2222 -> 22, to ssh into the VM
+            { from = "host"; host.port = 2222; guest.port = 22; }
 
-          # forward local port 80 -> 10.0.2.10:80 in the VLAN
-          { from = "guest";
-            guest.address = "10.0.2.10"; guest.port = 80;
-            host.address = "127.0.0.1"; host.port = 80;
-          }
-        ]
+            # forward local port 80 -> 10.0.2.10:80 in the VLAN
+            { from = "guest";
+              guest.address = "10.0.2.10"; guest.port = 80;
+              host.address = "127.0.0.1"; host.port = 80;
+            }
+          ]
         '';
       description =
         ''
@@ -139,7 +139,7 @@ in
     };
     volumes = mkOption {
       description = "Disk images";
-      default = [];
+      default = [ ];
       type = with types; listOf (submodule {
         options = {
           image = mkOption {
@@ -170,7 +170,7 @@ in
 
     interfaces = mkOption {
       description = "Network interfaces";
-      default = [];
+      default = [ ];
       type = with types; listOf (submodule {
         options = {
           type = mkOption {
@@ -195,7 +195,7 @@ in
 
     shares = mkOption {
       description = "Shared directory trees";
-      default = [];
+      default = [ ];
       type = with types; listOf (submodule ({ config, ... }: {
         options = {
           tag = mkOption {
@@ -229,7 +229,7 @@ in
 
     devices = mkOption {
       description = "PCI/USB devices that are passed from the host to the MicroVM";
-      default = [];
+      default = [ ];
       example = literalExpression ''[ {
         type = "pci";
         path = "0000:01:00.0";
@@ -260,9 +260,11 @@ in
 
     storeOnBootDisk = mkOption {
       type = types.bool;
-      default = ! lib.any ({ source, ... }:
-        source == "/nix/store"
-      ) config.microvm.shares;
+      default = ! lib.any
+        ({ source, ... }:
+          source == "/nix/store"
+        )
+        config.microvm.shares;
       description = "Whether to include the required /nix/store on the boot disk.";
     };
 
@@ -279,7 +281,7 @@ in
 
     qemu.extraArgs = mkOption {
       type = with types; listOf str;
-      default = [];
+      default = [ ];
       description = "Extra arguments to pass to qemu.";
     };
 
@@ -297,114 +299,128 @@ in
   };
 
   config = lib.mkIf config.microvm.guest.enable {
-  assertions =
-    # check for duplicate volume images
-    map (volumes: {
-      assertion = builtins.length volumes == 1;
-      message = ''
-        MicroVM ${hostName}: volume image "${(builtins.head volumes).image}" is used ${toString (builtins.length volumes)} > 1 times.
-      '';
-    }) (
-      builtins.attrValues (
-        lib.groupBy ({ image, ... }: image) config.microvm.volumes
-      )
-    )
-    ++
-    # check for duplicate interface ids
-    map (interfaces: {
-      assertion = builtins.length interfaces == 1;
-      message = ''
-        MicroVM ${hostName}: interface id "${(builtins.head interfaces).id}" is used ${toString (builtins.length interfaces)} > 1 times.
-      '';
-    }) (
-      builtins.attrValues (
-        lib.groupBy ({ id, ... }: id) config.microvm.interfaces
-      )
-    )
-    ++
-    # check for bridge interfaces
-    map ({ id, type, bridge, ... }:
-      if type == "bridge"
-      then {
-        assertion = bridge != null;
-        message = ''
-          MicroVM ${hostName}: interface ${id} is of type "bridge"
-          but doesn't have a bridge to attach to defined.
-        '';
-      }
-      else {
-        assertion = bridge == null;
-        message = ''
-          MicroVM ${hostName}: interface ${id} is not of type "bridge"
-          and therefore shouldn't have a "bridge" option defined.
-        '';
-      }
-    ) config.microvm.interfaces
-    ++
-    # check for interface name length
-    map ({ id, ... }: {
-      assertion = builtins.stringLength id <= 15;
-      message = ''
-        MicroVM ${hostName}: interface name ${id} is longer than the
-        the maximum length of 15 characters on Linux.
-      '';
-    }) config.microvm.interfaces
-    ++
-    # check for duplicate share tags
-    map (shares: {
-      assertion = builtins.length shares == 1;
-      message = ''
-        MicroVM ${hostName}: share tag "${(builtins.head shares).tag}" is used ${toString (builtins.length shares)} > 1 times.
-      '';
-    }) (
-      builtins.attrValues (
-        lib.groupBy ({ tag, ... }: tag) config.microvm.shares
-      )
-    )
-    ++
-    # check for duplicate share sockets
-    map (shares: {
-      assertion = builtins.length shares == 1;
-      message = ''
-        MicroVM ${hostName}: share socket "${(builtins.head shares).socket}" is used ${toString (builtins.length shares)} > 1 times.
-      '';
-    }) (
-      builtins.attrValues (
-        lib.groupBy ({ socket, ... }: toString socket) (
+    assertions =
+      # check for duplicate volume images
+      map
+        (volumes: {
+          assertion = builtins.length volumes == 1;
+          message = ''
+            MicroVM ${hostName}: volume image "${(builtins.head volumes).image}" is used ${toString (builtins.length volumes)} > 1 times.
+          '';
+        })
+        (
+          builtins.attrValues (
+            lib.groupBy ({ image, ... }: image) config.microvm.volumes
+          )
+        )
+      ++
+      # check for duplicate interface ids
+      map
+        (interfaces: {
+          assertion = builtins.length interfaces == 1;
+          message = ''
+            MicroVM ${hostName}: interface id "${(builtins.head interfaces).id}" is used ${toString (builtins.length interfaces)} > 1 times.
+          '';
+        })
+        (
+          builtins.attrValues (
+            lib.groupBy ({ id, ... }: id) config.microvm.interfaces
+          )
+        )
+      ++
+      # check for bridge interfaces
+      map
+        ({ id, type, bridge, ... }:
+          if type == "bridge"
+          then {
+            assertion = bridge != null;
+            message = ''
+              MicroVM ${hostName}: interface ${id} is of type "bridge"
+              but doesn't have a bridge to attach to defined.
+            '';
+          }
+          else {
+            assertion = bridge == null;
+            message = ''
+              MicroVM ${hostName}: interface ${id} is not of type "bridge"
+              and therefore shouldn't have a "bridge" option defined.
+            '';
+          }
+        )
+        config.microvm.interfaces
+      ++
+      # check for interface name length
+      map
+        ({ id, ... }: {
+          assertion = builtins.stringLength id <= 15;
+          message = ''
+            MicroVM ${hostName}: interface name ${id} is longer than the
+            the maximum length of 15 characters on Linux.
+          '';
+        })
+        config.microvm.interfaces
+      ++
+      # check for duplicate share tags
+      map
+        (shares: {
+          assertion = builtins.length shares == 1;
+          message = ''
+            MicroVM ${hostName}: share tag "${(builtins.head shares).tag}" is used ${toString (builtins.length shares)} > 1 times.
+          '';
+        })
+        (
+          builtins.attrValues (
+            lib.groupBy ({ tag, ... }: tag) config.microvm.shares
+          )
+        )
+      ++
+      # check for duplicate share sockets
+      map
+        (shares: {
+          assertion = builtins.length shares == 1;
+          message = ''
+            MicroVM ${hostName}: share socket "${(builtins.head shares).socket}" is used ${toString (builtins.length shares)} > 1 times.
+          '';
+        })
+        (
+          builtins.attrValues (
+            lib.groupBy ({ socket, ... }: toString socket) (
+              builtins.filter ({ proto, ... }: proto == "virtiofs")
+                config.microvm.shares
+            )
+          )
+        )
+      ++
+      # check for virtiofs shares without socket
+      map
+        ({ tag, socket, ... }: {
+          assertion = socket != null;
+          message = ''
+            MicroVM ${hostName}: virtiofs share with tag "${tag}" is missing a `socket` path.
+          '';
+        })
+        (
           builtins.filter ({ proto, ... }: proto == "virtiofs")
             config.microvm.shares
         )
-      )
-    )
-    ++
-    # check for virtiofs shares without socket
-    map ({ tag, socket, ... }: {
-      assertion = socket != null;
-      message = ''
-        MicroVM ${hostName}: virtiofs share with tag "${tag}" is missing a `socket` path.
-      '';
-    }) (
-      builtins.filter ({ proto, ... }: proto == "virtiofs")
-        config.microvm.shares
-    )
-    ++
-    # blacklist forwardPorts
-    [ {
-      assertion =
-        config.microvm.forwardPorts != [] -> (
-          config.microvm.hypervisor == "qemu" &&
-          builtins.any ({ type, ... }: type == "user") config.microvm.interfaces
-        );
-      message = ''
-        MicroVM ${hostName}: `config.microvm.forwardPorts` works only with qemu and one network interface with `type = "user"`
-      '';
-    } ]
-  ;
+      ++
+      # blacklist forwardPorts
+      [{
+        assertion =
+          config.microvm.forwardPorts != [ ] -> (
+            config.microvm.hypervisor == "qemu" &&
+            builtins.any ({ type, ... }: type == "user") config.microvm.interfaces
+          );
+        message = ''
+          MicroVM ${hostName}: `config.microvm.forwardPorts` works only with qemu and one network interface with `type = "user"`
+        '';
+      }]
+    ;
 
-  warnings =
-    # 32 MB is just an optimistic guess, not based on experience
-    lib.optional (config.microvm.mem < 32) ''
-      MicroVM ${hostName}: ${toString config.microvm.mem} MB of RAM is uncomfortably narrow.
-    '';
+    warnings =
+      # 32 MB is just an optimistic guess, not based on experience
+      lib.optional (config.microvm.mem < 32) ''
+        MicroVM ${hostName}: ${toString config.microvm.mem} MB of RAM is uncomfortably narrow.
+      '';
   };
 }

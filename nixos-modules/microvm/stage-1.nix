@@ -15,18 +15,17 @@ let
     ).mountPoint;
 in {
   config = lib.mkIf config.microvm.guest.enable {
-  system.build.microvmStage1 = pkgs.substituteAll rec {
-    src = ./stage-1-init.sh;
+    system.build.microvmStage1 = pkgs.substituteAll rec {
+      src = ./stage-1-init.sh;
 
-    shell = "${extraUtils}/bin/ash";
-    isExecutable = true;
-    inherit (config.system.build) extraUtils earlyMountScript;
-    checkJournalingFS = 1;
-    fsInfo =
-      let f = fs: [ fs.mountPoint (if fs.device != null then fs.device else "/dev/disk/by-label/${fs.label}") fs.fsType (builtins.concatStringsSep "," fs.options) ];
-      in pkgs.writeText "initrd-fsinfo" (builtins.concatStringsSep "\n" (builtins.concatMap f (builtins.filter utils.fsNeededForBoot config.system.build.fileSystems)));
-    postMountCommands =
-      ''
+      shell = "${extraUtils}/bin/ash";
+      isExecutable = true;
+      inherit (config.system.build) extraUtils earlyMountScript;
+      checkJournalingFS = 1;
+      fsInfo =
+        let f = fs: [ fs.mountPoint (if fs.device != null then fs.device else "/dev/disk/by-label/${fs.label}") fs.fsType (builtins.concatStringsSep "," fs.options) ];
+        in pkgs.writeText "initrd-fsinfo" (builtins.concatStringsSep "\n" (builtins.concatMap f (builtins.filter utils.fsNeededForBoot config.system.build.fileSystems)));
+      postMountCommands = ''
         # Mark this as a NixOS machine.
         mkdir -p $targetRoot/etc
         echo -n > $targetRoot/etc/NIXOS
@@ -46,29 +45,29 @@ in {
             -o lowerdir=${readOnlyStorePath},upperdir=$targetRoot/${writableStoreOverlay}/store,workdir=$targetRoot/${writableStoreOverlay}/work || fail
         ''}
       '';
-  };
-  boot.postBootCommands = lib.optionalString (writableStoreOverlay != null) ''
-    if [[ "$(cat /proc/cmdline)" =~ regInfo=([^ ]*) ]]; then
-      ${config.nix.package.out}/bin/nix-store --load-db < ''${BASH_REMATCH[1]}
-    else
-      echo "Error: no registration info passed on cmdline"
-    fi
-  '';
+    };
+    boot.postBootCommands = lib.optionalString (writableStoreOverlay != null) ''
+      if [[ "$(cat /proc/cmdline)" =~ regInfo=([^ ]*) ]]; then
+        ${config.nix.package.out}/bin/nix-store --load-db < ''${BASH_REMATCH[1]}
+      else
+        echo "Error: no registration info passed on cmdline"
+      fi
+    '';
 
-  microvm.kernelParams = [
-    "root=/dev/vda" "ro"
-    # stage1
-    "init=/init"
-    "devtmpfs.mount=0"
-    # stage2
-    "stage2init=${config.system.build.toplevel}/init"
-    "boot.panic_on_fail" # "boot.shell_on_fail"
-  ] ++ config.boot.kernelParams;
+    microvm.kernelParams = [
+      "root=/dev/vda" "ro"
+      # stage1
+      "init=/init"
+      "devtmpfs.mount=0"
+      # stage2
+      "stage2init=${config.system.build.toplevel}/init"
+      "boot.panic_on_fail" # "boot.shell_on_fail"
+    ] ++ config.boot.kernelParams;
 
-  fileSystems."/" = lib.mkDefault {
-    device = "rootfs";
-    fsType = "tmpfs";
-    options = [ "size=50%,mode=0755" ];
+    fileSystems."/" = lib.mkDefault {
+      device = "rootfs";
+      fsType = "tmpfs";
+      options = [ "size=50%,mode=0755" ];
+    };
   };
-};
 }

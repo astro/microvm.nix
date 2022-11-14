@@ -165,7 +165,7 @@ in
         script = ''
           cd ${stateDir}/$1
 
-          modprobe vfio-pci
+          ${pkgs.kmod}/bin/modprobe vfio-pci
 
           for path in $(cat current/share/microvm/pci-devices); do
             pushd /sys/bus/pci/devices/$path

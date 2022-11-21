@@ -28,6 +28,9 @@ in {
         "-r" bootDisk
         "--serial" "type=stdout,console=true,stdin=true"
         "-p" "console=ttyS0 reboot=k panic=1 ${toString microvmConfig.kernelParams}"
+      ]
+      ++
+      lib.optionals (builtins.compareVersions pkgs.crosvm.version "107.1" < 0) [
         # workarounds
         "--seccomp-log-failures"
       ]

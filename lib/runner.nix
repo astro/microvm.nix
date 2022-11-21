@@ -22,8 +22,8 @@ let
   runScriptBin = pkgs.writeScriptBin "microvm-run" ''
     #! ${pkgs.runtimeShell} -e
 
-    ${createVolumesScript pkgs microvmConfig.volumes}
     ${preStart}
+    ${createVolumesScript pkgs microvmConfig.volumes}
 
     exec ${command}
   '';

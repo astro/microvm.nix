@@ -1,14 +1,10 @@
-{ modulesPath, pkgs, lib, config, ... }@args:
+{ pkgs, lib, config, ... }@args:
 let
   inherit (import ../../lib {
     nixpkgs-lib = args.lib;
   }) defaultFsType withDriveLetters;
 in
 {
-  imports = [
-    (modulesPath + "/profiles/minimal.nix")
-  ];
-
   config = lib.mkIf config.microvm.guest.enable {
     assertions = [
       {assertion = (config.microvm.writableStoreOverlay != null) -> (!config.nix.optimise.automatic && !config.nix.settings.auto-optimise-store);

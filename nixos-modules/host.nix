@@ -205,7 +205,7 @@ in
               --socket-path=$SOCKET \
               --socket-group=${config.users.users.microvm.group} \
               --shared-dir $SOURCE \
-              --inode-file-handles \
+              --inode-file-handles=prefer \
               --rlimit-nofile ${toString serviceConfig.LimitNOFILE} \
               --thread-pool-size `nproc` \
               --posix-acl --xattr \

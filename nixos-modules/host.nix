@@ -179,7 +179,7 @@ in
         '';
       };
 
-      "microvm-virtiofsd@" = {
+      "microvm-virtiofsd@" = rec {
         description = "VirtioFS daemons for MicroVM '%i'";
         before = [ "microvm@%i.service" ];
         after = [ "local-fs.target" ];
@@ -194,16 +194,22 @@ in
           SyslogIdentifier = "microvm-virtiofsd@%i";
           LimitNOFILE = 1048576;
         };
+        path = with pkgs; [ coreutils virtiofsd ];
         script = ''
           for d in current/share/microvm/virtiofs/*; do
             SOCKET=$(cat $d/socket)
             SOURCE=$(cat $d/source)
             mkdir -p $SOURCE
 
-            ${pkgs.virtiofsd}/bin/virtiofsd \
+            virtiofsd \
               --socket-path=$SOCKET \
               --socket-group=${config.users.users.microvm.group} \
-              --shared-dir $SOURCE &
+              --shared-dir $SOURCE \
+              --inode-file-handles \
+              --rlimit-nofile ${serviceConfig.LimitNOFILE} \
+              --thread-pool-size `nproc` \
+              --posix-acl --xattr \
+              &
             # detach from shell, but remain in systemd cgroup
             disown
           done

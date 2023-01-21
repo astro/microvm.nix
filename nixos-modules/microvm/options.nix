@@ -231,14 +231,14 @@ in
       description = "PCI/USB devices that are passed from the host to the MicroVM";
       default = [];
       example = literalExpression ''[ {
-        type = "pci";
+        bus = "pci";
         path = "0000:01:00.0";
       } {
-        type = "pci";
+        bus = "pci";
         path = "0000:01:01.0";
       } {
         # QEMU only
-        type = "usb";
+        bus = "usb";
         path = "vendorid=0xabcd,productid=0x0123";
       } ]'';
       type = with types; listOf (submodule {

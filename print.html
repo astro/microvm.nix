@@ -520,6 +520,16 @@ version of all MicroVMs and compare them to what the corresponding
 flake evaluates. It is therefore quite slow to run, yet useful.</p>
 <pre><code class="language-bash">microvm -l
 </code></pre>
+<h2 id="removing-microvms"><a class="header" href="#removing-microvms">Removing MicroVMs</a></h2>
+<p>First, stop the MicroVM:</p>
+<pre><code class="language-bash">systemctl stop microvm@$NAME
+</code></pre>
+<p>If you don't use absolute filesystem paths for sockets, volumes, or
+shares, all MicroVM state is kept under <code>/var/lib/microvms/$NAME/</code>.
+The <code>microvm@.serivce</code> systemd service template depends on existence
+of this directory.</p>
+<pre><code class="language-bash">rm -rf /var/lib/microvms/$NAME
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="conventions-between-microvm-packages-and-the-host"><a class="header" href="#conventions-between-microvm-packages-and-the-host">Conventions between MicroVM packages and the host</a></h1>
 <p>This section describes the interface that is used to run MicroVM
 packages with the flake's <code>host</code> module. While the <strong>microvm.nix</strong>

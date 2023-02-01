@@ -10,6 +10,8 @@ let
   mktuntap = pkgs.callPackage ../../pkgs/mktuntap.nix {};
   interfaceFdOffset = 3;
 in {
+  preStart = "rm -f ${socket}";
+
   command =
     if user != null
     then throw "crosvm will not change user"

@@ -37,6 +37,10 @@ let
   devType = if requirePci
             then "pci"
             else "device";
+  kernelPath = {
+    x86_64-linux = "${kernel.dev}/vmlinux";
+    aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
+  }.${system};
 
   enumerate = n: xs:
     if xs == []
@@ -70,18 +74,17 @@ let
 in {
   hypervisor = "qemu";
 
+  # TODO : Needs work
   command = lib.escapeShellArgs (
     [
       "${qemu}/bin/qemu-system-${arch}"
       "-name" hostName
       "-M" machine
       "-m" (toString (mem + balloonMem))
-      "-cpu" "host,+x2apic"
       "-smp" (toString vcpu)
       "-enable-kvm"
       "-nodefaults" "-no-user-config"
       "-nographic"
-      "-bios" "${pkgs.qboot}/bios.bin"
       # qemu just hangs after shutdown, allow to exit by rebooting
       "-no-reboot"
       "-chardev" "stdio,mux=on,id=con0,signal=off"
@@ -89,14 +92,21 @@ in {
       "-chardev" "pty,id=con1"
       "-device" "virtio-serial-${devType}"
       "-device" "virtconsole,chardev=con1"
-      "-device" "i8042"
       "-device" "virtio-rng-${devType}"
       "-drive" "id=root,format=raw,read-only=on,file=${bootDisk},if=none,aio=io_uring"
       "-device" "virtio-blk-${devType},drive=root${lib.optionalString (devType == "pci") ",disable-legacy=on"}"
-      "-kernel" "${kernel.dev}/vmlinux"
+      "-kernel" "${kernelPath}"
       # hvc1 precedes hvc0 so that nixos starts serial-agetty@ on both
       # without further config
       "-append" "console=hvc0 earlyprintk=ttyS0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+    ] ++
+    lib.optionals (system == "x86_64-linux") [
+      "-cpu" "host,+x2apic"
+      "-device" "i8042"
+      "-bios" "${pkgs.qboot}/bios.bin"
+    ] ++
+    lib.optionals (system == "aarch64-linux") [
+      "-cpu" "host"
     ] ++
     lib.optionals canSandbox [
       "-sandbox" "on"

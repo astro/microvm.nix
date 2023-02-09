@@ -5,6 +5,7 @@ self:
     ./root-disk.nix
     ./stage-1.nix
     ./options.nix
+    ./asserts.nix
     ./system.nix
   ];
 

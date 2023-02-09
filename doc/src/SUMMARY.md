@@ -6,6 +6,7 @@
   - [Network interfaces](./interfaces.md)
   - [Shared directories](./shares.md)
   - [Output options](./output-options.md)
+  - [Options reference](./microvm-options.md)
 - [Running a MicroVM as a package](./packages.md)
 - [Preparing a host for declarative MicroVMs](./host.md)
   - [A simple network setup](./simple-network.md)

@@ -57,6 +57,21 @@
               pathsToLink = [ "/" ];
               extraOutputsToInstall = [ "dev" ];
             };
+            rust-hypervisor-firmware =
+              let
+                src = pkgs.callPackage ./pkgs/rust-hypervisor-firmware-src.nix {};
+                crossPkgs = import nixpkgs {
+                  system = pkgs.system;
+                  crossSystem = nixpkgs.lib.systems.examples.x86_64-embedded // {
+                    rustc.config = "x86_64-unknown-none";
+                    rustc.platform = builtins.fromJSON (
+                      builtins.readFile (
+                        src + "/x86_64-unknown-none.json"
+                      )
+                    );
+                  };
+                };
+              in crossPkgs.callPackage ./pkgs/rust-hypervisor-firmware.nix {};
           } //
           # wrap self.nixosConfigurations in executable packages
           builtins.foldl' (result: systemName:

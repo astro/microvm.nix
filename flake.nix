@@ -63,15 +63,18 @@
             };
             rust-hypervisor-firmware =
               let
+                arch = builtins.head (
+                  builtins.split "-" system
+                );
                 rust = fenix.packages.${system}.minimal.toolchain;
                 src = pkgs.callPackage ./pkgs/rust-hypervisor-firmware-src.nix {};
                 crossPkgs = import nixpkgs {
                   system = pkgs.system;
-                  crossSystem = nixpkgs.lib.systems.examples.x86_64-embedded // {
-                    rustc.config = "x86_64-unknown-none";
+                  crossSystem = nixpkgs.lib.systems.examples."${arch}-embedded" // {
+                    rustc.config = "${arch}-unknown-none";
                     rustc.platform = builtins.fromJSON (
                       builtins.readFile (
-                        src + "/x86_64-unknown-none.json"
+                        src + "/${arch}-unknown-none.json"
                       )
                     );
                   };

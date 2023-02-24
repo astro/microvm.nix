@@ -1,4 +1,5 @@
 { lib
+, callPackage
 , rustPlatform
 , targetPlatform
 , lld
@@ -33,6 +34,6 @@ rustPlatform.buildRustPackage {
   doCheck = false;
 
   meta = {
-    platforms = [ "x86_64-none" ];
+    platforms = [ "x86_64-none" "aarch64-none" ];
   };
 }

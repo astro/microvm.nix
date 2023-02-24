@@ -9,9 +9,13 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    fenix = {
+      url = "github:nix-community/fenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, fenix }:
     let
       systems = [
         "x86_64-linux"
@@ -59,6 +63,7 @@
             };
             rust-hypervisor-firmware =
               let
+                rust = fenix.packages.${system}.minimal.toolchain;
                 src = pkgs.callPackage ./pkgs/rust-hypervisor-firmware-src.nix {};
                 crossPkgs = import nixpkgs {
                   system = pkgs.system;
@@ -71,7 +76,11 @@
                     );
                   };
                 };
-              in crossPkgs.callPackage ./pkgs/rust-hypervisor-firmware.nix {};
+              in crossPkgs.callPackage ./pkgs/rust-hypervisor-firmware.nix {
+                rustPlatform = crossPkgs.makeRustPlatform {
+                  inherit (crossPkgs.rustPlatform.rust) rustc cargo;
+                };
+              };
           } //
           # wrap self.nixosConfigurations in executable packages
           builtins.foldl' (result: systemName:

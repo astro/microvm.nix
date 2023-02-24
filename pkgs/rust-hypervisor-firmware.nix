@@ -1,9 +1,7 @@
 { lib
-, callPackage
-, fetchFromGitHub
-, fetchurl
 , rustPlatform
 , targetPlatform
+, lld
 }:
 
 let
@@ -22,7 +20,19 @@ rustPlatform.buildRustPackage {
   inherit pname version src;
 
   cargoSha256 = "sha256-edi6/Md6KebKM3wHArZe1htUCg0/BqMVZKA4xEH25GI=";
+
+  CARGO_BUILD_TARGET = targetFile;
   RUSTC_BOOTSTRAP = 1;
 
+  nativeBuildInputs = [
+    lld
+  ];
+
+  RUSTFLAGS = "-C linker=lld -C linker-flavor=ld.lld";
+
   doCheck = false;
+
+  meta = {
+    platforms = [ "x86_64-none" ];
+  };
 }

@@ -91,8 +91,8 @@ in {
       "-device" "virtconsole,chardev=con1"
       "-device" "i8042"
       "-device" "virtio-rng-${devType}"
-      "-drive" "id=root,format=raw,media=cdrom,file=${bootDisk},if=none,aio=io_uring"
-      "-device" "virtio-blk-${devType},drive=root"
+      "-drive" "id=root,format=raw,read-only=on,file=${bootDisk},if=none,aio=io_uring"
+      "-device" "virtio-blk-${devType},drive=root,disable-legacy=on"
       "-kernel" "${kernel.dev}/vmlinux"
       # hvc1 precedes hvc0 so that nixos starts serial-agetty@ on both
       # without further config

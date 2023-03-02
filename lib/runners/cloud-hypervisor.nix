@@ -99,8 +99,7 @@ in {
         "--watchdog"
         "--console" "tty"
         "--serial" "pty"
-        "--kernel" "${kernelPath}"
-        "--cmdline" "console=hvc0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+        "--kernel" "${pkgs.rust-hypervisor-firmware}/bin/hypervisor-fw"
         "--seccomp" "true"
         "--memory" memOps
       ]

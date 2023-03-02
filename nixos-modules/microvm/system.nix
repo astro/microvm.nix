@@ -14,11 +14,27 @@ in
 
 
     boot.loader.grub.enable = false;
-    boot.kernelPackages = pkgs.linuxPackages_latest.extend (_: _: {
-      kernel = pkgs.microvm-kernel;
-    });
+    boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
+    # boot.initrd.systemd.enable = lib.mkDefault true;
+    boot.initrd.kernelModules = [
+      "virtio_mmio"
+      "virtio_pci"
+      "virtio_blk"
+      "virtiofs"
+    ];
 
-    fileSystems = (
+    microvm.kernelParams = [
+      "init=${config.system.build.toplevel}/init"
+    ];
+
+    fileSystems = {
+      "/" = lib.mkDefault {
+        device = "rootfs";
+        fsType = "tmpfs";
+        options = [ "size=50%,mode=0755" ];
+        neededForBoot = true;
+      };
+    } // (
       # Volumes
       builtins.foldl' (result: { mountPoint, letter, fsType ? defaultFsType, ... }: result // lib.optionalAttrs (mountPoint != null) {
         "${mountPoint}" = {
@@ -43,31 +59,23 @@ in
           );
         };
       }) {} config.microvm.shares
-    ) // (
-      if config.microvm.storeOnBootDisk
-      then {
-        "/nix/store" = {
-          device = "//nix/store";
-          options = [ "bind" ];
-          neededForBoot = true;
-        };
-      } else
-        let
-          hostStore = builtins.head (
-            builtins.filter ({ source, ... }:
-              source == "/nix/store"
-            ) config.microvm.shares
-          );
-        in if config.microvm.writableStoreOverlay == null &&
-              hostStore.mountPoint != "/nix/store"
-           then {
-             "/nix/store" = {
-               device = hostStore.mountPoint;
-               options = [ "bind" ];
-               neededForBoot = true;
-             };
-           }
-           else {}
+    ) // lib.optionalAttrs (!config.microvm.storeOnBootDisk) (
+      let
+        hostStore = builtins.head (
+          builtins.filter ({ source, ... }:
+            source == "/nix/store"
+          ) config.microvm.shares
+        );
+      in if config.microvm.writableStoreOverlay == null &&
+            hostStore.mountPoint != "/nix/store"
+         then {
+           "/nix/store" = {
+             device = hostStore.mountPoint;
+             options = [ "bind" ];
+             neededForBoot = true;
+           };
+         }
+         else {}
     );
 
     # modules that consume boot time but have rare use-cases

@@ -23,6 +23,7 @@ in {
         "-m" (toString mem)
         "-c" (toString vcpu)
         "--kernel=${kernelPath}"
+        "--initrd-path=${bootDisk.passthru.initrd}"
         "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd ${toString microvmConfig.kernelParams}"
         "--root-drive=${bootDisk}:ro"
       ]

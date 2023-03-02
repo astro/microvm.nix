@@ -97,6 +97,7 @@ in {
       "-drive" "id=root,format=raw,read-only=on,file=${bootDisk},if=none,aio=io_uring"
       "-device" "virtio-blk-${devType},drive=root${lib.optionalString (devType == "pci") ",disable-legacy=on"}"
       "-kernel" "${kernelPath}"
+      "-initrd" bootDisk.passthru.initrd
       # hvc1 precedes hvc0 so that nixos starts serial-agetty@ on both
       # without further config
       "-append" "console=hvc0 earlyprintk=ttyS0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"

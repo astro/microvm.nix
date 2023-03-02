@@ -115,7 +115,10 @@ in {
         usb = throw "USB passthrough is not supported on crosvm";
       }.${bus}) devices
       ++
-      [ "${kernelPath}" ]
+      [
+        "--initrd" bootDisk.passthru.initrd
+        "${kernelPath}"
+      ]
       ++
       extraArgs
     );

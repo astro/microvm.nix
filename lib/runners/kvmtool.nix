@@ -27,7 +27,8 @@ in {
         "--console" "virtio"
         "--rng"
         "-k" (lib.escapeShellArg "${kernel}/${pkgs.stdenv.hostPlatform.linux-kernel.target}")
-        "-p" (lib.escapeShellArg "console=hvc0 reboot=k panic=1 nomodules ${toString microvmConfig.kernelParams}")
+        "-i" "${bootDisk.passthru.initrd}"
+        "-p" (lib.escapeShellArg "console=hvc0 reboot=k panic=1 ${toString microvmConfig.kernelParams}")
       ]
       ++
       lib.optionals (balloonMem > 0) [ "--balloon" ]

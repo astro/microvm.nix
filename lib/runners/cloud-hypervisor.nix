@@ -1,4 +1,5 @@
 { pkgs
+, lib
 , microvmConfig
 , kernel
 , bootDisk
@@ -6,7 +7,38 @@
 
 let
   inherit (pkgs) lib;
-  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices;
+  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem;
+
+  # balloon
+  useBallooning = balloonMem > 0;
+
+  # Transform attrs to parameters in form of `key1=value1,key2=value2,[...]`
+  opsMapped = ops: lib.concatStringsSep "," (lib.mapAttrsToList (k: v: "${k}=${v}") ops);
+
+  # Attrs representing CHV mem options
+  memOps = opsMapped ({
+    mem = toString mem;
+    mergeable = "on";
+    shared = "on";
+  } 
+  # add ballooning options and override 'mem' key
+  // lib.optionalAttrs useBallooning { 
+    mem = toString (mem + balloonMem);
+    hotplug_method = "virtio-mem";
+    hotplug_size = "${toString balloonMem}M";
+    hotplugged_size = "${toString balloonMem}M";
+  } 
+  # enable hugepages (shared option is ignored by CHV)
+  // lib.optionalAttrs hugepageMem {
+    hugepages = "on";
+  });
+
+  balloonOps = opsMapped {
+    size = "${toString balloonMem}M";
+    deflate_on_oom = "on";
+    free_page_reporting = "on";
+  };
+
 in {
   preStart = ''
     ${microvmConfig.preStart}
@@ -30,16 +62,10 @@ in {
         "--kernel" "${kernel.dev}/vmlinux"
         "--cmdline" "console=hvc0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
         "--seccomp" "true"
+        "--memory" memOps
       ]
-      ++
-      (if balloonMem > 0
-      then [
-        "--memory" "size=${toString (mem + balloonMem)}M,mergeable=on,shared=on,hotplug_method=virtio-mem,hotplug_size=${toString balloonMem}M,hotplugged_size=${toString balloonMem}M"
-        "--balloon" "size=${toString balloonMem}M,deflate_on_oom=on,free_page_reporting=on"
-      ]
-      else [
-        "--memory" "size=${toString mem}M,mergeable=on,shared=on"
-      ])
+      ++ 
+      lib.optionals useBallooning [ "--balloon" balloonOps ]
       ++
       [ "--disk" "path=${bootDisk},readonly=on" ]
       ++

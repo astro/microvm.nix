@@ -57,6 +57,15 @@ in
       type = types.int;
     };
 
+    hugepageMem = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether to use hugepages as memory backend.
+        (Currently only respected if using cloud-hypervisor)
+      '';
+    };
+
     balloonMem = mkOption {
       description = ''
         Amount of balloon memory in megabytes

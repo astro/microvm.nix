@@ -80,6 +80,21 @@ in
       extraGroups = [ "disk" ];
     };
 
+    security.pam.loginLimits = [
+      {
+        domain = "${user}";
+        item = "memlock";
+        type = "hard";
+        value = "infinity";
+      }
+      {
+        domain = "${user}";
+        item = "memlock";
+        type = "soft";
+        value = "infinity";
+      }
+    ];
+
     systemd.services = builtins.foldl' (result: name: result // {
       "install-microvm-${name}" = {
         description = "Install MicroVM '${name}'";
@@ -250,6 +265,7 @@ in
           Group = group;
           SyslogIdentifier = "microvm@%i";
           LimitNOFILE = 1048576;
+          LimitMEMLOCK = "infinity";
         };
       };
     } (builtins.attrNames config.microvm.vms);

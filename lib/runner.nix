@@ -13,7 +13,7 @@ let
   inherit (import ../lib { nixpkgs-lib = lib; }) createVolumesScript;
 
   hypervisorConfig = import (./runners + "/${microvmConfig.hypervisor}.nix") {
-    inherit pkgs microvmConfig kernel bootDisk;
+    inherit pkgs microvmConfig kernel bootDisk lib;
   };
 
   inherit (hypervisorConfig) command canShutdown shutdownCommand;

@@ -1,6 +1,5 @@
 { pkgs, config, lib, ... }:
 let
-  inherit (pkgs) system;
   stateDir = config.microvm.stateDir;
   microvmCommand = import ../pkgs/microvm-command.nix {
     inherit pkgs;
@@ -69,7 +68,7 @@ in
       chmod g+w ${stateDir}
     '';
 
-    environment.systemPackages = with pkgs; [
+    environment.systemPackages = [
       microvmCommand
     ];
 

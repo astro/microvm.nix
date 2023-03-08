@@ -17,17 +17,17 @@ let
 
   # Attrs representing CHV mem options
   memOps = opsMapped ({
-    mem = toString mem;
+    size = "${toString mem}M";
     mergeable = "on";
     shared = "on";
-  } 
-  # add ballooning options and override 'mem' key
-  // lib.optionalAttrs useBallooning { 
-    mem = toString (mem + balloonMem);
+  }
+  # add ballooning options and override 'size' key
+  // lib.optionalAttrs useBallooning {
+    size = "${toString (mem + balloonMem)}M";
     hotplug_method = "virtio-mem";
     hotplug_size = "${toString balloonMem}M";
     hotplugged_size = "${toString balloonMem}M";
-  } 
+  }
   # enable hugepages (shared option is ignored by CHV)
   // lib.optionalAttrs hugepageMem {
     hugepages = "on";

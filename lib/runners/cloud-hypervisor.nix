@@ -64,13 +64,15 @@ in {
         "--seccomp" "true"
         "--memory" memOps
       ]
-      ++ 
+      ++
       lib.optionals useBallooning [ "--balloon" balloonOps ]
       ++
       [ "--disk" "path=${bootDisk},readonly=on" ]
       ++
-      map ({ image, ... }:
-        "path=${image}"
+      builtins.concatMap ({ image, ... }:
+        lib.optionals (builtins.compareVersions pkgs.cloud-hypervisor.version "30.0" >= 0) [ "--disk" ]
+        ++
+        [ "path=${image}" ]
       ) volumes
       ++
       lib.optionals (shares != []) (

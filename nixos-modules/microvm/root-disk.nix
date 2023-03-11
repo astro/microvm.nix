@@ -100,7 +100,6 @@ in {
         truncate -s $(( ( $EFI_SIZE + 2048 + 33 ) * 512 )) $out
       ''}
       echo Creating partition table
-      set -x
       parted --script $out -- \
         mklabel gpt \
         mkpart ESP fat32 2048s $(( $EFI_SIZE + 2048 - 1 ))"s" \

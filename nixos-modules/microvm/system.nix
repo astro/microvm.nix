@@ -1,9 +1,5 @@
-{ pkgs, lib, config, ... }@args:
-let
-  inherit (import ../../lib {
-    nixpkgs-lib = args.lib;
-  }) defaultFsType withDriveLetters;
-in
+{ pkgs, lib, config, ... }:
+
 {
   config = lib.mkIf config.microvm.guest.enable {
     assertions = [
@@ -21,62 +17,13 @@ in
       "virtio_pci"
       "virtio_blk"
       "virtiofs"
+    ] ++ lib.optionals (config.microvm.writableStoreOverlay != null) [
+      "overlay"
     ];
 
     microvm.kernelParams = [
       "init=${config.system.build.toplevel}/init"
     ];
-
-    fileSystems = {
-      "/" = lib.mkDefault {
-        device = "rootfs";
-        fsType = "tmpfs";
-        options = [ "size=50%,mode=0755" ];
-        neededForBoot = true;
-      };
-    } // (
-      # Volumes
-      builtins.foldl' (result: { mountPoint, letter, fsType ? defaultFsType, ... }: result // lib.optionalAttrs (mountPoint != null) {
-        "${mountPoint}" = {
-          inherit fsType;
-          device = "/dev/vd${letter}";
-          neededForBoot = mountPoint == config.microvm.writableStoreOverlay;
-        };
-      }) {} (withDriveLetters 1 config.microvm.volumes)
-    ) // (
-      # Shares
-      builtins.foldl' (result: { mountPoint, tag, proto, source, ... }: result // {
-        "${mountPoint}" = {
-          device = tag;
-          fsType = proto;
-          options = {
-            "virtiofs" = [ "defaults" ];
-            "9p" = [ "trans=virtio" "version=9p2000.L"  "msize=65536" ];
-          }.${proto};
-          neededForBoot = (
-            source == "/nix/store" ||
-            mountPoint == config.microvm.writableStoreOverlay
-          );
-        };
-      }) {} config.microvm.shares
-    ) // lib.optionalAttrs (!config.microvm.storeOnBootDisk) (
-      let
-        hostStore = builtins.head (
-          builtins.filter ({ source, ... }:
-            source == "/nix/store"
-          ) config.microvm.shares
-        );
-      in if config.microvm.writableStoreOverlay == null &&
-            hostStore.mountPoint != "/nix/store"
-         then {
-           "/nix/store" = {
-             device = hostStore.mountPoint;
-             options = [ "bind" ];
-             neededForBoot = true;
-           };
-         }
-         else {}
-    );
 
     # modules that consume boot time but have rare use-cases
     boot.blacklistedKernelModules = [

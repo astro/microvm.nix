@@ -134,11 +134,5 @@ in {
     microvm.kernelParams = [
       "regInfo=${regInfo}/registration"
     ];
-
-    fileSystems."/nix/store" = lib.mkIf config.microvm.storeOnBootDisk {
-      device = "/dev/vda2";
-      fsType = config.microvm.bootDiskType;
-      neededForBoot = true;
-    };
   };
 }

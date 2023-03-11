@@ -20,7 +20,7 @@ in {
   options.microvm = with lib; {
     bootDiskType = mkOption {
       type = types.enum [ "squashfs" "erofs" ];
-      default = "squashfs";
+      default = "erofs";
       description = ''
         Boot disk file system type: squashfs is smaller, erofs is supposed to be faster.
       '';

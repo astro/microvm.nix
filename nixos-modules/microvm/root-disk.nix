@@ -133,5 +133,10 @@ in {
     microvm.kernelParams = [
       "regInfo=${regInfo}/registration"
     ];
+    boot.postBootCommands = lib.mkIf config.nix.enable ''
+      if [[ "$(cat /proc/cmdline)" =~ regInfo=([^ ]*) ]]; then
+        ${config.nix.package.out}/bin/nix-store --load-db < ''${BASH_REMATCH[1]}
+      fi
+    '';
   };
 }

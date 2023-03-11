@@ -6,6 +6,7 @@ self:
     ./options.nix
     ./asserts.nix
     ./system.nix
+    ./mounts.nix
     ./graphics.nix
   ];
 

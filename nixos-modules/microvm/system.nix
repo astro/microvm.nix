@@ -16,6 +16,8 @@
       "virtio_mmio"
       "virtio_pci"
       "virtio_blk"
+      "9pnet_virtio"
+      "9p"
       "virtiofs"
     ] ++ lib.optionals (config.microvm.writableStoreOverlay != null) [
       "overlay"

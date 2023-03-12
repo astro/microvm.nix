@@ -6,21 +6,6 @@ A few caveats. Contributions to eliminate those are welcome.
 
 [❤ Sponsor](https://github.com/sponsors/astro)
 
-## Why build a kernel with a custom configuration?
-
-Hypervisors are not required to be able to load an
-initrd/initramfs. Therefore we start init from a virtio disk which
-requires virtio drivers to be built into the kernel statically.
-
-Because we are building our own kernel anyway, we've got the
-opportunity of adding more custom configuration that is optimized for common
-MicroVM use-cases.
-
-The **microvm.nix** project contains instructions for Github to build
-the `microvm-kernel` package every night and push the binary to
-Cachix. In order to use that binary cache, try running `nix build
-github:astro/microvm.nix#microvm-kernel` and answer the prompts.
-
 ## How to centralize logging with journald?
 
 That is possible without even requiring a network transport by just

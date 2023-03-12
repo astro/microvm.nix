@@ -69,7 +69,6 @@
             build-microvm = pkgs.callPackage ./pkgs/build-microvm.nix { inherit self; };
             doc = pkgs.callPackage ./pkgs/doc.nix { inherit nixpkgs; };
             mktuntap = pkgs.callPackage ./pkgs/mktuntap.nix {};
-            microvm-kernel = pkgs.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
             microvm = import ./pkgs/microvm-command.nix {
               inherit pkgs;
             };
@@ -80,7 +79,7 @@
                 qemu_kvm cloud-hypervisor
                 firectl firecracker
                 crosvm kvmtool
-                microvm-kernel virtiofsd
+                virtiofsd
               ];
               pathsToLink = [ "/" ];
               extraOutputsToInstall = [ "dev" ];
@@ -114,7 +113,6 @@
         lib = import ./lib { nixpkgs-lib = nixpkgs.lib; };
 
         overlay = final: prev: {
-          microvm-kernel = prev.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
           cloud-hypervisor-graphics = prev.callPackage ./pkgs/spectrum-os/cloud-hypervisor {};
         };
 

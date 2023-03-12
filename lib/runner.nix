@@ -13,12 +13,12 @@ let
   inherit (import ../lib { nixpkgs-lib = lib; }) createVolumesScript;
 
   hypervisorConfig = import (./runners + "/${microvmConfig.hypervisor}.nix") {
-    inherit pkgs microvmConfig kernel bootDisk lib;
+    inherit pkgs microvmConfig kernel bootDisk;
   };
 
   inherit (hypervisorConfig) command canShutdown shutdownCommand;
   preStart = hypervisorConfig.preStart or microvmConfig.preStart;
-  
+
   runScriptBin = pkgs.writeScriptBin "microvm-run" ''
     #! ${pkgs.runtimeShell} -e
 

@@ -1,5 +1,4 @@
 { pkgs
-, lib
 , microvmConfig
 , kernel
 , bootDisk

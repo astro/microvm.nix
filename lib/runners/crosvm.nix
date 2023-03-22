@@ -7,10 +7,17 @@
 let
   inherit (pkgs) lib;
   inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices;
+  inherit (microvmConfig.crosvm) pivotRoot;
   mktuntap = pkgs.callPackage ../../pkgs/mktuntap.nix {};
   interfaceFdOffset = 3;
 in {
-  preStart = "rm -f ${socket}";
+  preStart = ''
+    rm -f ${socket}
+    ${microvmConfig.preStart}
+    ${lib.optionalString (pivotRoot != null) ''
+      mkdir -p ${pivotRoot}
+    ''}
+  '';
 
   command =
     if user != null
@@ -35,6 +42,11 @@ in {
       lib.optionals (builtins.compareVersions pkgs.crosvm.version "107.1" < 0) [
         # workarounds
         "--seccomp-log-failures"
+      ]
+      ++
+      lib.optionals (pivotRoot != null) [
+        "--pivot-root"
+        pivotRoot
       ]
       ++
       lib.optionals (socket != null) [

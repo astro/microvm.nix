@@ -307,6 +307,12 @@ in
       description = "Extra arguments to pass to qemu.";
     };
 
+    crosvm.pivotRoot = mkOption {
+      type = with types; nullOr str;
+      default = null;
+      description = "A Hypervisor's sandbox directory";
+    };
+
     runner = mkOption {
       description = "Generated Hypervisor runner for this NixOS";
       type = with types; attrsOf package;

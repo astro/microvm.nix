@@ -14,6 +14,7 @@ let
         microvm = {
           inherit hypervisor;
           socket = "./microvm.sock";
+          crosvm.pivotRoot = "/build/empty";
         };
       }
     ];

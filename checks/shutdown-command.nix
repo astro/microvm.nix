@@ -7,9 +7,14 @@ let
     modules = [
       self.nixosModules.microvm
       {
-        networking.hostName = "microvm-test";
-        networking.useDHCP = false;
-        microvm.socket = "./microvm.sock";
+        networking = {
+          hostName = "microvm-test";
+          useDHCP = false;
+        };
+        microvm = {
+          inherit hypervisor;
+          socket = "./microvm.sock";
+        };
       }
     ];
   }).config.microvm.runner.${hypervisor};

@@ -10,8 +10,18 @@
         modules = [
           self.nixosModules.microvm
           ({ pkgs, ... }: {
-            networking.hostName = "microvm-test";
-            networking.useDHCP = false;
+            networking = {
+              hostName = "microvm-test";
+              useDHCP = false;
+            };
+            microvm = {
+              inherit hypervisor;
+              volumes = [ {
+                mountPoint = "/var";
+                image = "var.img";
+                size = 32;
+              } ];
+            };
             systemd.services.poweroff-again = {
               wantedBy = [ "multi-user.target" ];
               serviceConfig.Type = "idle";
@@ -29,11 +39,6 @@
                   ${exit}
                 '';
             };
-            microvm.volumes = [ {
-              mountPoint = "/var";
-              image = "var.img";
-              size = 32;
-            } ];
           })
         ];
       }).config.microvm.runner.${hypervisor};

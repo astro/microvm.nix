@@ -10,7 +10,7 @@
         "-cpu"
         {
           "aarch64-linux" = "cortex-a72";
-          "x86_64-linux" = "kvm64,+svm";
+          "x86_64-linux" = "kvm64,+svm,+vmx";
         }.${system}
       ];
       microvm.vms."${system}-${hypervisor}-example".flake = self;

@@ -21,6 +21,7 @@
                 image = "var.img";
                 size = 32;
               } ];
+              crosvm.pivotRoot = "/build/empty";
             };
             systemd.services.poweroff-again = {
               wantedBy = [ "multi-user.target" ];

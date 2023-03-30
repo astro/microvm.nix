@@ -37,7 +37,9 @@ let
     deflate_on_oom = "on";
     free_page_reporting = "on";
   };
-
+  # TODO: better names
+  isv30 = builtins.compareVersions pkgs.cloud-hypervisor.version "30.0" >= 0; 
+  f = arg: g: xs: lib.optional (!isv30 && xs != []) arg ++ builtins.concatMap (x: lib.optional isv30 arg ++ [(g x)]) xs;
 in {
   preStart = ''
     ${microvmConfig.preStart}
@@ -69,38 +71,27 @@ in {
       [ "--disk" "path=${bootDisk},readonly=on" ]
       ++
       builtins.concatMap ({ image, ... }:
-        lib.optionals (builtins.compareVersions pkgs.cloud-hypervisor.version "30.0" >= 0) [ "--disk" ]
-        ++
-        [ "path=${image}" ]
+        lib.optional isv30 "--disk" ++ [ "path=${image}" ]
       ) volumes
       ++
-      lib.optionals (shares != []) (
-        [ "--fs" ] ++
-        map ({ proto, socket, tag, ... }:
-          if proto == "virtiofs"
-          then "tag=${tag},socket=${socket}"
-          else throw "cloud-hypervisor supports only shares that are virtiofs"
-        ) shares
-      )
+      f "--fs" ({ proto, socket, tag, ... }:
+        if proto == "virtiofs"
+        then "tag=${tag},socket=${socket}"
+        else throw "cloud-hypervisor supports only shares that are virtiofs"
+      ) shares
       ++
       lib.optionals (socket != null) [ "--api-socket" socket ]
       ++
-      lib.optionals (interfaces != []) (
-        [ "--net" ] ++
-        map ({ type, id, mac, ... }:
-          if type == "tap"
-          then "tap=${id},mac=${mac}"
-          else throw "Unsupported interface type ${type} for Cloud-Hypervisor"
-        ) interfaces
-      )
+      f "--net" ({ type, id, mac, ... }:
+        if type == "tap"
+        then "tap=${id},mac=${mac}"
+        else throw "Unsupported interface type ${type} for Cloud-Hypervisor"
+      ) interfaces
       ++
-      lib.optionals (devices != []) (
-        [ "--device" ] ++
-        map ({ bus, path }: {
-          pci = "path=/sys/bus/pci/devices/${path}";
-          usb = throw "USB passthrough is not supported on cloud-hypervisor";
-        }.${bus}) devices
-      )
+      f "--device" ({ bus, path }: {
+        pci = "path=/sys/bus/pci/devices/${path}";
+        usb = throw "USB passthrough is not supported on cloud-hypervisor";
+      }.${bus}) devices
     );
 
   canShutdown = socket != null;

@@ -36,13 +36,6 @@ let
     ${shutdownCommand}
   '';
 
-  consoleScriptBin = pkgs.writeScriptBin "microvm-console" ''
-    #! ${pkgs.runtimeShell} -e
-
-    ${hypervisorConfig.getConsoleScript}
-    exec ${pkgs.screen}/bin/screen -S microvm-${microvmConfig.hostName} $PTY
-  '';
-
   balloonScriptBin = pkgs.writeScriptBin "microvm-balloon" ''
     #! ${pkgs.runtimeShell} -e
 
@@ -70,9 +63,6 @@ pkgs.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}"
   ${if canShutdown
     then "ln -s ${shutdownScriptBin}/bin/microvm-shutdown $out/bin/microvm-shutdown"
     else ""}
-  ${lib.optionalString ((hypervisorConfig.getConsoleScript or null) != null) ''
-    ln -s ${consoleScriptBin}/bin/microvm-console $out/bin/microvm-console
-  ''}
   ${lib.optionalString ((hypervisorConfig.setBalloonScript or null) != null) ''
     ln -s ${balloonScriptBin}/bin/microvm-balloon $out/bin/microvm-balloon
   ''}

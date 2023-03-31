@@ -123,7 +123,7 @@ in {
       title microvm.nix (${config.system.nixos.label})
       linux /${kernelFile}
       initrd /${initrdFile}
-      options ${lib.concatStringsSep " " config.microvm.kernelParams} verbose console=hvc0 console=ttyS0 reboot=t panic=-1
+      options ${lib.concatStringsSep " " config.microvm.kernelParams} console=ttyS0 reboot=t panic=-1
       EOF
       guestfs copy-in entry.conf /loader/entries/
       guestfs copy-in ${kernelPath} /

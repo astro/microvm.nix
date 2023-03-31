@@ -97,8 +97,8 @@ in {
         )
         "--cpus" "boot=${toString vcpu}"
         "--watchdog"
-        "--console" "tty"
-        "--serial" "pty"
+        "--console" "null"
+        "--serial" "tty"
         "--kernel" "${pkgs.rust-hypervisor-firmware}/bin/hypervisor-fw"
         "--seccomp" "true"
         "--memory" memOps

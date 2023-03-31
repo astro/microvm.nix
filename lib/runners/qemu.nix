@@ -88,11 +88,14 @@ in {
       "-nodefaults" "-no-user-config"
       # qemu just hangs after shutdown, allow to exit by rebooting
       "-no-reboot"
-      "-chardev" "stdio,mux=on,id=con0,signal=off"
-      "-serial" "chardev:con0"
-      "-chardev" "pty,id=con1"
-      "-device" "virtio-serial-${devType}"
-      "-device" "virtconsole,chardev=con1"
+
+      "-kernel" "${kernel}/bzImage"
+      "-initrd" bootDisk.passthru.initrd
+      "-append" "console=ttyS0 edd=off reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+
+      "-chardev" "stdio,id=stdio,signal=off"
+      "-serial" "chardev:stdio"
+      "-device" "i8042"
       "-device" "virtio-rng-${devType}"
       "-drive" "id=root,format=raw,read-only=on,file=${bootDisk},if=none,aio=io_uring"
       "-device" "virtio-blk-${devType},drive=root${lib.optionalString (devType == "pci") ",disable-legacy=on"}"
@@ -240,26 +243,6 @@ in {
         ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none
     ''
     else throw "Cannot shutdown without socket";
-
-  getConsoleScript =
-    if socket != null
-    then ''
-      PTY=$( (
-        ${writeQmp { execute = "qmp_capabilities"; }}
-        ${writeQmp { execute = "query-chardev"; }}
-      ) | \
-        ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none | \
-        tail -n 1 | \
-        ${pkgs.jq}/bin/jq -r '.return | .[] | select(.label == "con0") | .filename' \
-      )
-      if [[ $PTY =~ ^pty:(.+)$ ]]; then
-        PTY="''${BASH_REMATCH[1]}"
-      else
-        echo "No valid pty opened by qemu" >&2
-        exit 1
-      fi
-    ''
-    else null;
 
   setBalloonScript =
     if socket != null

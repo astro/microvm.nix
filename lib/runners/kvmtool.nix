@@ -24,11 +24,11 @@ in {
         "-m" (toString (mem + balloonMem))
         "-c" (toString vcpu)
         "-d" (lib.escapeShellArg "${bootDisk},ro")
-        "--console" "virtio"
+        "--console" "serial"
         "--rng"
         "-k" (lib.escapeShellArg "${kernel}/${pkgs.stdenv.hostPlatform.linux-kernel.target}")
         "-i" "${bootDisk.passthru.initrd}"
-        "-p" (lib.escapeShellArg "console=hvc0 reboot=k panic=1 ${toString microvmConfig.kernelParams}")
+        "-p" (lib.escapeShellArg "console=ttyS0 reboot=k panic=1 ${toString microvmConfig.kernelParams}")
       ]
       ++
       lib.optionals (balloonMem > 0) [ "--balloon" ]

@@ -108,4 +108,33 @@ in
       };
     }) {} config.microvm.shares
   ) ];
+
+  # boot.initrd.systemd patchups copied from <nixpkgs/nixos/modules/virtualisation/qemu-vm.nix>
+  boot.initrd.systemd = lib.mkIf (config.boot.initrd.systemd.enable && writableStoreOverlay != null) {
+    mounts = [ {
+      where = "/sysroot/nix/store";
+      what = "overlay";
+      type = "overlay";
+      options = builtins.concatStringsSep "," [
+        "lowerdir=/sysroot${roStore}"
+        "upperdir=/sysroot${writableStoreOverlay}/store"
+        "workdir=/sysroot${writableStoreOverlay}/work"
+      ];
+      wantedBy = [ "initrd-fs.target" ];
+      before = [ "initrd-fs.target" ];
+      requires = [ "rw-store.service" ];
+      after = [ "rw-store.service" ];
+      unitConfig.RequiresMountsFor = "${roStore}";
+    } ];
+    services.rw-store = {
+      unitConfig = {
+        DefaultDependencies = false;
+        RequiresMountsFor = "/sysroot${writableStoreOverlay}";
+      };
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "/bin/mkdir -p -m 0755 /sysroot${writableStoreOverlay}/store /sysroot${writableStoreOverlay}/work /sysroot/nix/store";
+      };
+    };
+  };
 }

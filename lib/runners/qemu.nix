@@ -30,7 +30,7 @@ let
   machine = {
     x86_64-linux =
       if requirePci
-      then "q35,accel=kvm:tcg,mem-merge=on"
+      then "q35,accel=kvm:tcg,mem-merge=on,sata=off"
       else "microvm,accel=kvm:tcg,x-option-roms=off,pit=off,pic=off,rtc=off,mem-merge=on";
     aarch64-linux = "virt,gic-version=max,accel=kvm:tcg";
   }.${system};

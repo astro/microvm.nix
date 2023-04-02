@@ -10,6 +10,10 @@ self:
   ];
 
   config = {
+    nixpkgs.overlays = [
+      self.overlay
+    ];
+
     microvm.runner = lib.genAttrs self.lib.hypervisors (hypervisor:
       self.lib.buildRunner {
         inherit pkgs;

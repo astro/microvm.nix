@@ -20,7 +20,6 @@ self:
         } // config.microvm;
         inherit (config.boot.kernelPackages) kernel;
         inherit (config.system.build) toplevel;
-        bootDisk = config.microvm.bootDisk;
       }
     );
   };

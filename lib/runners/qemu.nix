@@ -31,7 +31,7 @@ let
     x86_64-linux =
       if requirePci
       then "q35,accel=kvm:tcg,mem-merge=on"
-      else "microvm,accel=kvm:tcg,x-option-roms=off,isa-serial=off,pit=off,pic=off,rtc=off,mem-merge=on";
+      else "microvm,accel=kvm:tcg,x-option-roms=off,pit=off,pic=off,rtc=off,mem-merge=on";
     aarch64-linux = "virt,gic-version=max,accel=kvm:tcg";
   }.${system};
   devType = if requirePci

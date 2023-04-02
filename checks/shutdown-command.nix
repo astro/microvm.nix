@@ -1,35 +1,40 @@
-{ self, nixpkgs, system, hypervisor }:
+{ self, nixpkgs, system, makeTestConfigs }:
 
 let
   pkgs = nixpkgs.legacyPackages.${system};
-  microvm = (nixpkgs.lib.nixosSystem {
+
+  configs = makeTestConfigs {
+    name = "shutdown-command";
     inherit system;
     modules = [
-      self.nixosModules.microvm
-      {
+      ({ config, ... }: {
         networking = {
           hostName = "microvm-test";
           useDHCP = false;
         };
         microvm = {
-          inherit hypervisor;
           socket = "./microvm.sock";
           crosvm.pivotRoot = "/build/empty";
+          testing.enableTest = config.microvm.declaredRunner.canShutdown;
         };
-      }
+      })
     ];
-  }).config.microvm.runner.${hypervisor};
-in nixpkgs.lib.optionalAttrs microvm.canShutdown {
-  # Test the shutdown command
-  "${hypervisor}-shutdown-command" =
-    pkgs.runCommandLocal "microvm-${hypervisor}-test-shutdown-command" {
-      requiredSystemFeatures = [ "kvm" ];
-    } ''
-      set -m
-      ${microvm}/bin/microvm-run > $out &
+  };
 
-      sleep 10
-      echo Now shutting down
-      ${microvm}/bin/microvm-shutdown
-    '';
-}
+in
+builtins.mapAttrs (_: nixos:
+  pkgs.runCommandLocal "microvm-test-shutdown-command" {
+    nativeBuildInputs = [
+      nixos.config.microvm.declaredRunner
+      pkgs.p7zip
+    ];
+    requiredSystemFeatures = [ "kvm" ];
+  } ''
+    set -m
+    microvm-run > $out &
+
+    sleep 10
+    echo Now shutting down
+    microvm-shutdown
+  ''
+) configs

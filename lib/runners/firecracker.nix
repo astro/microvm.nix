@@ -18,7 +18,7 @@ in {
         "-m" (toString mem)
         "-c" (toString vcpu)
         "--kernel=${kernel.dev}/vmlinux"
-        "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off nomodules ${toString microvmConfig.kernelParams}"
+        "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd ${toString microvmConfig.kernelParams}"
         "--root-drive=${bootDisk}:ro"
       ]
       ++
@@ -48,21 +48,13 @@ in {
   shutdownCommand =
     if socket != null
     then ''
-        api() {
-          ${pkgs.curl}/bin/curl \
-            --unix-socket ${socket} \
-            -H "Accept: application/json" \
-            $@
-        }
+      ${pkgs.curl}/bin/curl \
+        --unix-socket ${socket} \
+        -X PUT http://localhost/actions \
+        -d '{ "action_type": "SendCtrlAltDel" }'
 
-        api -X PUT http://localhost/actions \
-          -H "Content-Type: application/json" \
-          -d '${builtins.toJSON {
-            action_type = "SendCtrlAltDel";
-          }}'
-
-        # wait for exit
-        ${pkgs.socat}/bin/socat STDOUT UNIX:${socket},shut-none
-      ''
+      # wait for exit
+      ${pkgs.socat}/bin/socat STDOUT UNIX:${socket},shut-none
+    ''
     else throw "Cannot shutdown without socket";
 }

@@ -19,6 +19,9 @@
       "9pnet_virtio"
       "9p"
       "virtiofs"
+    ] ++ lib.optionals (config.microvm.hypervisor == "firecracker") [
+      # Keyboard controller that can receive CtrlAltDel
+      "i8042"
     ] ++ lib.optionals (config.microvm.writableStoreOverlay != null) [
       "overlay"
     ];

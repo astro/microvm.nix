@@ -41,9 +41,6 @@ rec {
 
   buildRunner = import ./runner.nix;
 
-  buildSquashfs = import ./squashfs.nix;
-  buildErofs = import ./erofs.nix;
-
   makeMacvtap = config: import ./macvtap.nix {
     inherit config;
     lib = nixpkgs-lib;

@@ -32,10 +32,6 @@ writeScriptBin "build-microvm" ''
     # Customizations to the imported NixOS system
     extended = original.extendModules {
       modules = [ {
-        # Overrride with custom-built squashfs
-        microvm.bootDisk = bootDisk;
-        # Prepend (override) regInfo with our custom-built
-        microvm.kernelParams = pkgs.lib.mkBefore [ \"regInfo=\''${bootDisk.regInfo}\" ];
         # Override other microvm.nix defaults
         microvm.hypervisor = pkgs.lib.mkForce \"qemu\";
         microvm.shares = pkgs.lib.mkForce [ {
@@ -58,13 +54,8 @@ writeScriptBin "build-microvm" ''
       ];
     };
     inherit (extended.config.boot.kernelPackages) kernel;
-    # Build the squashfs ourselves
-    bootDisk = self.lib.buildErofs {
-      inherit pkgs;
-      inherit (extended) config;
-    };
   in self.lib.buildRunner {
-    inherit pkgs kernel bootDisk;
+    inherit pkgs kernel;
     microvmConfig = {
       inherit (extended.config.networking) hostName;
     } // extended.config.microvm;

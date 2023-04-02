@@ -29,6 +29,7 @@ builtins.mapAttrs (_: nixos:
       pkgs.p7zip
     ];
     requiredSystemFeatures = [ "kvm" ];
+    meta.timeout = 120;
   } ''
     set -m
     microvm-run > $out &

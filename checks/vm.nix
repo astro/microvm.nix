@@ -18,6 +18,6 @@
     testScript = ''
       vm.wait_for_unit("microvm@${system}-${hypervisor}-example.service")
     '';
-    meta.timeout = 1800;
+    meta.timeout = 180;
   }) { inherit system; pkgs = nixpkgs.legacyPackages.${system}; };
 }

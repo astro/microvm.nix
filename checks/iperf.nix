@@ -64,6 +64,6 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
       result = vm.wait_until_succeeds("iperf -c 10.0.0.1", 60)
       print(result)
     '';
-    meta.timeout = 1800;
+    meta.timeout = 300;
   }) { inherit system; pkgs = nixpkgs.legacyPackages.${system}; };
 }

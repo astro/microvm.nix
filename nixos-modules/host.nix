@@ -59,6 +59,14 @@ in
         This includes declarative `config.microvm.vms` as well as MicroVMs that are managed through the `microvm` command.
       '';
     };
+
+    autorestart = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Restart MicroVM services on `nixos-rebuild switch` of the host?
+      '';
+    };
   };
 
   config = lib.mkIf config.microvm.host.enable {
@@ -132,6 +140,8 @@ in
         description = "Setup MicroVM '%i' TAP interfaces";
         before = [ "microvm@%i.service" ];
         partOf = [ "microvm@%i.service" ];
+        restartIfChanged = config.microvm.autorestart;
+        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/tap-interfaces";
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
@@ -148,7 +158,6 @@ in
             in "${stopScript} %i";
           SyslogIdentifier = "microvm-tap-interfaces@%i";
         };
-        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/tap-interfaces";
         # `ExecStart`
         scriptArgs = "%i";
         script = ''
@@ -168,12 +177,13 @@ in
         description = "Setup MicroVM '%i' devices for passthrough";
         before = [ "microvm@%i.service" ];
         partOf = [ "microvm@%i.service" ];
+        restartIfChanged = config.microvm.autorestart;
+        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/pci-devices";
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
           SyslogIdentifier = "microvm-pci-devices@%i";
         };
-        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/pci-devices";
         # `ExecStart`
         scriptArgs = "%i";
         script = ''
@@ -209,6 +219,7 @@ in
         before = [ "microvm@%i.service" ];
         after = [ "local-fs.target" ];
         partOf = [ "microvm@%i.service" ];
+        restartIfChanged = config.microvm.autorestart;
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/virtiofs";
         serviceConfig = {
           Type = "forking";
@@ -244,6 +255,7 @@ in
         description = "MicroVM '%i'";
         requires = [ "microvm-tap-interfaces@%i.service" "microvm-pci-devices@%i.service" "microvm-virtiofsd@%i.service" ];
         after = [ "network.target" ];
+        restartIfChanged = config.microvm.autorestart;
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/microvm-run";
         preStart = ''
           rm -f booted

@@ -81,6 +81,7 @@ in {
       "-enable-kvm"
       "-nodefaults" "-no-user-config"
       "-nographic"
+      "-bios" "${pkgs.qboot}/bios.bin"
       # qemu just hangs after shutdown, allow to exit by rebooting
       "-no-reboot"
       "-serial" "null"

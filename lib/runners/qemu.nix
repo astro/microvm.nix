@@ -84,11 +84,10 @@ in {
       "-bios" "${pkgs.qboot}/bios.bin"
       # qemu just hangs after shutdown, allow to exit by rebooting
       "-no-reboot"
-      "-serial" "null"
+      "-chardev" "stdio,mux=on,id=con0,signal=off"
+      "-serial" "chardev:con0"
+      "-chardev" "pty,id=con1"
       "-device" "virtio-serial-${devType}"
-      "-chardev" "pty,id=con0"
-      "-device" "virtconsole,chardev=con0"
-      "-chardev" "stdio,mux=on,id=con1,signal=off"
       "-device" "virtconsole,chardev=con1"
       "-device" "i8042"
       "-device" "virtio-rng-${devType}"
@@ -97,7 +96,7 @@ in {
       "-kernel" "${kernel.dev}/vmlinux"
       # hvc1 precedes hvc0 so that nixos starts serial-agetty@ on both
       # without further config
-      "-append" "console=hvc1 console=hvc0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+      "-append" "console=hvc0 earlyprintk=ttyS0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
     ] ++
     lib.optionals canSandbox [
       "-sandbox" "on"

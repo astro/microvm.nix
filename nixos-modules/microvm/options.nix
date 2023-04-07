@@ -307,6 +307,12 @@ in
       description = "Extra arguments to pass to qemu.";
     };
 
+    crosvm.extraArgs = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = "Extra arguments to pass to crosvm.";
+    };
+
     crosvm.pivotRoot = mkOption {
       type = with types; nullOr str;
       default = null;

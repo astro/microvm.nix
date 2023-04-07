@@ -7,7 +7,7 @@
 let
   inherit (pkgs) lib;
   inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices;
-  inherit (microvmConfig.crosvm) pivotRoot;
+  inherit (microvmConfig.crosvm) pivotRoot extraArgs;
   mktuntap = pkgs.callPackage ../../pkgs/mktuntap.nix {};
   interfaceFdOffset = 3;
 in {
@@ -78,6 +78,8 @@ in {
       }.${bus}) devices
       ++
       [ "${kernel.dev}/vmlinux" ]
+      ++
+      extraArgs
     );
 
   canShutdown = socket != null;

@@ -301,6 +301,28 @@ in
       '';
     };
 
+    graphics.enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Enable GUI support.
+
+        MicroVMs with graphics are intended for the interactive
+        use-case. They cannot be started through systemd jobs.
+
+        Support in Hypervisors:
+        - `qemu` starts a Gtk window with the framebuffer of the virtio-gpu
+      '';
+    };
+
+    graphics.socket = mkOption {
+      type = types.str;
+      default = "${hostName}-gpu.sock";
+      description = ''
+        Path of vhost-user socket
+      '';
+    };
+
     qemu.extraArgs = mkOption {
       type = with types; listOf str;
       default = [];

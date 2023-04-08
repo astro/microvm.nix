@@ -7,6 +7,7 @@ self:
     ./options.nix
     ./asserts.nix
     ./system.nix
+    ./graphics.nix
   ];
 
   config = {

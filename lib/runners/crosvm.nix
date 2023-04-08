@@ -7,7 +7,7 @@
 
 let
   inherit (pkgs) lib system;
-  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices;
+  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices graphics;
   inherit (microvmConfig.crosvm) pivotRoot extraArgs;
 
   mktuntap = pkgs.callPackage ../../pkgs/mktuntap.nix {};
@@ -40,6 +40,16 @@ in {
     ${lib.optionalString (pivotRoot != null) ''
       mkdir -p ${pivotRoot}
     ''}
+  '' + lib.optionalString graphics.enable ''
+    rm -f ${graphics.socket}
+    ${pkgs.crosvm}/bin/crosvm device gpu \
+      --socket ${graphics.socket} \
+      --wayland-sock $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY \
+      --params '{"context-types":"virgl:virgl2:cross-domain"}' \
+      &
+    while ! [ -S ${graphics.socket} ]; do
+      sleep .1
+    done
   '';
 
   command =
@@ -61,6 +71,10 @@ in {
         "-r" bootDisk
         "--serial" "type=stdout,console=true,stdin=true"
         "-p" "console=ttyS0 reboot=k panic=1 ${toString microvmConfig.kernelParams}"
+      ]
+      ++
+      lib.optionals graphics.enable [
+        "--vhost-user-gpu" graphics.socket
       ]
       ++
       lib.optionals (builtins.compareVersions pkgs.crosvm.version "107.1" < 0) [

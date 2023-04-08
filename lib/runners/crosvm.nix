@@ -5,11 +5,15 @@
 }:
 
 let
-  inherit (pkgs) lib;
+  inherit (pkgs) lib system;
   inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices;
   inherit (microvmConfig.crosvm) pivotRoot extraArgs;
   mktuntap = pkgs.callPackage ../../pkgs/mktuntap.nix {};
   interfaceFdOffset = 3;
+  kernelPath = {
+    x86_64-linux = "${kernel.dev}/vmlinux";
+    aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
+  }.${system};
 in {
   preStart = ''
     rm -f ${socket}
@@ -77,7 +81,7 @@ in {
         usb = throw "USB passthrough is not supported on crosvm";
       }.${bus}) devices
       ++
-      [ "${kernel.dev}/vmlinux" ]
+      [ "${kernelPath}" ]
       ++
       extraArgs
     );

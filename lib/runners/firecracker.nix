@@ -26,6 +26,10 @@ in {
         "--root-drive=${bootDisk}:ro"
       ]
       ++
+      # Without this, starting of firecracker fails with an error message:
+      # Enabling simultaneous multithreading is not supported on aarch64
+      lib.optionals (system == "aarch64-linux") [ "--disable-smt" ]
+      ++
       lib.optionals (socket != null) [ "-s" socket ]
       ++
       map ({ image, ... }:

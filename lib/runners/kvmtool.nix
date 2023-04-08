@@ -25,7 +25,7 @@ in {
         "-d" "${bootDisk},ro"
         "--console" "virtio"
         "--rng"
-        "-k" "${kernel}/bzImage"
+        "-k" "${kernel}/${pkgs.stdenv.hostPlatform.linux-kernel.target}"
         "-p" "console=hvc0 reboot=k panic=1 nomodules ${toString microvmConfig.kernelParams}"
       ]
       ++

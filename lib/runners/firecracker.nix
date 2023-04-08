@@ -5,8 +5,12 @@
 }:
 
 let
-  inherit (pkgs) lib;
+  inherit (pkgs) lib system;
   inherit (microvmConfig) vcpu mem user interfaces volumes shares socket devices;
+  kernelPath = {
+    x86_64-linux = "${kernel.dev}/vmlinux";
+    aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
+  }.${system};
 in {
   command =
     if user != null
@@ -17,7 +21,7 @@ in {
         "--firecracker-binary=${pkgs.firecracker}/bin/firecracker"
         "-m" (toString mem)
         "-c" (toString vcpu)
-        "--kernel=${kernel.dev}/vmlinux"
+        "--kernel=${kernelPath}"
         "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd ${toString microvmConfig.kernelParams}"
         "--root-drive=${bootDisk}:ro"
       ]

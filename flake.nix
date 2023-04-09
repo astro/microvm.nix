@@ -73,6 +73,14 @@
           ) {} (builtins.attrNames self.nixosConfigurations);
 
         checks = import ./checks { inherit self nixpkgs system; };
+
+        # hydraJobs are checks
+        hydraJobs = builtins.mapAttrs (_: check:
+          with nixpkgs.lib;
+          hydraJob (recursiveUpdate check {
+            meta.timeout = 12 * 60 * 60;
+          })
+        ) self.checks.${system};
       }) // {
         lib = import ./lib { nixpkgs-lib = nixpkgs.lib; };
 

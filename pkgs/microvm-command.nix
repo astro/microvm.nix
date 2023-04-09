@@ -46,6 +46,7 @@ writeScriptBin "microvm" ''
 
       r)
         ACTION=run
+        NAME=$OPTARG
         ;;
 
       l)

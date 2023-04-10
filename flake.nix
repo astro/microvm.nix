@@ -57,6 +57,7 @@
               pathsToLink = [ "/" ];
               extraOutputsToInstall = [ "dev" ];
             };
+            cloud-hypervisor-graphics = pkgs.callPackage ./pkgs/spectrum-os/cloud-hypervisor {};
           } //
           # wrap self.nixosConfigurations in executable packages
           builtins.foldl' (result: systemName:
@@ -86,6 +87,7 @@
 
         overlay = final: prev: {
           microvm-kernel = prev.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
+          cloud-hypervisor-graphics = prev.callPackage ./pkgs/spectrum-os/cloud-hypervisor {};
         };
 
         nixosModules = {

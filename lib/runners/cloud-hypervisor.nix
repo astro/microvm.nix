@@ -6,7 +6,7 @@
 
 let
   inherit (pkgs) lib system;
-  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem;
+  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem graphics;
 
   # balloon
   useBallooning = balloonMem > 0;
@@ -64,6 +64,16 @@ in {
       # stumbling over a preexisting socket
       rm -f '${socket}'
     ''}
+  '' + lib.optionalString graphics.enable ''
+    rm -f ${graphics.socket}
+    ${pkgs.crosvm}/bin/crosvm device gpu \
+      --socket ${graphics.socket} \
+      --wayland-sock $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY \
+      --params '{"context-types":"virgl:virgl2:cross-domain"}' \
+      &
+    while ! [ -S ${graphics.socket} ]; do
+      sleep .1
+    done
   '';
 
   command =
@@ -71,7 +81,10 @@ in {
     then throw "cloud-hypervisor will not change user"
     else lib.escapeShellArgs (
       [
-        "${pkgs.cloud-hypervisor}/bin/cloud-hypervisor"
+        (if graphics.enable
+         then "${pkgs.cloud-hypervisor-graphics}/bin/cloud-hypervisor"
+         else "${pkgs.cloud-hypervisor}/bin/cloud-hypervisor"
+        )
         "--cpus" "boot=${toString vcpu}"
         "--watchdog"
         "--console" "tty"
@@ -80,6 +93,10 @@ in {
         "--cmdline" "console=hvc0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
         "--seccomp" "true"
         "--memory" memOps
+      ]
+      ++
+      lib.optionals graphics.enable [
+        "--gpu" "socket=${graphics.socket}"
       ]
       ++
       lib.optionals useBallooning [ "--balloon" balloonOps ]

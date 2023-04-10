@@ -7,7 +7,7 @@ let
     name = "shutdown-command";
     inherit system;
     modules = [
-      ({ config, ... }: {
+      ({ config, lib, ... }: {
         networking = {
           hostName = "microvm-test";
           useDHCP = false;
@@ -17,6 +17,7 @@ let
           crosvm.pivotRoot = "/build/empty";
           testing.enableTest = config.microvm.declaredRunner.canShutdown;
         };
+        system.stateVersion = lib.mkDefault lib.trivial.release;
       })
     ];
   };

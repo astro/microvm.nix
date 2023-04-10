@@ -8,7 +8,7 @@ let
     inherit system;
     modules = [
       # Run a MicroVM that immediately shuts down again
-      ({ config, pkgs, ... }: {
+      ({ config, lib, pkgs, ... }: {
         networking = {
           hostName = "microvm-test";
           useDHCP = false;
@@ -38,6 +38,7 @@ let
               ${exit}
             '';
         };
+        system.stateVersion = lib.mkDefault lib.trivial.release;
       })
     ];
   };

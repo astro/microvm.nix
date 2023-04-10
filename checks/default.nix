@@ -38,12 +38,12 @@ let
       id = "9pstore";
       modules = [ ({ config, ... }: {
         microvm = {
-          shares = {
+          shares = [ {
             proto = "9p";
             tag = "ro-store";
             source = "/nix/store";
             mountPoint = "/nix/.ro-store";
-          };
+          } ];
           testing.enableTest = builtins.elem config.microvm.hypervisor [
             # Hypervisors that support 9p
             "qemu" "crosvm" "kvmtool"

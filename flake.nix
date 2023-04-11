@@ -20,19 +20,22 @@
     in
       flake-utils.lib.eachSystem systems (system: {
 
-        apps = {
-          vm = {
-            type = "app";
-            program =
+        apps =
+          let
+            nixosToApp = file:
               let
-                inherit (import ./examples/microvms-host.nix {
+                inherit (import file {
                   inherit self nixpkgs system;
                 }) config;
                 inherit (config.microvm) hypervisor;
-              in
-                "${config.microvm.runner.${hypervisor}}/bin/microvm-run";
+              in {
+                type = "app";
+                program = "${config.microvm.runner.${hypervisor}}/bin/microvm-run";
+              };
+          in {
+            vm = nixosToApp ./examples/microvms-host.nix;
+            graphics = nixosToApp ./examples/graphics.nix;
           };
-        };
 
         packages =
           let

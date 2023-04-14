@@ -1,10 +1,11 @@
-{ nixpkgs, lib, runCommand, mdbook, nixosOptionsDoc }:
+{ nixpkgs, lib, pkgs, runCommand, mdbook, nixosOptionsDoc }:
 
 let
   microvmDoc = nixosOptionsDoc {
     options = (lib.evalModules {
       modules = [
         ../nixos-modules/microvm/options.nix
+        { _module.args.pkgs = pkgs; }
       ];
     }).options;
   };

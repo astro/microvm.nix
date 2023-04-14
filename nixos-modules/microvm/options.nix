@@ -1,4 +1,4 @@
-{ config, options, lib, ... }:
+{ config, options, lib, pkgs, ... }:
 let
   self-lib = import ../../lib {
     nixpkgs-lib = lib;
@@ -305,6 +305,20 @@ in
       type = with types; listOf str;
       default = [];
       description = "Extra arguments to pass to qemu.";
+    };
+
+    qemu.bios = {
+      enable = mkOption {
+        type = types.bool;
+        default = pkgs.stdenv.hostPlatform.system == "x86_64-linux";
+        description = "Enable BIOS argument to qemu.";
+      };
+
+      path = mkOption {
+        type = types.path;
+	default = "${pkgs.qboot}/bios.bin";
+	description = "BIOS binary path";
+      };
     };
 
     crosvm.extraArgs = mkOption {

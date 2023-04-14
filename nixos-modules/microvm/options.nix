@@ -310,7 +310,7 @@ in
     qemu.bios = {
       enable = mkOption {
         type = types.bool;
-        default = pkgs.stdenv.hostPlatform.system == "x86_64-linux";
+        default = pkgs.stdenv.hostPlatform.isx86;
         description = "Enable BIOS argument to qemu.";
       };
 

@@ -7,8 +7,8 @@ jobs:
     name: Deadnix
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: cachix/install-nix-action@v16
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v20
       - uses: cachix/cachix-action@v12
         with:
           name: deadnix

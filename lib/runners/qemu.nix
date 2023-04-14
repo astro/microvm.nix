@@ -26,7 +26,9 @@ let
   volumes = withDriveLetters 1 microvmConfig.volumes;
 
   arch = builtins.head (builtins.split "-" system);
-  requirePci = shares != [];
+  # PCI required by vfio-pci for PCI passthrough
+  pciInDevices = lib.any ({ bus, ... }: bus == "pci") devices;
+  requirePci = shares != [] || pciInDevices;
   machine = {
     x86_64-linux =
       if requirePci
@@ -74,7 +76,6 @@ let
 in {
   hypervisor = "qemu";
 
-  # TODO : Needs work
   command = lib.escapeShellArgs (
     [
       "${qemu}/bin/qemu-system-${arch}"

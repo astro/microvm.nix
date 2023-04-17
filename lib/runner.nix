@@ -10,10 +10,11 @@
 let
   inherit (pkgs) lib writeScriptBin;
 
-  inherit (import ../lib { nixpkgs-lib = lib; }) createVolumesScript;
+  inherit (import ./. { nixpkgs-lib = lib; }) createVolumesScript makeMacvtap;
+  inherit (makeMacvtap microvmConfig) openMacvtapFds macvtapFds;
 
   hypervisorConfig = import (./runners + "/${microvmConfig.hypervisor}.nix") {
-    inherit pkgs microvmConfig kernel bootDisk;
+    inherit pkgs microvmConfig kernel bootDisk macvtapFds;
   };
 
   inherit (hypervisorConfig) command canShutdown shutdownCommand;
@@ -24,6 +25,7 @@ let
 
     ${preStart}
     ${createVolumesScript pkgs microvmConfig.volumes}
+    ${lib.optionalString (hypervisorConfig.requiresMacvtapAsFds or false) openMacvtapFds}
 
     exec ${command}
   '';

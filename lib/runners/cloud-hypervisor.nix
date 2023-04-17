@@ -2,6 +2,7 @@
 , microvmConfig
 , kernel
 , bootDisk
+, macvtapFds
 }:
 
 let
@@ -101,6 +102,8 @@ in {
       arg "--net" (map ({ type, id, mac, ... }:
         if type == "tap"
         then "tap=${id},mac=${mac}"
+        else if type == "macvtap"
+        then "fd=${toString macvtapFds.${id}},mac=${mac}"
         else throw "Unsupported interface type ${type} for Cloud-Hypervisor"
       ) interfaces)
       ++
@@ -143,4 +146,6 @@ in {
       ${pkgs.cloud-hypervisor}/bin/ch-remote --api-socket ${socket} resize --balloon $SIZE"M"
     ''
     else null;
+
+  requiresMacvtapAsFds = true;
 }

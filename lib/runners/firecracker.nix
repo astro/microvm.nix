@@ -2,6 +2,7 @@
 , microvmConfig
 , kernel
 , bootDisk
+, ...
 }:
 
 let

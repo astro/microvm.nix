@@ -2,6 +2,7 @@
 , microvmConfig
 , kernel
 , bootDisk
+, macvtapFds
 }:
 
 let
@@ -144,7 +145,7 @@ in {
         "-netdev" (
           lib.concatStringsSep "," (
             [
-              "${type}"
+              (if type == "macvtap" then "tap" else "${type}")
               "id=${id}"
             ]
             ++ lib.optionals (type == "user" && forwardPortsOptions != []) forwardPortsOptions
@@ -154,6 +155,9 @@ in {
             ++ lib.optionals (type == "tap") [
               "ifname=${id}"
               "script=no" "downscript=no"
+            ]
+            ++ lib.optionals (type == "macvtap") [
+              "fd=${toString macvtapFds.${id}}"
             ]
           )
         )
@@ -261,4 +265,6 @@ in {
       echo $(( $SIZE / 1024 / 1024 ))
     ''
     else null;
+
+  requiresMacvtapAsFds = true;
 }

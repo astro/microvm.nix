@@ -183,7 +183,7 @@ in
       type = with types; listOf (submodule {
         options = {
           type = mkOption {
-            type = enum [ "user" "tap" "bridge" ];
+            type = enum [ "user" "tap" "macvtap" "bridge" ];
             description = ''
               Interface type
             '';

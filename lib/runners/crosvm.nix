@@ -2,18 +2,37 @@
 , microvmConfig
 , kernel
 , bootDisk
+, macvtapFds
 }:
 
 let
   inherit (pkgs) lib system;
   inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices;
   inherit (microvmConfig.crosvm) pivotRoot extraArgs;
+
   mktuntap = pkgs.callPackage ../../pkgs/mktuntap.nix {};
-  interfaceFdOffset = 3;
+
+  inherit (macvtapFds) nextFreeFd;
+  interfaceFds = (
+    builtins.foldl' ({ interfaceFds, nextFreeFd }: { type, id, ... }:
+      if type == "tap"
+      then {
+        interfaceFds = interfaceFds // {
+          ${id} = nextFreeFd;
+        };
+        nextFreeFd = nextFreeFd + 1;
+      }
+      else if type == "macvtap"
+      then { inherit interfaceFds nextFreeFd; }
+      else throw "Interface type not supported for crosvm: ${type}"
+    ) { interfaceFds = macvtapFds; inherit nextFreeFd; } interfaces
+  ).interfaceFds;
+
   kernelPath = {
     x86_64-linux = "${kernel.dev}/vmlinux";
     aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
   }.${system};
+
 in {
   preStart = ''
     rm -f ${socket}
@@ -27,12 +46,13 @@ in {
     if user != null
     then throw "crosvm will not change user"
     else lib.escapeShellArgs (
-      lib.concatLists (lib.imap0 (i: ({ id, ... }: [
-        "${mktuntap}/bin/mktuntap"
-        "-i" id
-        "-p" "-v" "-B"
-        (toString (interfaceFdOffset + i))
-      ])) microvmConfig.interfaces)
+      lib.concatLists (lib.imap0 (i: ({ id, type, ... }:
+        lib.optionals (type == "tap") [
+          "${mktuntap}/bin/mktuntap"
+          "-i" id
+          "-p" "-v" "-B"
+          (toString interfaceFds.${id})
+        ])) microvmConfig.interfaces)
       ++
       [
         "${pkgs.crosvm}/bin/crosvm" "run"
@@ -72,9 +92,9 @@ in {
         ]
       ) shares
       ++
-      lib.concatLists (lib.imap0 (i: (_: [
-        "--tap-fd" (toString (interfaceFdOffset + i))
-      ])) interfaces)
+      builtins.concatMap ({ id, ... }: [
+        "--tap-fd" (toString interfaceFds.${id})
+      ]) interfaces
       ++
       builtins.concatMap ({ bus, path }: {
         pci = [ "--vfio" "/sys/bus/pci/devices/${path},iommu=viommu" ];
@@ -106,4 +126,6 @@ in {
       echo $(( $SIZE / 1024 / 1024 ))
     ''
     else null;
+
+  requiresMacvtapAsFds = true;
 }

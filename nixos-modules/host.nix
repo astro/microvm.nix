@@ -190,7 +190,7 @@ in
                 cat current/share/microvm/macvtap-interfaces | while read -r line;do
                   opts=( $line )
                   id="''${opts[0]}"
-                  ${pkgs.iproute2}/bin/ip del name $id
+                  ${pkgs.iproute2}/bin/ip link del name $id
                 done
               '';
             in "${stopScript} %i";
@@ -206,13 +206,12 @@ in
             id="''${opts[0]}"
             link="''${opts[1]}"
             mac="''${opts[2]}"
-            if [ -e /sys/class/net/$name ]; then
-              ${pkgs.iproute2}/bin/ip link del name $name
+            if [ -e /sys/class/net/$id ]; then
+              ${pkgs.iproute2}/bin/ip link del name $id
             fi
             ${pkgs.iproute2}/bin/ip link add link $link name $id address $mac type macvtap
-            ${pkgs.iproute2}/bin/ip set $id up
-            ${pkgs.coreutils-full}/bin/chown ${user}:${group}
-            ((i=i+1))
+            ${pkgs.iproute2}/bin/ip link set $id up
+            ${pkgs.coreutils-full}/bin/chown ${user}:${group} /dev/tap$(< /sys/class/net/$id/ifindex) 
           done
         '';
       };

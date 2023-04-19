@@ -1,8 +1,8 @@
 { pkgs
 , microvmConfig
 , kernel ? pkgs.callPackage ../pkgs/microvm-kernel.nix {
-  inherit (pkgs.linuxPackages_latest) kernel;
-}
+    inherit (pkgs.linuxPackages_latest) kernel;
+  }
 , bootDisk
 , toplevel
 }:
@@ -56,7 +56,8 @@ let
   '';
 in
 
-pkgs.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}" {
+pkgs.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}"
+{
   # for `nix run`
   meta.mainProgram = "microvm-run";
   passthru = {
@@ -83,6 +84,12 @@ pkgs.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}" 
     lib.optionalString (interface.type == "tap" && interface ? id) ''
       echo "${interface.id}" >> $out/share/microvm/tap-interfaces
     '') microvmConfig.interfaces}
+
+  ${lib.concatMapStringsSep " " (interface:
+    lib.optionalString (interface.type == "macvtap" && interface ? id) ''
+      echo "${interface.id} ${interface.mac}" >> $out/share/microvm/macvtap-interfaces
+    '') microvmConfig.interfaces}
+
 
   ${lib.concatMapStrings ({ tag, socket, source, proto, ... }:
       lib.optionalString (proto == "virtiofs") ''

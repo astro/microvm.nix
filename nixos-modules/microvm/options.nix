@@ -194,10 +194,17 @@ in
               Interface name on the host
             '';
           };
-          link = mkOption {
+          macvtap.link = mkOption {
             type = str;
             description = ''
               Attach network interface to host interface for type = "macvlan"
+            '';
+          };
+          macvtap.mode = mkOption {
+            type = nullOr (enum ["private" "vepa" "bridge" "passthru" "source"]);
+            default = null;
+            description = ''
+              The MACVLAN mode to use
             '';
           };
           bridge = mkOption {

@@ -86,8 +86,8 @@ pkgs.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}"
     '') microvmConfig.interfaces}
 
   ${lib.concatMapStringsSep " " (interface:
-    lib.optionalString (interface.type == "macvtap" && interface ? id) ''
-      echo "${interface.id} ${interface.mac}" >> $out/share/microvm/macvtap-interfaces
+    lib.optionalString (interface.type == "macvtap" && interface ? id && interface ? link) ''
+      echo "${interface.id} ${interface.link} ${interface.mac}" >> $out/share/microvm/macvtap-interfaces
     '') microvmConfig.interfaces}
 
 

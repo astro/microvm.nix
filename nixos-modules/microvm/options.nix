@@ -194,6 +194,12 @@ in
               Interface name on the host
             '';
           };
+          link = mkOption {
+            type = str;
+            description = ''
+              Attach network interface to host interface for type = "macvlan"
+            '';
+          };
           bridge = mkOption {
             type = nullOr str;
             default = null;

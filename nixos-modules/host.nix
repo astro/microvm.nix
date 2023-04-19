@@ -186,13 +186,11 @@ in
             let
               stopScript = pkgs.writeScript "stop-microvm-tap-interfaces" ''
                 #! ${pkgs.runtimeShell} -e
-
                 cd ${stateDir}/$1
-                i=0
                 cat current/share/microvm/macvtap-interfaces | while read -r line;do
-                  name="${name}-macvtap-$i"
-                  ${pkgs.iproute2}/bin/ip del name $name
-                  ((i=i+1))
+                  opts=( $line )
+                  id="''${opts[0]}"
+                  ${pkgs.iproute2}/bin/ip del name $id
                 done
               '';
             in "${stopScript} %i";
@@ -205,14 +203,14 @@ in
           i=0
           cat current/share/microvm/macvtap-interfaces | while read -r line;do
             opts=( $line )
-            name="${name}-macvtap-$i"
             id="''${opts[0]}"
-            mac="''${opts[1]}"
+            link="''${opts[1]}"
+            mac="''${opts[2]}"
             if [ -e /sys/class/net/$name ]; then
-              ${pkgs.iproute2}/bin/ip del name $name
+              ${pkgs.iproute2}/bin/ip link del name $name
             fi
-            ${pkgs.iproute2}/bin/ip link add link $id name $name address $mac type macvtap
-            ${pkgs.iproute2}/bin/ip set $name up
+            ${pkgs.iproute2}/bin/ip link add link $link name $id address $mac type macvtap
+            ${pkgs.iproute2}/bin/ip set $id up
             ${pkgs.coreutils-full}/bin/chown ${user}:${group}
             ((i=i+1))
           done
@@ -300,7 +298,7 @@ in
 
       "microvm@" = {
         description = "MicroVM '%i'";
-        requires = [ "microvm-tap-interfaces@%i.service" "microvm-pci-devices@%i.service" "microvm-virtiofsd@%i.service" ];
+        requires = [ "microvm-tap-interfaces@%i.service"  "microvm-macvtap-interfaces@%i.service" "microvm-pci-devices@%i.service" "microvm-virtiofsd@%i.service" ];
         after = [ "network.target" ];
         restartIfChanged = config.microvm.autorestart;
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/microvm-run";

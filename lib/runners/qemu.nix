@@ -141,7 +141,7 @@ in {
       forwardPorts != [] &&
       ! builtins.any ({ type, ... }: type == "user") interfaces
     ) "${hostName}: forwardPortsOptions only running with user network" (
-      builtins.concatMap ({ type, id, mac, bridge }: [
+      builtins.concatMap ({ type, id, mac, bridge, ... }: [
         "-netdev" (
           lib.concatStringsSep "," (
             [

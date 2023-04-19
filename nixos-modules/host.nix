@@ -173,6 +173,53 @@ in
         '';
       };
 
+      "microvm-macvtap-interfaces@" = {
+        description = "Setup MicroVM '%i' MACVTAP interfaces";
+        before = [ "microvm@%i.service" ];
+        partOf = [ "microvm@%i.service" ];
+        restartIfChanged = config.microvm.autorestart;
+        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/macvtap-interfaces";
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStop =
+            let
+              stopScript = pkgs.writeScript "stop-microvm-tap-interfaces" ''
+                #! ${pkgs.runtimeShell} -e
+
+                cd ${stateDir}/$1
+                i=0
+                cat current/share/microvm/macvtap-interfaces | while read -r line;do
+                  name="${name}-macvtap-$i"
+                  ${pkgs.iproute2}/bin/ip del name $name
+                  ((i=i+1))
+                done
+              '';
+            in "${stopScript} %i";
+          SyslogIdentifier = "microvm-macvtap-interfaces@%i";
+        };
+        # `ExecStart`
+        scriptArgs = "%i";
+        script = ''
+          cd ${stateDir}/$1
+          i=0
+          cat current/share/microvm/macvtap-interfaces | while read -r line;do
+            opts=( $line )
+            name="${name}-macvtap-$i"
+            id="''${opts[0]}"
+            mac="''${opts[1]}"
+            if [ -e /sys/class/net/$name ]; then
+              ${pkgs.iproute2}/bin/ip del name $name
+            fi
+            ${pkgs.iproute2}/bin/ip link add link $id name $name address $mac type macvtap
+            ${pkgs.iproute2}/bin/ip set $name up
+            ${pkgs.coreutils-full}/bin/chown ${user}:${group}
+            ((i=i+1))
+          done
+        '';
+      };
+
+
       "microvm-pci-devices@" = {
         description = "Setup MicroVM '%i' devices for passthrough";
         before = [ "microvm@%i.service" ];

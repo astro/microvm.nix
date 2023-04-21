@@ -206,13 +206,13 @@ in
             id="''${opts[0]}"
             mac="''${opts[1]}"
             link="''${opts[2]}"
-            mode="''${opts[3]}"
+            mode="''${opts[3]:+" mode ''${opts[3]}"}"
             if [ -e /sys/class/net/$id ]; then
               ${pkgs.iproute2}/bin/ip link del name $id
             fi
-            ${pkgs.iproute2}/bin/ip link add link $link name $id address $mac type macvtap"''${mode:+" mode $mode"}"
+            ${pkgs.iproute2}/bin/ip link add link $link name $id address $mac type macvtap ''${mode[@]}
             ${pkgs.iproute2}/bin/ip link set $id up
-            ${pkgs.coreutils-full}/bin/chown ${user}:${group} /dev/tap$(< /sys/class/net/$id/ifindex) 
+            ${pkgs.coreutils-full}/bin/chown ${user}:${group} /dev/tap$(< /sys/class/net/$id/ifindex)
           done
         '';
       };

@@ -46,7 +46,7 @@ in {
       builtins.concatMap ({ type, id, mac, ... }:
         if builtins.elem type [ "user" "tap" ]
         then [
-          "-n" lib.escapeShellArg "mode=${type},tapif=${id},guest_mac=${mac}"
+          "-n" (lib.escapeShellArg "mode=${type},tapif=${id},guest_mac=${mac}")
         ]
         else if type == "macvtap"
         then [

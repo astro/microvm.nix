@@ -57,6 +57,15 @@ let
         [ switch ] ++ params
       );
 
+  gpuParams = {
+    context-types = "virgl:virgl2:cross-domain";
+    displays = [ {
+      hidden = true;
+    } ];
+    egl = true;
+    vulkan = true;
+  };
+
 in {
   preStart = ''
     ${microvmConfig.preStart}
@@ -70,7 +79,7 @@ in {
     ${pkgs.crosvm}/bin/crosvm device gpu \
       --socket ${graphics.socket} \
       --wayland-sock $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY \
-      --params '{"context-types":"virgl:virgl2:cross-domain"}' \
+      --params '${builtins.toJSON gpuParams}' \
       &
     while ! [ -S ${graphics.socket} ]; do
       sleep .1

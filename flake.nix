@@ -22,19 +22,44 @@
 
         apps =
           let
-            nixosToApp = file:
-              let
-                inherit (import file {
-                  inherit self nixpkgs system;
-                }) config;
-                inherit (config.microvm) hypervisor;
-              in {
-                type = "app";
-                program = "${config.microvm.runner.${hypervisor}}/bin/microvm-run";
-              };
+            pkgs = nixpkgs.legacyPackages.${system};
+            nixosToApp = configFile: {
+              type = "app";
+              program = "${(import configFile {
+                inherit self nixpkgs system;
+              }).config.microvm.declaredRunner}/bin/microvm-run";
+            };
           in {
             vm = nixosToApp ./examples/microvms-host.nix;
-            graphics = nixosToApp ./examples/graphics.nix;
+            graphics = {
+              type = "app";
+              program = toString (pkgs.writeShellScript "run-graphics" ''
+                set -e
+
+                if [ -z "$*" ]; then
+                  echo "Usage: $0 [--tap tap0] <pkgs...>"
+                  exit 1
+                fi
+
+                if [ "$1" = "--tap" ]; then
+                  TAP_INTERFACE="\"$2\""
+                  shift 2
+                else
+                  TAP_INTERFACE=null
+                fi
+
+                RUNNER=$(${pkgs.nix}/bin/nix build \
+                  -f ${./examples/graphics.nix} \
+                  config.microvm.declaredRunner \
+                  --arg self 'builtins.getFlake "${self}"' \
+                  --arg system '"${system}"' \
+                  --arg nixpkgs 'builtins.getFlake "${nixpkgs}"' \
+                  --arg packages "\"$*\"" \
+                  --arg tapInterface "$TAP_INTERFACE" \
+                  --no-link --print-out-paths)
+                exec $RUNNER/bin/microvm-run
+              '');
+            };
           };
 
         packages =

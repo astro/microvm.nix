@@ -91,6 +91,12 @@ nix run microvm#vm
 Check `networkctl status virbr0` for the DHCP leases of the nested
 MicroVMs. They listen for ssh with an empty root password.
 
+### Experimental: run graphical applications in cloud-hypervisor with Wayland forwarding
+
+```shell
+nix run microvm#graphics neverball
+```
+
 ## Commercial support
 
 The author can implement additional features. Re-use our experience in

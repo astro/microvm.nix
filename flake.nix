@@ -146,7 +146,7 @@
                     networking.firewall.allowedTCPPorts = lib.optional (hypervisor == "qemu") 22;
                     services.openssh = lib.optionalAttrs (hypervisor == "qemu") {
                       enable = true;
-                      permitRootLogin = "yes";
+                      settings.PermitRootLogin = "yes";
                     };
                   })
                   config
@@ -173,7 +173,7 @@
                       networking.firewall.allowedTCPPorts = [ 22 ];
                       services.openssh = {
                         enable = true;
-                        permitRootLogin = "yes";
+                        settings.PermitRootLogin = "yes";
                       };
                     };
                   };

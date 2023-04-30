@@ -20,7 +20,7 @@ let
     })
     else pkgs.qemu_kvm;
 
-  inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces shares socket forwardPorts devices;
+  inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces shares socket forwardPorts devices graphics;
   inherit (microvmConfig.qemu) extraArgs bios;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
@@ -86,7 +86,7 @@ in {
       "-smp" (toString vcpu)
       "-enable-kvm"
       "-nodefaults" "-no-user-config"
-      "-nographic"
+      "-bios" "${pkgs.qboot}/bios.bin"
       # qemu just hangs after shutdown, allow to exit by rebooting
       "-no-reboot"
       "-chardev" "stdio,mux=on,id=con0,signal=off"
@@ -111,6 +111,17 @@ in {
     lib.optionals (system == "aarch64-linux") [
       "-cpu" "host"
     ] ++
+    (if graphics.enable
+     then [
+      "-display" "gtk,gl=on"
+      "-device" "virtio-vga-gl"
+      "-device" "qemu-xhci"
+      "-device" "usb-tablet"
+      "-device" "usb-kbd"
+     ]
+     else [
+      "-nographic"
+     ]) ++
     lib.optionals canSandbox [
       "-sandbox" "on"
     ] ++

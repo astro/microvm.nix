@@ -1,0 +1,40 @@
+From 9ac46605a87746d2d3e5a46a75cde33a7f01d31c Mon Sep 17 00:00:00 2001
+From: Alyssa Ross <alyssa.ross@unikie.com>
+Date: Wed, 28 Sep 2022 12:18:19 +0000
+Subject: [PATCH 1/2] build: use local vhost
+
+Signed-off-by: Alyssa Ross <alyssa.ross@unikie.com>
+Signed-off-by: Alyssa Ross <hi@alyssa.is>
+---
+ Cargo.lock | 2 --
+ Cargo.toml | 1 +
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/Cargo.lock b/Cargo.lock
+index f4e667f7..d4e58b21 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -1413,8 +1413,6 @@ dependencies = [
+ [[package]]
+ name = "vhost"
+ version = "0.6.0"
+-source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "c9b791c5b0717a0558888a4cf7240cea836f39a99cb342e12ce633dcaa078072"
+ dependencies = [
+  "bitflags",
+  "libc",
+diff --git a/Cargo.toml b/Cargo.toml
+index 230bd499..dcd5bb24 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -53,6 +53,7 @@ vm-memory = "0.10.0"
+ [patch.crates-io]
+ kvm-bindings = { git = "https://github.com/cloud-hypervisor/kvm-bindings", branch = "ch-v0.6.0-tdx" }
+ versionize_derive = { git = "https://github.com/cloud-hypervisor/versionize_derive", branch = "ch" }
++vhost = { path = "../vhost/crates/vhost" }
+ 
+ [dev-dependencies]
+ dirs = "4.0.0"
+-- 
+2.37.1
+

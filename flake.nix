@@ -20,19 +20,47 @@
     in
       flake-utils.lib.eachSystem systems (system: {
 
-        apps = {
-          vm = {
-            type = "app";
-            program =
-              let
-                inherit (import ./examples/microvms-host.nix {
-                  inherit self nixpkgs system;
-                }) config;
-                inherit (config.microvm) hypervisor;
-              in
-                "${config.microvm.runner.${hypervisor}}/bin/microvm-run";
+        apps =
+          let
+            pkgs = nixpkgs.legacyPackages.${system};
+            nixosToApp = configFile: {
+              type = "app";
+              program = "${(import configFile {
+                inherit self nixpkgs system;
+              }).config.microvm.declaredRunner}/bin/microvm-run";
+            };
+          in {
+            vm = nixosToApp ./examples/microvms-host.nix;
+            graphics = {
+              type = "app";
+              program = toString (pkgs.writeShellScript "run-graphics" ''
+                set -e
+
+                if [ -z "$*" ]; then
+                  echo "Usage: $0 [--tap tap0] <pkgs...>"
+                  exit 1
+                fi
+
+                if [ "$1" = "--tap" ]; then
+                  TAP_INTERFACE="\"$2\""
+                  shift 2
+                else
+                  TAP_INTERFACE=null
+                fi
+
+                RUNNER=$(${pkgs.nix}/bin/nix build \
+                  -f ${./examples/graphics.nix} \
+                  config.microvm.declaredRunner \
+                  --arg self 'builtins.getFlake "${self}"' \
+                  --arg system '"${system}"' \
+                  --arg nixpkgs 'builtins.getFlake "${nixpkgs}"' \
+                  --arg packages "\"$*\"" \
+                  --arg tapInterface "$TAP_INTERFACE" \
+                  --no-link --print-out-paths)
+                exec $RUNNER/bin/microvm-run
+              '');
+            };
           };
-        };
 
         packages =
           let
@@ -57,6 +85,7 @@
               pathsToLink = [ "/" ];
               extraOutputsToInstall = [ "dev" ];
             };
+            cloud-hypervisor-graphics = pkgs.callPackage ./pkgs/spectrum-os/cloud-hypervisor {};
           } //
           # wrap self.nixosConfigurations in executable packages
           builtins.foldl' (result: systemName:
@@ -86,6 +115,7 @@
 
         overlay = final: prev: {
           microvm-kernel = prev.linuxPackages_latest.callPackage ./pkgs/microvm-kernel.nix {};
+          cloud-hypervisor-graphics = prev.callPackage ./pkgs/spectrum-os/cloud-hypervisor {};
         };
 
         nixosModules = {

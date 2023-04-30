@@ -71,7 +71,9 @@ in
     );
 
     # modules that consume boot time but have rare use-cases
-    boot.blacklistedKernelModules = [ "drm" "rfkill" "intel_pstate" ];
+    boot.blacklistedKernelModules = [
+      "rfkill" "intel_pstate"
+    ] ++ lib.optional (!config.microvm.graphics.enable) "drm";
 
     systemd =
       let

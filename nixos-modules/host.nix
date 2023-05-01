@@ -50,6 +50,14 @@ in
       '';
     };
 
+    declarativeUpdates = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Deploys updates to existing microvms automatically when the host is rebuilt.
+      '';
+    };
+
     autostart = mkOption {
       type = with types; listOf str;
       default = [];
@@ -60,11 +68,11 @@ in
       '';
     };
 
-    autorestart = mkOption {
+    restartOnChange = mkOption {
       type = types.bool;
       default = false;
       description = ''
-        Restart MicroVM services on `nixos-rebuild switch` of the host?
+        Restart MicroVM services if the systemd services are changed.
       '';
     };
   };
@@ -114,7 +122,7 @@ in
         partOf = [ "microvm@${name}.service" ];
         wantedBy = [ "microvms.target" ];
         # only run if /var/lib/microvms/$name does not exist yet
-        unitConfig.ConditionPathExists = "!${stateDir}/${name}";
+        unitConfig.ConditionPathExists = lib.mkIf (!config.microvm.declarativeUpdates) "!${stateDir}/${name}";
         serviceConfig.Type = "oneshot";
         script =
           let

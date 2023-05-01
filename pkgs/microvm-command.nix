@@ -113,10 +113,10 @@ writeScriptBin "microvm" ''
       chmod g+w "$DIR"
 
       mkdir -p /nix/var/nix/gcroots/microvm
-      rm -f /nix/var/nix/gcroots/microvm/"$NAME"
-      ln -s "$DIR"/current /nix/var/nix/gcroots/microvm/"$NAME"
-      rm -f /nix/var/nix/gcroots/microvm/booted-"$NAME"
-      ln -s "$DIR"/booted /nix/var/nix/gcroots/microvm/booted-"$NAME"
+      rm -f "/nix/var/nix/gcroots/microvm/$NAME"
+      ln -s "$DIR/current" "/nix/var/nix/gcroots/microvm/$NAME"
+      rm -f "/nix/var/nix/gcroots/microvm/booted-$NAME"
+      ln -s "$DIR/booted" "/nix/var/nix/gcroots/microvm/booted-$NAME"
       ;;
 
     console)
@@ -127,7 +127,7 @@ writeScriptBin "microvm" ''
 
     update)
       for NAME in "$@" ; do
-        DIR="$STATE_DIR"/"$NAME"
+        DIR="$STATE_DIR/$NAME"
         pushd "$DIR" > /dev/null
         OLD=""
         [ -L current ] && OLD=$(readlink current)
@@ -143,45 +143,45 @@ writeScriptBin "microvm" ''
           else
             if [ $RESTART = y ]; then
               echo "Rebooting MicroVM $NAME"
-              systemctl restart microvm@"$NAME".service
+              systemctl restart "microvm@$NAME.service"
             else
               echo "Reboot MicroVM $NAME for the new profile: systemctl restart microvm@$NAME.service"
             fi
           fi
         elif [ "$RESTART" = y ]; then
           echo "Booting MicroVM $NAME"
-          systemctl restart microvm@"$NAME".service
+          systemctl restart "microvm@$NAME.service"
         fi
       done
       ;;
 
     run)
-      exec "$DIR"/current/bin/microvm-run
+      exec "$DIR/current/bin/microvm-run"
       ;;
 
     list)
       for DIR in "$STATE_DIR"/* ; do
         NAME=$(basename "$DIR")
-        if [ -d "$DIR" ] && [ -L "$DIR"/current ] ; then
-          CURRENT_SYSTEM=$(readlink "$DIR"/current/share/microvm/system)
+        if [ -d "$DIR" ] && [ -L "$DIR/current" ] ; then
+          CURRENT_SYSTEM=$(readlink "$DIR/current/share/microvm/system")
           CURRENT=''${CURRENT_SYSTEM#*-}
 
-          FLAKE=$(cat "$DIR"/flake)
-          NEW_SYSTEM=$(nix --option narinfo-cache-negative-ttl 10 eval --raw "$FLAKE"#nixosConfigurations."$NAME".config.system.build.toplevel)
+          FLAKE=$(cat "$DIR/flake")
+          NEW_SYSTEM=$(nix --option narinfo-cache-negative-ttl 10 eval --raw "$FLAKE#nixosConfigurations.$NAME.config.system.build.toplevel")
           NEW=''${NEW_SYSTEM#*-}
 
-          if systemctl is-active -q microvm@"$NAME" ; then
+          if systemctl is-active -q "microvm@$NAME" ; then
             echo -n -e "${colors.boldGreen}"
-          elif [ -e "$DIR"/booted ]; then
+          elif [ -e "$DIR/booted" ]; then
             echo -n -e "${colors.boldYellow}"
           else
             echo -n -e "${colors.boldRed}"
           fi
-          echo -n -e "$NAME${colors.normal}: "
+          echo -n -e "''${NAME}${colors.normal}: "
           if [ "$CURRENT_SYSTEM" != "$NEW_SYSTEM" ] ; then
             echo -e "${colored "red" "outdated"}(${colored "red" "$CURRENT"}), rebuild(${colored "green" "$NEW"}) and reboot: ${colored "boldCyan" "microvm -Ru $NAME"}"
-          elif [ -L "$DIR"/booted ]; then
-            BOOTED_SYSTEM=$(readlink "$DIR"/booted/share/microvm/system)
+          elif [ -L "$DIR/booted" ]; then
+            BOOTED_SYSTEM=$(readlink "$DIR/booted/share/microvm/system")
             BOOTED=''${BOOTED_SYSTEM#*-}
             if [ "$NEW_SYSTEM" = "$BOOTED_SYSTEM" ]; then
               echo -e "${colored "green" "current"}(${colored "green" "$BOOTED"})"

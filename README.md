@@ -50,7 +50,7 @@ imperatively with the provided `microvm` command.
 | [qemu](https://www.qemu.org/)                                           | C        |                                       |
 | [cloud-hypervisor](https://www.cloudhypervisor.org/)                    | Rust     | no 9p shares                          |
 | [firecracker](https://firecracker-microvm.github.io/)                   | Rust     | no 9p/virtiofs shares                 |
-| [crosvm](https://chromium.googlesource.com/chromiumos/platform/crosvm/) | Rust     |                                       |
+| [crosvm](https://chromium.googlesource.com/chromiumos/platform/crosvm/) | Rust     | 9p shares broken                      |
 | [kvmtool](https://github.com/kvmtool/kvmtool)                           | C        | no virtiofs shares, no control socket |
 
 

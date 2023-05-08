@@ -67,6 +67,12 @@ writeScriptBin "microvm" ''
 
   build() {
     NAME=$1
+
+    if [ -e toplevel ]; then
+      echo -e "${colored "red" "This MicroVM is managed fully declaratively and cannot be updated manually!"}"
+      return 1
+    fi
+
     FLAKE=$(cat flake)
 
     nix build -o current "$FLAKE"#nixosConfigurations."$NAME".config.microvm.declaredRunner >/dev/null
@@ -154,8 +160,13 @@ writeScriptBin "microvm" ''
           CURRENT_SYSTEM=$(readlink "$DIR/current/share/microvm/system")
           CURRENT=''${CURRENT_SYSTEM#*-}
 
-          FLAKE=$(cat "$DIR/flake")
-          NEW_SYSTEM=$(nix --option narinfo-cache-negative-ttl 10 eval --raw "$FLAKE#nixosConfigurations.$NAME.config.system.build.toplevel")
+          if [ -e "$DIR/toplevel" ]; then
+            # Should always equal current system
+            NEW_SYSTEM=$(readlink "$DIR/toplevel")
+          else
+            FLAKE=$(cat "$DIR/flake")
+            NEW_SYSTEM=$(nix --option narinfo-cache-negative-ttl 10 eval --raw "$FLAKE#nixosConfigurations.$NAME.config.system.build.toplevel")
+          fi
           NEW=''${NEW_SYSTEM#*-}
 
           if systemctl is-active -q "microvm@$NAME" ; then

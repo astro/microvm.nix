@@ -18,21 +18,85 @@ in
     };
 
     vms = mkOption {
-      type = with types; attrsOf (submodule ({ ... }: {
+      type = with types; attrsOf (submodule ({ config, name, ... }: {
         options = {
+          config = mkOption {
+            description = lib.mdDoc ''
+              A specification of the desired configuration of this
+              MicroVM, as a NixOS module.
+            '';
+            default = null;
+            type = nullOr (lib.mkOptionType {
+              name = "Toplevel NixOS config";
+              merge = loc: defs: (import "${toString config.pkgs.path}/nixos/lib/eval-config.nix" {
+                modules =
+                  let
+                    extraConfig = {
+                      _file = "module at ${__curPos.file}:${toString __curPos.line}";
+                      config = {
+                        networking.hostName = lib.mkDefault name;
+                      };
+                    };
+                  in [
+                    extraConfig
+                    # TODO missing self:
+                    # (import ./microvm self)
+                  ] ++ (map (x: x.value) defs);
+                prefix = [ "microvm" name ];
+                inherit (config) specialArgs pkgs;
+                inherit (config.pkgs) system;
+              }).config;
+            });
+          };
+
+          pkgs = mkOption {
+            type = types.unspecified;
+            default = pkgs;
+            defaultText = literalExpression "pkgs";
+            description = lib.mdDoc ''
+              This option is only respected when `config` is specified.
+              The package set to use for the MicroVM. Must be a nixpkgs package set with the microvm overlay. Determines the system of the MicroVM.
+            '';
+          };
+
+          specialArgs = mkOption {
+            type = types.attrsOf types.unspecified;
+            default = {};
+            description = lib.mdDoc ''
+              This option is only respected when `config` is specified.
+              A set of special arguments to be passed to NixOS modules.
+              This will be merged into the `specialArgs` used to evaluate
+              the NixOS configurations.
+            '';
+          };
+
           flake = mkOption {
             description = "Source flake for declarative build";
-            type = path;
+            type = nullOr path;
+            default = null;
           };
+
           updateFlake = mkOption {
             description = "Source flake to store for later imperative update";
             type = nullOr str;
             default = null;
           };
+
           autostart = mkOption {
             description = "Add this MicroVM to config.microvm.autostart?";
             type = bool;
             default = true;
+          };
+
+          restartIfChanged = mkOption {
+            type = types.bool;
+            default = config.config != null;
+            description = ''
+              Restart this MicroVM's services if the systemd units are changed,
+              i.e. if it has been updated by rebuilding the host.
+
+              Defaults to true for fully-declarative MicroVMs.
+            '';
           };
         };
       }));
@@ -50,14 +114,6 @@ in
       '';
     };
 
-    declarativeUpdates = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Deploys updates to existing microvms automatically when the host is rebuilt.
-      '';
-    };
-
     autostart = mkOption {
       type = with types; listOf str;
       default = [];
@@ -67,17 +123,20 @@ in
         This includes declarative `config.microvm.vms` as well as MicroVMs that are managed through the `microvm` command.
       '';
     };
-
-    restartOnChange = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Restart MicroVM services if the systemd services are changed.
-      '';
-    };
   };
 
   config = lib.mkIf config.microvm.host.enable {
+    assertions = lib.concatMap (vmName: [
+      {
+        assertion = (config.microvm.vms.${vmName}.flake != null) != (config.microvm.vms.${vmName}.config != null);
+        message = "vm ${vmName}: Fully-declarative VMs cannot also set a flake!";
+      }
+      {
+        assertion = (config.microvm.vms.${vmName}.updateFlake != null) != (config.microvm.vms.${vmName}.config != null);
+        message = "vm ${vmName}: Fully-declarative VMs cannot set a updateFlake!";
+      }
+    ]) (builtins.attrNames config.microvm.vms);
+
     system.activationScripts.microvm-host = ''
       mkdir -p ${stateDir}
       chown ${user}:${group} ${stateDir}
@@ -110,7 +169,17 @@ in
       }
     ];
 
-    systemd.services = builtins.foldl' (result: name: result // {
+    systemd.services = builtins.foldl' (result: name: result // (
+      let
+        microvmConfig = config.microvm.vms.${name};
+        inherit (microvmConfig) flake updateFlake;
+        guestConfig = if flake != null
+                      then flake.nixosConfigurations.${name}.config
+                      else microvmConfig.config;
+        runner = guestConfig.microvm.declaredRunner;
+        isFullyDeclarative = flake == null;
+      in
+    {
       "install-microvm-${name}" = {
         description = "Install MicroVM '${name}'";
         before = [
@@ -121,34 +190,46 @@ in
         ];
         partOf = [ "microvm@${name}.service" ];
         wantedBy = [ "microvms.target" ];
-        # only run if /var/lib/microvms/$name does not exist yet
-        unitConfig.ConditionPathExists = lib.mkIf (!config.microvm.declarativeUpdates) "!${stateDir}/${name}";
+        # Only run this if the MicroVM is fully-declarative
+        # or /var/lib/microvms/$name does not exist yet.
+        unitConfig.ConditionPathExists = lib.mkIf (!isFullyDeclarative) "!${stateDir}/${name}";
         serviceConfig.Type = "oneshot";
-        script =
-          let
-            inherit (config.microvm.vms.${name}) flake updateFlake;
-            microvmConfig = flake.nixosConfigurations.${name}.config;
-            runner = microvmConfig.microvm.declaredRunner;
-          in
-          ''
+        script = ''
             mkdir -p ${stateDir}/${name}
             cd ${stateDir}/${name}
 
             ln -sTf ${runner} current
-
+            chown -h ${user}:${group} . current
+          ''
+          # Including the toplevel here is crucial to have the service definition
+          # change when the host is rebuilt and the vm definition changed.
+          + lib.optionalString isFullyDeclarative ''
+            ln -sTf ${guestConfig.system.build.toplevel} toplevel
+          ''
+          # Declarative deployment requires storing just the flake
+          + lib.optionalString (!isFullyDeclarative) ''
             echo '${if updateFlake != null
                     then updateFlake
                     else flake}' > flake
-            chown -h ${user}:${group} . current flake
+            chown -h ${user}:${group} flake
           '';
         serviceConfig.SyslogIdentifier = "install-microvm-${name}";
       };
-    }) {
+      "microvm@${name}" = {
+        # restartIfChanged is opt-out, so we have to include the definition unconditionally
+        inherit (microvmConfig) restartIfChanged;
+        # If the given declarative microvm wants to be restarted on change,
+        # We have to make sure this service group is restarted. To make sure
+        # that this service is also changed when the microvm configuration changes,
+        # we also have to include a trigger here.
+        restartTriggers = [guestConfig.system.build.toplevel];
+        overrideStrategy = "asDropin";
+      };
+    })) {
       "microvm-tap-interfaces@" = {
         description = "Setup MicroVM '%i' TAP interfaces";
         before = [ "microvm@%i.service" ];
         partOf = [ "microvm@%i.service" ];
-        restartIfChanged = config.microvm.autorestart;
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/tap-interfaces";
         serviceConfig = {
           Type = "oneshot";
@@ -185,7 +266,6 @@ in
         description = "Setup MicroVM '%i' MACVTAP interfaces";
         before = [ "microvm@%i.service" ];
         partOf = [ "microvm@%i.service" ];
-        restartIfChanged = config.microvm.autorestart;
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/macvtap-interfaces";
         serviceConfig = {
           Type = "oneshot";
@@ -230,7 +310,6 @@ in
         description = "Setup MicroVM '%i' devices for passthrough";
         before = [ "microvm@%i.service" ];
         partOf = [ "microvm@%i.service" ];
-        restartIfChanged = config.microvm.autorestart;
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/pci-devices";
         serviceConfig = {
           Type = "oneshot";
@@ -272,7 +351,6 @@ in
         before = [ "microvm@%i.service" ];
         after = [ "local-fs.target" ];
         partOf = [ "microvm@%i.service" ];
-        restartIfChanged = config.microvm.autorestart;
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/virtiofs";
         serviceConfig = {
           Type = "forking";
@@ -306,9 +384,13 @@ in
 
       "microvm@" = {
         description = "MicroVM '%i'";
-        requires = [ "microvm-tap-interfaces@%i.service"  "microvm-macvtap-interfaces@%i.service" "microvm-pci-devices@%i.service" "microvm-virtiofsd@%i.service" ];
+        requires = [
+          "microvm-tap-interfaces@%i.service"
+          "microvm-macvtap-interfaces@%i.service"
+          "microvm-pci-devices@%i.service"
+          "microvm-virtiofsd@%i.service"
+        ];
         after = [ "network.target" ];
-        restartIfChanged = config.microvm.autorestart;
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/microvm-run";
         preStart = ''
           rm -f booted

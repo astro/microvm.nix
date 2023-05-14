@@ -86,7 +86,6 @@ in {
       "-smp" (toString vcpu)
       "-enable-kvm"
       "-nodefaults" "-no-user-config"
-      "-bios" "${pkgs.qboot}/bios.bin"
       # qemu just hangs after shutdown, allow to exit by rebooting
       "-no-reboot"
       "-chardev" "stdio,mux=on,id=con0,signal=off"

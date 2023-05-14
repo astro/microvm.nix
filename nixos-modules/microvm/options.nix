@@ -345,14 +345,16 @@ in
     qemu.bios = {
       enable = mkOption {
         type = types.bool;
-        default = pkgs.stdenv.hostPlatform.isx86;
+        # `qboot` comes out of `pkgsi686Linux` which is only available
+        # under the following condition:
+        default = with pkgs.stdenv.hostPlatform; isLinux && isx86;
         description = "Enable BIOS argument to qemu.";
       };
 
       path = mkOption {
         type = types.path;
-	default = "${pkgs.qboot}/bios.bin";
-	description = "BIOS binary path";
+	      default = "${pkgs.qboot}/bios.bin";
+	      description = "BIOS binary path";
       };
     };
 

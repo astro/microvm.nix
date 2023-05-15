@@ -28,11 +28,14 @@ rec {
     , autoCreate ? true
     , ...
     }: nixpkgs-lib.optionalString autoCreate ''
-      PATH=$PATH:${with pkgs; lib.makeBinPath [ e2fsprogs ]}
+      PATH=$PATH:${with pkgs; lib.makeBinPath [ coreutils util-linux e2fsprogs ]}
 
-      if [ ! -e ${image} ]; then
-        dd if=/dev/zero of=${image} bs=1M count=1 seek=${toString (size - 1)}
-        mkfs.${fsType} ${image}
+      if [ ! -e '${image}' ]; then
+        touch '${image}'
+        # Mark NOCOW
+        chattr +C '${image}' || true
+        fallocate -l${toString size}MiB '${image}'
+        mkfs.${fsType} '${image}'
       fi
     '');
 

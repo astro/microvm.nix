@@ -176,8 +176,16 @@
                     networking.firewall.allowedTCPPorts = lib.optional (hypervisor == "qemu") 22;
                     services.openssh = lib.optionalAttrs (hypervisor == "qemu") {
                       enable = true;
-                      settings.PermitRootLogin = "yes";
-                    };
+                    } // (
+                      if builtins.compareVersions lib.version "22.11" <= 0
+                      then {
+                        # NixOS<23.05 option
+                        permitRootLogin = "yes";
+                      } else {
+                        # NixOS>=23.05 setting
+                        settings.PermitRootLogin = "yes";
+                      }
+                    );
                   })
                   config
                 ];

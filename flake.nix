@@ -201,7 +201,7 @@
                 nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetwork) {
                   "${system}-${hypervisor}-example-with-tap" = makeExample {
                     inherit system hypervisor;
-                    config = {
+                    config = { lib, ...}: {
                       microvm.interfaces = [ {
                         type = "tap";
                         id = "vm-${builtins.substring 0 4 hypervisor}";
@@ -211,8 +211,16 @@
                       networking.firewall.allowedTCPPorts = [ 22 ];
                       services.openssh = {
                         enable = true;
-                        settings.PermitRootLogin = "yes";
-                      };
+                      } // (
+                        if builtins.compareVersions lib.version "22.11" <= 0
+                        then {
+                          # NixOS<23.05 option
+                          permitRootLogin = "yes";
+                        } else {
+                          # NixOS>=23.05 setting
+                          settings.PermitRootLogin = "yes";
+                        }
+                      );
                     };
                   };
                 };

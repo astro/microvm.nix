@@ -148,16 +148,6 @@
 <p>A few caveats. Contributions to eliminate those are welcome.</p>
 <h2 id="can-i-support-the-development-and-maintenance-of-this-project"><a class="header" href="#can-i-support-the-development-and-maintenance-of-this-project">Can I support the development and maintenance of this project?</a></h2>
 <p><a href="https://github.com/sponsors/astro">❤ Sponsor</a></p>
-<h2 id="why-build-a-kernel-with-a-custom-configuration"><a class="header" href="#why-build-a-kernel-with-a-custom-configuration">Why build a kernel with a custom configuration?</a></h2>
-<p>Hypervisors are not required to be able to load an
-initrd/initramfs. Therefore we start init from a virtio disk which
-requires virtio drivers to be built into the kernel statically.</p>
-<p>Because we are building our own kernel anyway, we've got the
-opportunity of adding more custom configuration that is optimized for common
-MicroVM use-cases.</p>
-<p>The <strong>microvm.nix</strong> project contains instructions for Github to build
-the <code>microvm-kernel</code> package every night and push the binary to
-Cachix. In order to use that binary cache, try running <code>nix build github:astro/microvm.nix#microvm-kernel</code> and answer the prompts.</p>
 <h2 id="how-to-centralize-logging-with-journald"><a class="header" href="#how-to-centralize-logging-with-journald">How to centralize logging with journald?</a></h2>
 <p>That is possible without even requiring a network transport by just
 making the journals available to the host as a share. Because journald

@@ -79,7 +79,7 @@
                 qemu_kvm cloud-hypervisor
                 firectl firecracker
                 crosvm kvmtool
-                virtiofsd
+                rust-hypervisor-firmware virtiofsd
               ];
               pathsToLink = [ "/" ];
               extraOutputsToInstall = [ "dev" ];

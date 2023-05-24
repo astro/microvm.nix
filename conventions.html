@@ -159,6 +159,23 @@ MicroVM deployments using the information on this page.</p>
 <tr><td></td><td><code>share/microvm/system</code></td><td></td><td><code>config.system.build.toplevel</code> symlink, used for comparing versions when running <code>microvm -l</code></td></tr>
 </tbody></table>
 </div>
+<h2 id="generating-custom-operating-system-hypervisor-packages"><a class="header" href="#generating-custom-operating-system-hypervisor-packages">Generating custom operating system hypervisor packages</a></h2>
+<p>Because a microvm.nix runner package completely defines how to run the
+Hypervisor, it is possible to define independent packages that
+virtualize other operating systems than NixOS.</p>
+<ul>
+<li>
+<p>Your NixOS configurations should export their runner package as
+<code>config.microvm.declaredRunner</code> so that it can be picked up either
+as <a href="declarative.html">declarative MicroVMs</a> or by <a href="microvm-command.html">the microvm
+command</a>.</p>
+</li>
+<li>
+<p>The runner package must have a file layout as described in the table
+above.</p>
+</li>
+</ul>
+
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">

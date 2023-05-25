@@ -211,6 +211,8 @@ in
               ${pkgs.iproute2}/bin/ip link del name $id
             fi
             ${pkgs.iproute2}/bin/ip link add link $link name $id address $mac type macvtap ''${mode[@]}
+            ${pkgs.iproute2}/bin/ip link set $id allmulticast on
+            echo 1 > /proc/sys/net/ipv6/conf/$id/disable_ipv6
             ${pkgs.iproute2}/bin/ip link set $id up
             ${pkgs.coreutils-full}/bin/chown ${user}:${group} /dev/tap$(< /sys/class/net/$id/ifindex)
           done

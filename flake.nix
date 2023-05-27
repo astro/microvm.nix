@@ -117,7 +117,7 @@
         };
 
         nixosModules = {
-          microvm = import ./nixos-modules/microvm self;
+          microvm = import ./nixos-modules/microvm;
           host = import ./nixos-modules/host.nix;
         };
 

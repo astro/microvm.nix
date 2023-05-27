@@ -39,8 +39,7 @@ in
                     };
                   in [
                     extraConfig
-                    # TODO missing self:
-                    # (import ./microvm self)
+                    ./microvm
                   ] ++ (map (x: x.value) defs);
                 prefix = [ "microvm" name ];
                 inherit (config) specialArgs pkgs;

@@ -1,5 +1,12 @@
-self:
 { config, lib, pkgs, ... }:
+
+let
+  microvm-lib = import ../../lib {
+    nixpkgs-lib = lib;
+  };
+
+in
+
 {
   imports = [
     ./root-disk.nix
@@ -11,8 +18,8 @@ self:
   ];
 
   config = {
-    microvm.runner = lib.genAttrs self.lib.hypervisors (hypervisor:
-      self.lib.buildRunner {
+    microvm.runner = lib.genAttrs microvm-lib.hypervisors (hypervisor:
+      microvm-lib.buildRunner {
         inherit pkgs;
         microvmConfig = {
           inherit (config.networking) hostName;

@@ -20,8 +20,6 @@ imperatively with the provided `microvm` command.
 
 *(de)* [Projektvorstellung](https://media.ccc.de/v/ds22-174-microvm-nix)
 
-**Attention:** This is a *Nix Flakes*-only project.
-
 ## At a glance
 
 - MicroVMs are Virtual Machines but use special device interfaces

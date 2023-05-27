@@ -173,11 +173,11 @@ in
       let
         microvmConfig = config.microvm.vms.${name};
         inherit (microvmConfig) flake updateFlake;
-        guestConfig = if flake != null
+        isFlake = flake != null;
+        guestConfig = if isFlake
                       then flake.nixosConfigurations.${name}.config
                       else microvmConfig.config;
         runner = guestConfig.microvm.declaredRunner;
-        isFullyDeclarative = flake == null;
       in
     {
       "install-microvm-${name}" = {
@@ -192,7 +192,7 @@ in
         wantedBy = [ "microvms.target" ];
         # Only run this if the MicroVM is fully-declarative
         # or /var/lib/microvms/$name does not exist yet.
-        unitConfig.ConditionPathExists = lib.mkIf (!isFullyDeclarative) "!${stateDir}/${name}";
+        unitConfig.ConditionPathExists = lib.mkIf isFlake "!${stateDir}/${name}";
         serviceConfig.Type = "oneshot";
         script = ''
             mkdir -p ${stateDir}/${name}
@@ -203,11 +203,11 @@ in
           ''
           # Including the toplevel here is crucial to have the service definition
           # change when the host is rebuilt and the vm definition changed.
-          + lib.optionalString isFullyDeclarative ''
+          + lib.optionalString (!isFlake) ''
             ln -sTf ${guestConfig.system.build.toplevel} toplevel
           ''
           # Declarative deployment requires storing just the flake
-          + lib.optionalString (!isFullyDeclarative) ''
+          + lib.optionalString isFlake ''
             echo '${if updateFlake != null
                     then updateFlake
                     else flake}' > flake

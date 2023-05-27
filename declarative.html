@@ -146,12 +146,58 @@
                     <main>
                         <h1 id="declarative-microvms"><a class="header" href="#declarative-microvms">Declarative MicroVMs</a></h1>
 <p>Provided your NixOS host <a href="./host.html">includes the host nixosModule</a>,
-options are declared to build a MicroVM with the host so that it gets
-deployed and start on boot.</p>
+options are declared to build a MicroVM together with the host.
+You can choose whether your MicroVMs should be managed in a fully-declarative
+way, or whether your only want the initial deployment be declarative (with subsequent
+imperative updates using the <a href="./microvm-command.html">microvm command</a>).</p>
+<p>microvm.nix distinguishes between fully-declarative configurations
+and declarative deployment by allowing you to specify either
+a full <code>config</code> or just a <code>flake</code> respectively.</p>
+<h2 id="fully-declarative"><a class="header" href="#fully-declarative">Fully declarative</a></h2>
+<p>You can create fully declarative VMs by directly defining their
+nixos system configuration in-place. This is very similar to how
+nixos-containers work if you are familiar with those.</p>
+<pre><code class="language-nix"># microvm refers to microvm.nixosModules
+{ microvm, ... }: {
+  imports = [ microvm.host ];
+  microvm.vms = {
+    my-microvm = {
+      # The package set to use for the microvm. This also determines the microvm's architecture.
+      # Defaults to the host system's package set if not given.
+      pkgs = import nixpkgs { system = &quot;x86_64-linux&quot;; };
+
+      # (Optional) A set of special arguments to be passed to the MicroVM's NixOS modules.
+      #specialArgs = {};
+
+      # The configuration for the MicroVM.
+      # Multiple definitions will be merged as expected.
+      config = {
+        imports = [ microvm.microvm ];
+
+        # It is highly recommended to share the host's nix-store
+        # with the VMs to prevent building huge images.
+        microvm.shares = [{
+          source = &quot;/nix/store&quot;;
+          mountPoint = &quot;/nix/.ro-store&quot;;
+          tag = &quot;ro-store&quot;;
+          proto = &quot;virtiofs&quot;;
+        }];
+
+        # This is necessary to import the host's nix-store database
+        microvm.writableStoreOverlay = true;
+
+        # Any other configuration for your MicroVM
+        #...
+      };
+    };
+  };
+}
+</code></pre>
+<h2 id="declarative-deployment"><a class="header" href="#declarative-deployment">Declarative deployment</a></h2>
 <p>Why <em>deployed</em>? The per-MicroVM subdirectory under <code>/var/lib/microvms</code>
-gets only created if it did not exist before. This behavior is
+is only created, if it did not exist before. This behavior is
 intended to ensure existence of MicroVMs that are critical to
-operation. To update later use the <a href="./microvm-command.html">imperative microvm
+operation. To update them later you will have to use the <a href="./microvm-command.html">imperative microvm
 command</a>.</p>
 <pre><code class="language-nix">microvm.vms = {
   my-microvm = {

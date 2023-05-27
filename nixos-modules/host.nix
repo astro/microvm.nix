@@ -22,8 +22,8 @@ in
         options = {
           config = mkOption {
             description = lib.mdDoc ''
-              A specification of the desired configuration of this
-              MicroVM, as a NixOS module.
+              A specification of the desired configuration of this MicroVM,
+              as a NixOS module, for building **without** a flake.
             '';
             default = null;
             type = nullOr (lib.mkOptionType {

@@ -41,10 +41,10 @@ in
                     extraConfig
                     ./microvm
                   ] ++ (map (x: x.value) defs);
-                prefix = [ "microvm" name ];
+                prefix = [ "microvm" "vms" name "config" ];
                 inherit (config) specialArgs pkgs;
                 inherit (config.pkgs) system;
-              }).config;
+              });
             });
           };
 
@@ -175,7 +175,7 @@ in
         isFlake = flake != null;
         guestConfig = if isFlake
                       then flake.nixosConfigurations.${name}.config
-                      else microvmConfig.config;
+                      else microvmConfig.config.config;
         runner = guestConfig.microvm.declaredRunner;
       in
     {

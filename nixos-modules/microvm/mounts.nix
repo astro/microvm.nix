@@ -19,7 +19,7 @@ let
     else hostStore.mountPoint;
 
 in
-{
+lib.mkIf config.microvm.guest.enable {
   fileSystems = lib.mkMerge [ (
     # built-in read-only store without overlay
     lib.optionalAttrs (

@@ -42,6 +42,33 @@ sudo ip tuntap add $IFACE_NAME mode tap user $USER
 When running MicroVMs through the `host` module, the tap network
 interfaces are created through a systemd service dependency.
 
+## `type = "macvtap"`
+
+*MACVTAP* interfaces attach to a host's physical network interface,
+joining the same Ethernet segment with a separate MAC address.
+
+Before running a MicroVM interactively from a package, do the
+following steps manually:
+
+```bash
+# Parent interface:
+LINK=eth0
+# MACVTAP interface, as specified under microvm.interfaces.*.id:
+ID=microvm1
+# Create the interface
+sudo ip l add link $LINK name $ID type macvtap mode bridge
+# Obtain the interface index number
+IFINDEX=$(cat /sys/class/net/$ID/ifindex)
+# Grant yourself permission
+chown $USER /dev/tap$IFINDEX
+```
+
+When running MicroVMs through the `host` module, the macvtap network
+interfaces are created through a systemd service dependency. Per
+interface with `type = "macvtap"`, a `link` attribute with the parent
+interface, and `mode` attribute for the MACVTAP filtering mode must be
+specified.
+
 ## `type = "bridge"`
 
 This mode lets qemu create a tap interface and attach it to a bridge.

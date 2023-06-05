@@ -6,12 +6,29 @@ from a package.
 
 ## `install-microvm-${name}.service`
 
-Creates and prepares a subdirectory under `/var/lib/microvms`
-according to the `microvm.vms` option if it does not already exist.
+Creates and prepares a subdirectory under `/var/lib/microvms` for
+[declarative MicroVMs](./declarative.md) according to the
+`microvm.vms` option.
+
+If the MicroVM subdirectory under `/var/lib/microvms` already exists,
+**and** the MicroVM is configured to be built from a flake's
+`nixosConfigurations`, this systemd unit will be skipped. The reason
+for this behavior is that it is easier to update with the [`microvm`
+command](./microvm-command.md) instead of restarting all virtual
+machines on a host when doing `nixos-rebuild switch`.
 
 ## `microvm-tap-interfaces@.service`
 
 Creates TAP virtual network interfaces for the user that will run MicroVMs.
+
+## `microvm-macvtap-interfaces@.service`
+
+Creates MACVTAP virtual network interfaces for the user that will run MicroVMs.
+
+## `microvm-pci-devices@.service`
+
+Prepares PCI devices for passthrough
+([VFIO](https://www.kernel.org/doc/html/latest/driver-api/vfio.html)).
 
 ## `microvm-virtiofsd@.service`
 

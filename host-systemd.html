@@ -149,10 +149,22 @@
 bringup which is not available when running a MicroVM interactively
 from a package.</p>
 <h2 id="install-microvm-nameservice"><a class="header" href="#install-microvm-nameservice"><code>install-microvm-${name}.service</code></a></h2>
-<p>Creates and prepares a subdirectory under <code>/var/lib/microvms</code>
-according to the <code>microvm.vms</code> option if it does not already exist.</p>
+<p>Creates and prepares a subdirectory under <code>/var/lib/microvms</code> for
+<a href="./declarative.html">declarative MicroVMs</a> according to the
+<code>microvm.vms</code> option.</p>
+<p>If the MicroVM subdirectory under <code>/var/lib/microvms</code> already exists,
+<strong>and</strong> the MicroVM is configured to be built from a flake's
+<code>nixosConfigurations</code>, this systemd unit will be skipped. The reason
+for this behavior is that it is easier to update with the <a href="./microvm-command.html"><code>microvm</code>
+command</a> instead of restarting all virtual
+machines on a host when doing <code>nixos-rebuild switch</code>.</p>
 <h2 id="microvm-tap-interfacesservice"><a class="header" href="#microvm-tap-interfacesservice"><code>microvm-tap-interfaces@.service</code></a></h2>
 <p>Creates TAP virtual network interfaces for the user that will run MicroVMs.</p>
+<h2 id="microvm-macvtap-interfacesservice"><a class="header" href="#microvm-macvtap-interfacesservice"><code>microvm-macvtap-interfaces@.service</code></a></h2>
+<p>Creates MACVTAP virtual network interfaces for the user that will run MicroVMs.</p>
+<h2 id="microvm-pci-devicesservice"><a class="header" href="#microvm-pci-devicesservice"><code>microvm-pci-devices@.service</code></a></h2>
+<p>Prepares PCI devices for passthrough
+(<a href="https://www.kernel.org/doc/html/latest/driver-api/vfio.html">VFIO</a>).</p>
 <h2 id="microvm-virtiofsdservice"><a class="header" href="#microvm-virtiofsdservice"><code>microvm-virtiofsd@.service</code></a></h2>
 <p>Starts a fleet of virtiofsd servers, one for each <code>virtiofs</code>
 mountpoint in <code>microvm.shares</code>.</p>

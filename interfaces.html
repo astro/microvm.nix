@@ -176,6 +176,27 @@ interfaces before starting a MicroVM:</p>
 </code></pre>
 <p>When running MicroVMs through the <code>host</code> module, the tap network
 interfaces are created through a systemd service dependency.</p>
+<h2 id="type--macvtap"><a class="header" href="#type--macvtap"><code>type = &quot;macvtap&quot;</code></a></h2>
+<p><em>MACVTAP</em> interfaces attach to a host's physical network interface,
+joining the same Ethernet segment with a separate MAC address.</p>
+<p>Before running a MicroVM interactively from a package, do the
+following steps manually:</p>
+<pre><code class="language-bash"># Parent interface:
+LINK=eth0
+# MACVTAP interface, as specified under microvm.interfaces.*.id:
+ID=microvm1
+# Create the interface
+sudo ip l add link $LINK name $ID type macvtap mode bridge
+# Obtain the interface index number
+IFINDEX=$(cat /sys/class/net/$ID/ifindex)
+# Grant yourself permission
+chown $USER /dev/tap$IFINDEX
+</code></pre>
+<p>When running MicroVMs through the <code>host</code> module, the macvtap network
+interfaces are created through a systemd service dependency. Per
+interface with <code>type = &quot;macvtap&quot;</code>, a <code>link</code> attribute with the parent
+interface, and <code>mode</code> attribute for the MACVTAP filtering mode must be
+specified.</p>
 <h2 id="type--bridge"><a class="header" href="#type--bridge"><code>type = &quot;bridge&quot;</code></a></h2>
 <p>This mode lets qemu create a tap interface and attach it to a bridge.</p>
 <p>The <code>qemu-bridge-helper</code> binary needs to be setup with the proper

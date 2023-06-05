@@ -10,7 +10,6 @@
 
 
     boot.loader.grub.enable = false;
-    boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
     # boot.initrd.systemd.enable = lib.mkDefault true;
     boot.initrd.kernelModules = [
       "virtio_mmio"

@@ -370,6 +370,7 @@ in
             mkdir -p $SOURCE
 
             virtiofsd \
+              --seccomp=none \
               --socket-path=$SOCKET \
               --socket-group=${config.users.users.microvm.group} \
               --shared-dir $SOURCE \

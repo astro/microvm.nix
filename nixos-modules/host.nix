@@ -230,6 +230,7 @@ in
         before = [ "microvm@%i.service" ];
         partOf = [ "microvm@%i.service" ];
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/tap-interfaces";
+        restartIfChanged = false;
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
@@ -266,6 +267,7 @@ in
         before = [ "microvm@%i.service" ];
         partOf = [ "microvm@%i.service" ];
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/macvtap-interfaces";
+        restartIfChanged = false;
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
@@ -312,6 +314,7 @@ in
         before = [ "microvm@%i.service" ];
         partOf = [ "microvm@%i.service" ];
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/pci-devices";
+        restartIfChanged = false;
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
@@ -353,6 +356,7 @@ in
         after = [ "local-fs.target" ];
         partOf = [ "microvm@%i.service" ];
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/virtiofs";
+        restartIfChanged = false;
         serviceConfig = {
           Type = "forking";
           GuessMainPID = "no";
@@ -394,6 +398,7 @@ in
         ];
         after = [ "network.target" ];
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/microvm-run";
+        restartIfChanged = false;
         preStart = ''
           rm -f booted
           ln -s $(readlink current) booted

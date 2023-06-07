@@ -100,6 +100,7 @@ in {
         "--console" "null"
         "--serial" "tty"
         "--kernel" "${pkgs.rust-hypervisor-firmware}/bin/hypervisor-fw"
+        "--cmdline" "console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
         "--seccomp" "true"
         "--memory" memOps
       ]

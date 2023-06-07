@@ -127,11 +127,11 @@ in
   config = lib.mkIf config.microvm.host.enable {
     assertions = lib.concatMap (vmName: [
       {
-        assertion = (config.microvm.vms.${vmName}.flake != null) != (config.microvm.vms.${vmName}.config != null);
+        assertion = config.microvm.vms.${vmName}.config != null -> config.microvm.vms.${vmName}.flake == null;
         message = "vm ${vmName}: Fully-declarative VMs cannot also set a flake!";
       }
       {
-        assertion = (config.microvm.vms.${vmName}.updateFlake != null) != (config.microvm.vms.${vmName}.config != null);
+        assertion = config.microvm.vms.${vmName}.config != null -> config.microvm.vms.${vmName}.updateFlake == null;
         message = "vm ${vmName}: Fully-declarative VMs cannot set a updateFlake!";
       }
     ]) (builtins.attrNames config.microvm.vms);

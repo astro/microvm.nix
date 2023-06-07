@@ -28,10 +28,9 @@ in {
 
     bootDisk = mkOption {
       type = types.path;
-      # default = {
-      #   inherit (config.system.build) squashfs erofs;
-      # }.${config.microvm.bootDiskType};
-      # defaultText = literalExpression ''"''${config.system.build.squashfs}"'';
+      description = ''
+        Generated
+      '';
     };
   };
 
@@ -74,13 +73,8 @@ in {
 
         echo Creating a ${config.microvm.bootDiskType}
         ${{
-          "squashfs" = ''
-            mksquashfs store store.part \
-              -reproducible -all-root -4k-align
-          '';
-          "erofs" = ''
-            mkfs.erofs -zlz4hc store.part store
-          '';
+          squashfs = "mksquashfs store store.part -reproducible -all-root -4k-align";
+          erofs = "mkfs.erofs -zlz4hc store.part store";
         }.${config.microvm.bootDiskType}}
 
         echo Cleaning up store

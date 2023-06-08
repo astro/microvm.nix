@@ -5,6 +5,20 @@ let
     rootPaths = [ config.system.build.toplevel ];
   };
 
+  kernelAtLeast = lib.versionAtLeast config.boot.kernelPackages.kernel.version;
+
+  erofsFlags = builtins.concatStringsSep " " (
+    [ "-zlz4hc" ]
+    # ++
+    # lib.optional (kernelAtLeast "5.13") "-C1048576"
+    ++
+    lib.optional (kernelAtLeast "5.16") "-Eztailpacking"
+    ++
+    lib.optionals (kernelAtLeast "6.1") [
+      "-Efragments"
+      # "-Ededupe"
+    ]
+  );
 in
 {
   options.microvm = with lib; {
@@ -56,7 +70,7 @@ in
         echo Creating a ${config.microvm.storeDiskType}
         ${{
           squashfs = "gensquashfs -D store --all-root -c zstd -q $out";
-          erofs = "mkfs.erofs -zlz4hc -L nix-store $out store";
+          erofs = "mkfs.erofs ${erofsFlags} -L nix-store --mount-point=/nix/store $out store";
         }.${config.microvm.storeDiskType}}
       '';
     })

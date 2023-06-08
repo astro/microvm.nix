@@ -32,7 +32,7 @@ in
 
       microvm.storeDisk = pkgs.runCommandLocal "microvm-store-disk.${config.microvm.storeDiskType}" {
         nativeBuildInputs = with pkgs; [ {
-          squashfs = [ squashfsTools ];
+          squashfs = [ squashfs-tools-ng ];
           erofs = [ erofs-utils ];
         }.${config.microvm.storeDiskType} ];
         passthru = {
@@ -55,7 +55,7 @@ in
 
         echo Creating a ${config.microvm.storeDiskType}
         ${{
-          squashfs = "mksquashfs store $out -reproducible -all-root -4k-align";
+          squashfs = "gensquashfs -D store --all-root -c zstd -q $out";
           erofs = "mkfs.erofs -zlz4hc -L nix-store $out store";
         }.${config.microvm.storeDiskType}}
       '';

@@ -16,7 +16,7 @@ available for customization. These are the most important ones:
 | `microvm.user`                 | (qemu only) User account which Qemu will switch to when started as root                             |
 | `microvm.forwardPorts`         | (qemu user-networking only) TCP/UDP port forwarding                                                 |
 | `microvm.kernelParams`         | Like `boot.kernelParams` but will not end up in `system.build.toplevel`, saving you rebuilds        |
-| `microvm.storeOnBootDisk`      | Enables the store on the boot squashfs even in the presence of a share with the host's `/nix/store` |
+| `microvm.storeOnDisk`          | Enables the store on the boot squashfs even in the presence of a share with the host's `/nix/store` |
 | `microvm.writableStoreOverlay` | Optional string of the path where all writes to `/nix/store` should go to.                          |
 
 See [the options declarations](

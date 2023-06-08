@@ -12,12 +12,24 @@ rec {
 
   defaultFsType = "ext4";
 
-  withDriveLetters = offset: list:
+  withDriveLetters = { volumes, hypervisor, storeOnDisk, ... }:
+    let
+      offset = (
+        if hypervisor == "cloud-hypervisor"
+        # requires bootDisk
+        then 1
+        else 0
+      ) + (
+        if storeOnDisk
+        then 1
+        else 0
+      );
+    in
     map ({ fst, snd }:
       fst // {
         letter = snd;
       }
-    ) (nixpkgs-lib.zipLists list (
+    ) (nixpkgs-lib.zipLists volumes (
       nixpkgs-lib.drop offset nixpkgs-lib.strings.lowerChars
     ));
 

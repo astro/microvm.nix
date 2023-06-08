@@ -1,13 +1,12 @@
 { pkgs
 , microvmConfig
 , kernel
-, bootDisk
 , macvtapFds
 }:
 
 let
   inherit (pkgs) lib system;
-  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices graphics;
+  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices graphics bootDisk storeDisk storeOnDisk;
   inherit (microvmConfig.crosvm) pivotRoot extraArgs;
 
   mktuntap = pkgs.callPackage ../../pkgs/mktuntap.nix {};
@@ -68,9 +67,12 @@ in {
         "${pkgs.crosvm}/bin/crosvm" "run"
         "-m" (toString (mem + balloonMem))
         "-c" (toString vcpu)
-        "-r" bootDisk
         "--serial" "type=stdout,console=true,stdin=true"
         "-p" "console=ttyS0 reboot=k panic=1 ${toString microvmConfig.kernelParams}"
+      ]
+      ++
+      lib.optionals storeOnDisk [
+        "-r" storeDisk
       ]
       ++
       lib.optionals graphics.enable [

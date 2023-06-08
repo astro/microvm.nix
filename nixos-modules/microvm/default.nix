@@ -9,7 +9,8 @@ in
 
 {
   imports = [
-    ./root-disk.nix
+    ./boot-disk.nix
+    ./store-disk.nix
     ./options.nix
     ./asserts.nix
     ./system.nix

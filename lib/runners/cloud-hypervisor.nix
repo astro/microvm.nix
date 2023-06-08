@@ -1,13 +1,12 @@
 { pkgs
 , microvmConfig
 , kernel
-, bootDisk
 , macvtapFds
 }:
 
 let
   inherit (pkgs) lib system;
-  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem graphics;
+  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem graphics bootDisk storeDisk storeOnDisk;
 
   # balloon
   useBallooning = balloonMem > 0;
@@ -113,6 +112,8 @@ in {
       ++
       arg "--disk" (
         [ "path=${bootDisk},readonly=on" ]
+        ++
+        lib.optional storeOnDisk "path=${storeDisk},readonly=on"
         ++
         map ({ image, ... }: "path=${image}") volumes
       )

@@ -1,7 +1,7 @@
 { config, lib, ... }:
 
 let
-  inherit (config.microvm) writableStoreOverlay;
+  inherit (config.microvm) storeDiskType storeOnDisk writableStoreOverlay;
 
   inherit (import ../../lib {
     nixpkgs-lib = lib;
@@ -14,21 +14,34 @@ let
   );
 
   roStore =
-    if config.microvm.storeOnBootDisk
+    if storeOnDisk
     then "/nix/.ro-store"
     else hostStore.mountPoint;
+
+  roStoreDisk =
+    if storeOnDisk
+    then
+      if storeDiskType == "erofs"
+      # erofs supports filesystem labels
+      then "/dev/disk/by-label/nix-store"
+      else
+        # squashfs does not support any filesystem identifiers
+        if config.microvm.hypervisor == "cloud-hypervisor"
+        then "/dev/vdb"
+        else "/dev/vda"
+    else throw "No disk letter when /nix/store is not in disk";
 
 in
 lib.mkIf config.microvm.guest.enable {
   fileSystems = lib.mkMerge [ (
     # built-in read-only store without overlay
     lib.optionalAttrs (
-      config.microvm.storeOnBootDisk &&
+      storeOnDisk &&
       writableStoreOverlay == null
     ) {
       "/nix/store" = {
-        device = "/dev/vda2";
-        fsType = config.microvm.bootDiskType;
+        device = roStoreDisk;
+        fsType = storeDiskType;
         neededForBoot = true;
       };
     }
@@ -36,7 +49,7 @@ lib.mkIf config.microvm.guest.enable {
     # host store is mounted somewhere else,
     # bind-mount to the proper place
     lib.optionalAttrs (
-      !config.microvm.storeOnBootDisk &&
+      !storeOnDisk &&
       config.microvm.writableStoreOverlay == null &&
       hostStore.mountPoint != "/nix/store"
     ) {
@@ -49,12 +62,12 @@ lib.mkIf config.microvm.guest.enable {
   ) (
     # built-in read-only store for the overlay
     lib.optionalAttrs (
-      config.microvm.storeOnBootDisk &&
+      storeOnDisk &&
       writableStoreOverlay != null
     ) {
       "/nix/.ro-store" = {
-        device = "/dev/vda2";
-        fsType = config.microvm.bootDiskType;
+        device = roStoreDisk;
+        fsType = storeDiskType;
         neededForBoot = true;
       };
     }
@@ -90,7 +103,7 @@ lib.mkIf config.microvm.guest.enable {
           device = "/dev/vd${letter}";
           neededForBoot = mountPoint == config.microvm.writableStoreOverlay;
         };
-      }) {} (withDriveLetters 1 config.microvm.volumes)
+      }) {} (withDriveLetters config.microvm)
   ) (
     # 9p/virtiofs Shares
     builtins.foldl' (result: { mountPoint, tag, proto, source, ... }: result // {

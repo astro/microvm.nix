@@ -12,7 +12,6 @@ let
 
   hypervisorConfig = import (./runners + "/${microvmConfig.hypervisor}.nix") {
     inherit pkgs microvmConfig kernel macvtapFds;
-    bootDisk = microvmConfig.bootDisk;
   };
 
   inherit (hypervisorConfig) command canShutdown shutdownCommand;

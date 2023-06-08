@@ -1,13 +1,13 @@
 { pkgs
 , microvmConfig
 , kernel
-, bootDisk
 , ...
 }:
 
 let
   inherit (pkgs) lib system;
-  inherit (microvmConfig) vcpu mem user interfaces volumes shares socket devices;
+  inherit (microvmConfig)
+    vcpu mem user interfaces volumes shares socket devices bootDisk storeDisk storeOnDisk;
   kernelPath = {
     x86_64-linux = "${kernel.dev}/vmlinux";
     aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
@@ -25,8 +25,9 @@ in {
         "--kernel=${kernelPath}"
         "--initrd-path=${bootDisk.passthru.initrd}"
         "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd ${toString microvmConfig.kernelParams}"
-        "--root-drive=${bootDisk}:ro"
       ]
+      ++
+      lib.optional storeOnDisk "--root-drive=${storeDisk}:ro"
       ++
       # Without this, starting of firecracker fails with an error message:
       # Enabling simultaneous multithreading is not supported on aarch64

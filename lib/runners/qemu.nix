@@ -1,7 +1,6 @@
 { pkgs
 , microvmConfig
 , kernel
-, bootDisk
 , macvtapFds
 }:
 
@@ -20,11 +19,11 @@ let
     })
     else pkgs.qemu_kvm;
 
-  inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces shares socket forwardPorts devices graphics;
+  inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces shares socket forwardPorts devices graphics storeOnDisk bootDisk storeDisk;
   inherit (microvmConfig.qemu) extraArgs bios;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
-  volumes = withDriveLetters 1 microvmConfig.volumes;
+  volumes = withDriveLetters microvmConfig;
 
   arch = builtins.head (builtins.split "-" system);
   # PCI required by vfio-pci for PCI passthrough
@@ -97,8 +96,6 @@ in {
       "-serial" "chardev:stdio"
       "-device" "i8042"
       "-device" "virtio-rng-${devType}"
-      "-drive" "id=root,format=raw,read-only=on,file=${bootDisk},if=none,aio=io_uring"
-      "-device" "virtio-blk-${devType},drive=root${lib.optionalString (devType == "pci") ",disable-legacy=on"}"
       "-kernel" "${kernelPath}"
       "-initrd" bootDisk.passthru.initrd
       # hvc1 precedes hvc0 so that nixos starts serial-agetty@ on both
@@ -113,6 +110,10 @@ in {
     ] ++
     lib.optionals (system == "aarch64-linux") [
       "-cpu" "host"
+    ] ++
+    lib.optionals storeOnDisk [
+      "-drive" "id=store,format=raw,read-only=on,file=${storeDisk},if=none,aio=io_uring"
+      "-device" "virtio-blk-${devType},drive=store${lib.optionalString (devType == "pci") ",disable-legacy=on"}"
     ] ++
     (if graphics.enable
      then [

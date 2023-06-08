@@ -1,13 +1,13 @@
 { pkgs
 , microvmConfig
 , kernel
-, bootDisk
 , macvtapFds
 }:
 
 let
   inherit (pkgs) lib;
-  inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces volumes shares preStart devices;
+  inherit (microvmConfig)
+    hostName vcpu mem balloonMem user interfaces volumes shares preStart devices bootDisk storeDisk storeOnDisk;
 in {
   preStart = ''
     ${preStart}
@@ -23,12 +23,15 @@ in {
         "--name" (lib.escapeShellArg hostName)
         "-m" (toString (mem + balloonMem))
         "-c" (toString vcpu)
-        "-d" (lib.escapeShellArg "${bootDisk},ro")
         "--console" "serial"
         "--rng"
         "-k" (lib.escapeShellArg "${kernel}/${pkgs.stdenv.hostPlatform.linux-kernel.target}")
         "-i" "${bootDisk.passthru.initrd}"
         "-p" (lib.escapeShellArg "console=ttyS0 reboot=k panic=1 ${toString microvmConfig.kernelParams}")
+      ]
+      ++
+      lib.optionals storeOnDisk [
+        "-d" (lib.escapeShellArg "${storeDisk},ro")
       ]
       ++
       lib.optionals (balloonMem > 0) [ "--balloon" ]

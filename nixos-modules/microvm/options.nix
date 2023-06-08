@@ -295,7 +295,7 @@ in
       description = "Includes boot.kernelParams but doesn't end up in toplevel, thereby allowing references to toplevel";
     };
 
-    storeOnBootDisk = mkOption {
+    storeOnDisk = mkOption {
       type = types.bool;
       default = ! lib.any ({ source, ... }:
         source == "/nix/store"

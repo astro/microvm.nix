@@ -5,7 +5,7 @@
 }:
 
 let
-  inherit (pkgs) lib system;
+  inherit (pkgs) lib;
   inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem graphics bootDisk storeDisk storeOnDisk;
 
   # balloon
@@ -13,11 +13,6 @@ let
 
   # Transform attrs to parameters in form of `key1=value1,key2=value2,[...]`
   opsMapped = ops: lib.concatStringsSep "," (lib.mapAttrsToList (k: v: "${k}=${v}") ops);
-
-  kernelPath = {
-    x86_64-linux = "${kernel.dev}/vmlinux";
-    aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
-  }.${system};
 
   # Attrs representing CHV mem options
   memOps = opsMapped ({

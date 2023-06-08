@@ -1,8 +1,5 @@
 { config, options, lib, ... }:
 let
-  self-lib = import ../../lib {
-    nixpkgs-lib = lib;
-  };
 
   inherit (config.networking) hostName;
 in

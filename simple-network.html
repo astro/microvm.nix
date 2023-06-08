@@ -145,10 +145,11 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="a-simple-network-setup"><a class="header" href="#a-simple-network-setup">A simple network setup</a></h1>
-<p>While your network setup is out of scope for the <strong>microvm.nix</strong>
-flake, here is a simple guide for getting the MicroVMs on your server
-networked.</p>
-<p>Be aware that we dictate <code>systemd-networkd</code> on your server for maximum flexibility:</p>
+<p>While networking infrastructure is out of scope for the <strong>microvm.nix</strong>
+flake, here is some guidance for providing the MicroVMs on your NixOS
+machine with internet access.</p>
+<p>Because we already use systemd for MicroVM startup, let's pick
+<code>systemd-networkd</code>:</p>
 <pre><code class="language-nix">networking.useNetworkd = true;
 </code></pre>
 <h2 id="a-bridge-to-link-tap-interfaces"><a class="header" href="#a-bridge-to-link-tap-interfaces">A bridge to link TAP interfaces</a></h2>
@@ -178,24 +179,30 @@ avoid the additional configuration effort and create a bridge instead:</p>
   };
 };
 </code></pre>
-<p>Better leave out the DHCP server and opt for static configuration
-instead if you rely on stable IPv4 addresses.</p>
-<p>Last, the TAP interfaces shall be attached to this central bridge. Make
-sure your <code>matchConfig</code> matches just the interfaces you want!</p>
+<p>This configuration will hand out IP addresses to clients on the
+bridge. In practise, better leave out the DHCP server and its state by
+opting for declarative, versioned configuration instead.</p>
+<p>Last, the TAP interfaces of MicroVMs shall be attached to this central
+bridge. Make sure your <code>matchConfig</code> matches just the interfaces you
+want!</p>
 <pre><code class="language-nix">systemd.network = {
   networks.&quot;11-microvm&quot; = {
     matchConfig.Name = &quot;vm-*&quot;;
+    # Attach to the bridge that was configured above
     networkConfig.Bridge = &quot;microvm&quot;;
   };
 };
 </code></pre>
 <h2 id="provide-internet-access-with-nat"><a class="header" href="#provide-internet-access-with-nat">Provide Internet Access with NAT</a></h2>
-<p>IPv4 addresses are exhausted. In some server environments you may not
-get a dedicated /64 IPv6 prefix to route to your MicroVMs. <em>Network
-Address Translation</em> to the rescue!</p>
+<p>IPv4 addresses are exhausted. It is a very common case that you get
+one public IPv4 address for your machine. The solution is to route
+your internal virtual machines with <em>Network Address Translation</em>.</p>
+<p>You might not get a dedicated /64 IPv6 prefix to route to your
+MicroVMs. NAT works for this address family, too!</p>
 <pre><code class="language-nix">networking.nat = {
   enable = true;
   enableIPv6 = true;
+  # Change this to the interface with upstream Internet access
   externalInterface = &quot;eth0&quot;;
   internalInterfaces = [ &quot;microvm&quot; ];
 };

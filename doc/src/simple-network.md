@@ -1,10 +1,11 @@
 # A simple network setup
 
-While your network setup is out of scope for the **microvm.nix**
-flake, here is a simple guide for getting the MicroVMs on your server
-networked.
+While networking infrastructure is out of scope for the **microvm.nix**
+flake, here is some guidance for providing the MicroVMs on your NixOS
+machine with internet access.
 
-Be aware that we dictate `systemd-networkd` on your server for maximum flexibility:
+Because we already use systemd for MicroVM startup, let's pick
+`systemd-networkd`:
 ```nix
 networking.useNetworkd = true;
 ```
@@ -39,15 +40,18 @@ systemd.network = {
 };
 ```
 
-Better leave out the DHCP server and opt for static configuration
-instead if you rely on stable IPv4 addresses.
+This configuration will hand out IP addresses to clients on the
+bridge. In practise, better leave out the DHCP server and its state by
+opting for declarative, versioned configuration instead.
 
-Last, the TAP interfaces shall be attached to this central bridge. Make
-sure your `matchConfig` matches just the interfaces you want!
+Last, the TAP interfaces of MicroVMs shall be attached to this central
+bridge. Make sure your `matchConfig` matches just the interfaces you
+want!
 ```nix
 systemd.network = {
   networks."11-microvm" = {
     matchConfig.Name = "vm-*";
+    # Attach to the bridge that was configured above
     networkConfig.Bridge = "microvm";
   };
 };
@@ -55,13 +59,18 @@ systemd.network = {
 
 ## Provide Internet Access with NAT
 
-IPv4 addresses are exhausted. In some server environments you may not
-get a dedicated /64 IPv6 prefix to route to your MicroVMs. *Network
-Address Translation* to the rescue!
+IPv4 addresses are exhausted. It is a very common case that you get
+one public IPv4 address for your machine. The solution is to route
+your internal virtual machines with *Network Address Translation*.
+
+You might not get a dedicated /64 IPv6 prefix to route to your
+MicroVMs. NAT works for this address family, too!
+
 ```nix
 networking.nat = {
   enable = true;
   enableIPv6 = true;
+  # Change this to the interface with upstream Internet access
   externalInterface = "eth0";
   internalInterfaces = [ "microvm" ];
 };

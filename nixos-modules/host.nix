@@ -367,8 +367,6 @@ in
           LimitNOFILE = 1048576;
         };
         path = with pkgs; [ coreutils virtiofsd ];
-        # TODO: remove `--seccomp=none` again
-        # https://gitlab.com/virtio-fs/virtiofsd/-/issues/104
         script = ''
           for d in current/share/microvm/virtiofs/*; do
             SOCKET=$(cat $d/socket)
@@ -376,7 +374,6 @@ in
             mkdir -p $SOURCE
 
             virtiofsd \
-              --seccomp=none \
               --socket-path=$SOCKET \
               --socket-group=${config.users.users.microvm.group} \
               --shared-dir $SOURCE \

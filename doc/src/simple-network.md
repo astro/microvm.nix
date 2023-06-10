@@ -80,3 +80,28 @@ Check out
 [`networking.nat.forwardPorts`](https://search.nixos.org/options?channel=unstable&show=networking.nat.forwardPorts&query=networking.nat.forwardPorts)
 to make your MicroVM's services available to networks outside your
 host!
+
+## Port forwarding
+
+Isolating your public Internet services is a great use-case for
+virtualization. But how does traffic get to you when your MicroVMs
+have private IP addresses behind NAT?
+
+NixOS has got you covered with the `networking.nat.forwardPorts`
+option! This example forwards TCP ports 80 (HTTP) and 443 (HTTPS) to
+other hosts:
+
+```nix
+networking.nat = {
+  enable = true;
+  forwardPorts = [ {
+    proto = "tcp";
+    sourcePort = 80;
+    destination = my-addresses.http-reverse-proxy.ip4;
+  } {
+    proto = "tcp";
+    sourcePort = 443;
+    destination = my-addresses.https-reverse-proxy.ip4;
+  } ];
+};
+```

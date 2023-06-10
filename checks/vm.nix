@@ -6,6 +6,7 @@
     name = "vm-${hypervisor}";
     nodes.vm = {
       imports = [ self.nixosModules.host ];
+
       virtualisation.qemu.options = [
         "-cpu"
         {
@@ -13,6 +14,9 @@
           "x86_64-linux" = "kvm64,+svm,+vmx";
         }.${system}
       ];
+      # Must be big enough for the store overlay volume
+      virtualisation.diskSize = 2200;
+
       microvm.vms."${system}-${hypervisor}-example".flake = self;
     };
     testScript = ''

@@ -171,10 +171,9 @@ host's /nix/store as a share for faster build times, or mount the
 store with a writable overlay.</p>
 <h2 id="just-virtual-machines"><a class="header" href="#just-virtual-machines">Just Virtual Machines?</a></h2>
 <p>Full virtualization has been available for a long time with QEMU and
-VirtualBox. The <em>MicroVM</em> movement wants to express that
-virtualization overhead has been reduced a lot by replacing emulated
-devices with <em>virtio</em> interfaces that have been optimized for an
-emulated environment.</p>
+VirtualBox. The <em>MicroVM</em> machine type highlights that virtualization
+overhead has been reduced a lot by replacing emulated devices with
+<em>virtio</em> interfaces that have been optimized for this environment.</p>
 <p>This Flake offers you to run your MicroVMs not only on QEMU but with
 other Hypervisors that have been explicitly authored for
 <em>virtio</em>. Some of them are written in Rust, a programming language

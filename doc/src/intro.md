@@ -35,10 +35,9 @@ store with a writable overlay.
 ## Just Virtual Machines?
 
 Full virtualization has been available for a long time with QEMU and
-VirtualBox. The *MicroVM* movement wants to express that
-virtualization overhead has been reduced a lot by replacing emulated
-devices with *virtio* interfaces that have been optimized for an
-emulated environment.
+VirtualBox. The *MicroVM* machine type highlights that virtualization
+overhead has been reduced a lot by replacing emulated devices with
+*virtio* interfaces that have been optimized for this environment.
 
 This Flake offers you to run your MicroVMs not only on QEMU but with
 other Hypervisors that have been explicitly authored for

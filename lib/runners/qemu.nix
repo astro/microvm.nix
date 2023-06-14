@@ -94,7 +94,6 @@ in {
 
       "-chardev" "stdio,id=stdio,signal=off"
       "-serial" "chardev:stdio"
-      "-device" "i8042"
       "-device" "virtio-rng-${devType}"
       "-kernel" "${kernelPath}"
       "-initrd" bootDisk.passthru.initrd

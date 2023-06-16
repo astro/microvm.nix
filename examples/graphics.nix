@@ -23,6 +23,7 @@ nixpkgs.lib.nixosSystem {
 
       networking.hostName = "graphical-microvm";
       system.stateVersion = config.system.nixos.version;
+      nixpkgs.overlays = [ self.overlay ];
 
       services.getty.autologinUser = "user";
       users.users.user = {

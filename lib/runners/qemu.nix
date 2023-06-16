@@ -90,9 +90,6 @@ in {
 
       "-kernel" "${kernelPath}"
       "-initrd" bootDisk.passthru.initrd
-      # hvc1 precedes hvc0 so that nixos starts serial-agetty@ on both
-      # without further config
-      "-append" "earlyprintk=ttyS0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
 
       "-chardev" "stdio,id=stdio,signal=off"
       "-serial" "chardev:stdio"
@@ -101,11 +98,15 @@ in {
     lib.optionals (system == "x86_64-linux") [
       "-cpu" "host,+x2apic"
       "-device" "i8042"
+
+      "-append" "earlyprintk=ttyS0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
     ] ++ lib.optionals bios.enable [
       "-bios" "${bios.path}"
     ] ++
     lib.optionals (system == "aarch64-linux") [
       "-cpu" "host"
+
+      "-append" "console=ttyAMA0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
     ] ++
     lib.optionals storeOnDisk [
       "-drive" "id=store,format=raw,read-only=on,file=${storeDisk},if=none,aio=io_uring"

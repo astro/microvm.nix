@@ -7,20 +7,8 @@
 let
   inherit (pkgs) lib system;
 
-  qemu =
-    if lib.any ({ bus, ... }: bus == "usb") microvmConfig.devices
-    then pkgs.qemu_kvm.overrideAttrs (oa: {
-      configureFlags = oa.configureFlags ++ [
-        "--enable-libusb"
-      ];
-      buildInputs = oa.buildInputs ++ (with pkgs; [
-        libusb
-      ]);
-    })
-    else pkgs.qemu_kvm;
-
   inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces shares socket forwardPorts devices graphics storeOnDisk bootDisk storeDisk;
-  inherit (microvmConfig.qemu) extraArgs bios;
+  # inherit (microvmConfig.qemu) extraArgs bios;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
   volumes = withDriveLetters microvmConfig;
@@ -74,11 +62,11 @@ let
     echo '${builtins.toJSON data}'
   '';
 in {
-  hypervisor = "qemu";
+  hypervisor = "stratovirt";
 
   command = lib.escapeShellArgs (
     [
-      "${qemu}/bin/qemu-system-${arch}"
+      "${pkgs.stratovirt}/bin/stratovirt"
       "-name" hostName
       "-M" machine
       "-m" (toString (mem + balloonMem))
@@ -88,15 +76,18 @@ in {
       # qemu just hangs after shutdown, allow to exit by rebooting
       "-no-reboot"
 
-      "-kernel" "${kernelPath}"
+      "-kernel" "${kernel}/bzImage"
       "-initrd" bootDisk.passthru.initrd
-      # hvc1 precedes hvc0 so that nixos starts serial-agetty@ on both
-      # without further config
-      "-append" "earlyprintk=ttyS0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+      "-append" "console=ttyS0 edd=off reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
 
       "-chardev" "stdio,id=stdio,signal=off"
       "-serial" "chardev:stdio"
       "-device" "virtio-rng-${devType}"
+      "-kernel" "${kernelPath}"
+      "-initrd" bootDisk.passthru.initrd
+      # hvc1 precedes hvc0 so that nixos starts serial-agetty@ on both
+      # without further config
+      "-append" "console=hvc0 earlyprintk=ttyS0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
     ] ++
     lib.optionals (system == "x86_64-linux") [
       "-cpu" "host,+x2apic"

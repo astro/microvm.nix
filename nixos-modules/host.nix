@@ -216,12 +216,24 @@ in
       };
       "microvm@${name}" = {
         # restartIfChanged is opt-out, so we have to include the definition unconditionally
-        inherit (microvmConfig) restartIfChanged;
+        serviceConfig.X-RestartIfChanged = [ "" microvmConfig.restartIfChanged ];
         # If the given declarative microvm wants to be restarted on change,
         # We have to make sure this service group is restarted. To make sure
         # that this service is also changed when the microvm configuration changes,
         # we also have to include a trigger here.
         restartTriggers = [guestConfig.system.build.toplevel];
+        overrideStrategy = "asDropin";
+      };
+      "microvm-tap-interfaces@${name}" = {
+        serviceConfig.X-RestartIfChanged = [ "" microvmConfig.restartIfChanged ];
+        overrideStrategy = "asDropin";
+      };
+      "microvm-pci-devices@${name}" = {
+        serviceConfig.X-RestartIfChanged = [ "" microvmConfig.restartIfChanged ];
+        overrideStrategy = "asDropin";
+      };
+      "microvm-virtiofsd@${name}" = {
+        serviceConfig.X-RestartIfChanged = [ "" microvmConfig.restartIfChanged ];
         overrideStrategy = "asDropin";
       };
     })) {

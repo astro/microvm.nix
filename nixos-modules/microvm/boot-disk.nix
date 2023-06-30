@@ -24,7 +24,9 @@ in {
         parted
         libguestfs
       ];
-      LIBGUESTFS_PATH = pkgs.libguestfs-appliance;
+      # HACK: Do not evaluate libguestfs-appliance for others than
+      #       cloud-hypervisor and on x86_64.
+      LIBGUESTFS_PATH = lib.optionalString (config.microvm.hypervisor == "cloud-hypervisor" && pkgs.hostPlatform.isx86_64) pkgs.libguestfs-appliance;
       passthru = {
         kernel = kernelPath;
         initrd = initrdPath;

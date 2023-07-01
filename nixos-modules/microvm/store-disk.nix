@@ -45,7 +45,7 @@ in
       ];
 
       microvm.storeDisk = pkgs.runCommandLocal "microvm-store-disk.${config.microvm.storeDiskType}" {
-        nativeBuildInputs = with pkgs; [ {
+        nativeBuildInputs = with pkgs.buildPackages; [ {
           squashfs = [ squashfs-tools-ng ];
           erofs = [ erofs-utils ];
         }.${config.microvm.storeDiskType} ];

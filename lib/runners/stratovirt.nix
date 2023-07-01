@@ -8,7 +8,6 @@ let
   inherit (pkgs) lib system;
 
   inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces shares socket forwardPorts devices graphics storeOnDisk bootDisk storeDisk;
-  # inherit (microvmConfig.qemu) extraArgs bios;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
   volumes = withDriveLetters microvmConfig;
@@ -16,17 +15,28 @@ let
   arch = builtins.head (builtins.split "-" system);
   # PCI required by vfio-pci for PCI passthrough
   pciInDevices = lib.any ({ bus, ... }: bus == "pci") devices;
-  requirePci = shares != [] || pciInDevices;
+  requirePci = pciInDevices;
   machine = {
     x86_64-linux =
       if requirePci
-      then "q35,accel=kvm:tcg,mem-merge=on,sata=off"
-      else "microvm,accel=kvm:tcg,x-option-roms=off,pit=off,pic=off,rtc=off,mem-merge=on";
-    aarch64-linux = "virt,gic-version=max,accel=kvm:tcg";
+      then throw "PCI configuration for stratovirt is non-functional" "q35"
+      else "microvm";
+    aarch64-linux = "virt";
   }.${system};
-  devType = if requirePci
-            then "pci"
-            else "device";
+
+  console = {
+    x86_64-linux = "ttyS0";
+    aarch64-linux = "ttyAMA0";
+  }.${system};
+
+  devType = addr:
+    if requirePci
+    then
+      if addr < 32
+      then "pci,bus=pcie.0,addr=0x${pkgs.lib.toHexString addr}"
+      else throw "Too big PCI addr: ${pkgs.lib.toHexString addr}"
+    else "device";
+
   kernelPath = {
     x86_64-linux = "${kernel.dev}/vmlinux";
     aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
@@ -59,7 +69,7 @@ let
       [ forwardingOptions ];
 
   writeQmp = data: ''
-    echo '${builtins.toJSON data}'
+    echo '${builtins.toJSON data}' | nc -U "${socket}"
   '';
 in {
   hypervisor = "stratovirt";
@@ -67,74 +77,40 @@ in {
   command = lib.escapeShellArgs (
     [
       "${pkgs.stratovirt}/bin/stratovirt"
+      # "-disable-seccomp"
       "-name" hostName
-      "-M" machine
+      "-machine" machine
       "-m" (toString (mem + balloonMem))
       "-smp" (toString vcpu)
-      "-enable-kvm"
-      "-nodefaults" "-no-user-config"
-      # qemu just hangs after shutdown, allow to exit by rebooting
-      "-no-reboot"
 
       "-kernel" "${kernel}/bzImage"
       "-initrd" bootDisk.passthru.initrd
-      "-append" "console=ttyS0 edd=off reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+      "-append" "console=${console} edd=off reboot=t panic=-1 verbose ${toString microvmConfig.kernelParams}"
 
-      "-chardev" "stdio,id=stdio,signal=off"
-      "-serial" "chardev:stdio"
-      "-device" "virtio-rng-${devType}"
-      "-kernel" "${kernelPath}"
-      "-initrd" bootDisk.passthru.initrd
-      # hvc1 precedes hvc0 so that nixos starts serial-agetty@ on both
-      # without further config
-      "-append" "console=hvc0 earlyprintk=ttyS0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
-    ] ++
-    lib.optionals (system == "x86_64-linux") [
-      "-cpu" "host,+x2apic"
-      "-device" "i8042"
-    ] ++ lib.optionals bios.enable [
-      "-bios" "${bios.path}"
-    ] ++
-    lib.optionals (system == "aarch64-linux") [
-      "-cpu" "host"
+      "-serial" "stdio"
+      "-object" "rng-random,id=rng,filename=/dev/random"
+      "-device" "virtio-rng-${devType 1},rng=rng,id=rng_dev"
+      "-D"
     ] ++
     lib.optionals storeOnDisk [
-      "-drive" "id=store,format=raw,read-only=on,file=${storeDisk},if=none,aio=io_uring"
-      "-device" "virtio-blk-${devType},drive=store${lib.optionalString (devType == "pci") ",disable-legacy=on"}"
+      "-drive" "id=store,format=raw,readonly=on,file=${storeDisk},if=none,aio=io_uring"
+      "-device" "virtio-blk-${devType 2},drive=store,id=blk_store"
     ] ++
-    (if graphics.enable
-     then [
-      "-display" "gtk,gl=on"
-      "-device" "virtio-vga-gl"
-      "-device" "qemu-xhci"
-      "-device" "usb-tablet"
-      "-device" "usb-kbd"
-     ]
-     else [
-      "-nographic"
-     ]) ++
-    lib.optionals canSandbox [
-      "-sandbox" "on"
-    ] ++
-    lib.optionals (user != null) [ "-user" user ] ++
     lib.optionals (socket != null) [ "-qmp" "unix:${socket},server,nowait" ] ++
-    lib.optionals (balloonMem > 0) [ "-device" "virtio-balloon" ] ++
-    builtins.concatMap ({ image, letter, ... }:
-      [ "-drive" "id=vd${letter},format=raw,file=${image},if=none,aio=io_uring,discard=unmap" "-device" "virtio-blk-${devType},drive=vd${letter}" ]
-    ) volumes ++
+    # lib.optionals (balloonMem > 0) [ "-device" "virtio-balloon-${devType 3}" ] ++
+    builtins.concatMap ({ image, letter, ... }: [
+      "-drive" "id=vd${letter},format=raw,file=${image},aio=io_uring"
+      "-device" "virtio-blk-${devType 4},drive=vd${letter},id=blk_vd${letter}"
+    ]) volumes ++
     lib.optionals (shares != []) (
       [
-        "-object" "memory-backend-memfd,id=mem,size=${toString (mem + balloonMem)}M,share=on"
-        "-numa" "node,memdev=mem"
+        # "-object" "memory-backend-memfd,id=mem,size=${toString (mem + balloonMem)}M,share=on"
+        # "-numa" "node,memdev=mem"
       ] ++
       builtins.concatMap ({ proto, index, socket, source, tag, ... }: {
         "virtiofs" = [
           "-chardev" "socket,id=fs${toString index},path=${socket}"
-          "-device" "vhost-user-fs-${devType},chardev=fs${toString index},tag=${tag}"
-        ];
-        "9p" = [
-          "-fsdev" "local,id=fs${toString index},path=${source},security_model=none"
-          "-device" "virtio-9p-${devType},fsdev=fs${toString index},mount_tag=${tag}"
+          "-device" "vhost-user-fs-${devType (5 + index)},chardev=fs${toString index},tag=${tag}"
         ];
       }.${proto}) (enumerate 0 shares)
     )
@@ -156,97 +132,67 @@ in {
             ]
             ++ lib.optionals (type == "tap") [
               "ifname=${id}"
-              "script=no" "downscript=no"
             ]
             ++ lib.optionals (type == "macvtap") [
               "fd=${toString macvtapFds.${id}}"
             ]
           )
         )
-        "-device" "virtio-net-${devType},netdev=${id},mac=${mac}"
+        # TODO: devType (0x10 + i)
+        "-device" "virtio-net-${devType 30},id=net_${id},netdev=${id},mac=${mac}"
       ]) interfaces
     )
     ++
-    lib.optionals (lib.any ({ bus, ... }:
-      bus == "usb"
-    ) devices) [
-      "-usb"
-      "-device" "usb-ehci"
-    ]
-    ++
     builtins.concatMap ({ bus, path, ... }: {
       pci = [
-        "-device" "vfio-pci,host=${path},multifunction=on"
+        "-device" "vfio-pci,host=${path}"
       ];
       usb = [
         "-device" "usb-host,${path}"
       ];
     }.${bus}) devices
     ++
-    extraArgs
+    lib.optionals (lib.hasPrefix "q35" machine) [
+      # "-drive" "file=${pkgs.qboot}/bios.bin,if=pflash,unit=0,readonly=true"
+      "-drive" "file=${pkgs.OVMF.fd}/FV/OVMF_CODE.fd,if=pflash,unit=0,readonly=true"
+      "-drive" "file=${pkgs.OVMF.fd}/FV/OVMF_VARS.fd,if=pflash,unit=1,readonly=true"
+    ]
   );
 
-  canShutdown = socket != null;
+  # Not supported for the `microvm` machine model
+  canShutdown = false;
 
   shutdownCommand =
     if socket != null
     then
       ''
-        (
-          ${writeQmp { execute = "qmp_capabilities"; }}
-          ${writeQmp {
-            execute = "input-send-event";
-            arguments.events = [ {
-              type = "key";
-              data = {
-                down = true;
-                key = {
-                  type = "qcode";
-                  data = "ctrl";
-                };
-              };
-            } {
-              type = "key";
-              data = {
-                down = true;
-                key = {
-                  type = "qcode";
-                  data = "alt";
-                };
-              };
-            } {
-              type = "key";
-              data = {
-                down = true;
-                key = {
-                  type = "qcode";
-                  data = "delete";
-                };
-              };
-            } ];
-          }}
-           # wait for exit
-          cat
-        ) | \
-        ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none
-    ''
+        # ${writeQmp { execute = "qmp_capabilities"; }}
+        # ${writeQmp { execute = "system_powerdown"; }}
+        ${writeQmp {
+          execute = "input_event";
+          arguments = {
+            key = "keyboard";
+            value = "ctrl, 1";
+          };
+        }}
+        ${writeQmp {
+          execute = "input_event";
+          arguments = {
+            key = "keyboard";
+            value = "alt, 1";
+          };
+        }}
+        ${writeQmp {
+          execute = "input_event";
+          arguments = {
+            key = "keyboard";
+            value = "delete, 1";
+          };
+        }}
+        # wait for exit
+        cat "${socket}"
+      ''
     else throw "Cannot shutdown without socket";
-
-  setBalloonScript =
-    if socket != null
-    then ''
-      VALUE=$(( $SIZE * 1024 * 1024 ))
-      SIZE=$( (
-        ${writeQmp { execute = "qmp_capabilities"; }}
-        ${writeQmp { execute = "balloon"; arguments.value = 987; }}
-      ) | sed -e s/987/$VALUE/ | \
-        ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none | \
-        tail -n 1 | \
-        ${pkgs.jq}/bin/jq -r .data.actual \
-      )
-      echo $(( $SIZE / 1024 / 1024 ))
-    ''
-    else null;
 
   requiresMacvtapAsFds = true;
 }

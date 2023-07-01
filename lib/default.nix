@@ -6,6 +6,7 @@ rec {
     "firecracker"
     "crosvm"
     "kvmtool"
+    "stratovirt"
   ];
 
   hypervisorsWithNetwork = hypervisors;

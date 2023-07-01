@@ -39,26 +39,14 @@ nixpkgs.lib.nixosSystem {
       };
 
       # Nested MicroVMs
-      microvm.vms."${system}-qemu-example-with-tap" = {
-        flake = self;
-        updateFlake = "microvm";
-      };
-      microvm.vms."${system}-firecracker-example-with-tap" = {
-        flake = self;
-        updateFlake = "microvm";
-      };
-      microvm.vms."${system}-cloud-hypervisor-example-with-tap" = {
-        flake = self;
-        updateFlake = "microvm";
-      };
-      microvm.vms."${system}-crosvm-example-with-tap" = {
-        flake = self;
-        updateFlake = "microvm";
-      };
-      microvm.vms."${system}-kvmtool-example-with-tap" = {
-        flake = self;
-        updateFlake = "microvm";
-      };
+      microvm.vms = builtins.foldl' (vms: hypervisor:
+        vms // {
+          "${system}-${hypervisor}-example-with-tap" = {
+            flake = self;
+            updateFlake = "microvm";
+          };
+        }
+      ) {} self.lib.hypervisors;
 
       systemd.network = {
         enable = true;

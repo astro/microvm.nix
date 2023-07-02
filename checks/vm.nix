@@ -15,7 +15,7 @@
         }.${system}
       ];
       # Must be big enough for the store overlay volume
-      virtualisation.diskSize = 2200;
+      virtualisation.diskSize = 4096;
 
       microvm.vms."${system}-${hypervisor}-example".flake = self;
     };

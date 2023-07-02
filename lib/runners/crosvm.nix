@@ -7,7 +7,7 @@ let
   inherit (pkgs) lib system;
   inherit (microvmConfig)
     vcpu mem balloonMem user interfaces volumes shares socket devices graphics
-    kernel initrdPath bootDisk storeDisk storeOnDisk;
+    kernel initrdPath storeDisk storeOnDisk;
   inherit (microvmConfig.crosvm) pivotRoot extraArgs;
 
   mktuntap = pkgs.callPackage ../../pkgs/mktuntap.nix {};

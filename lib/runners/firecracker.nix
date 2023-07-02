@@ -1,6 +1,6 @@
 { pkgs
 , microvmConfig
-, ...
+, macvtapFds
 }:
 
 let
@@ -10,7 +10,7 @@ let
     vcpu mem
     interfaces volumes shares devices
     kernel initrdPath
-    bootDisk storeDisk storeOnDisk;
+    storeDisk storeOnDisk;
   kernelPath = {
     x86_64-linux = "${kernel.dev}/vmlinux";
     aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";

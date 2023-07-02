@@ -7,15 +7,14 @@ let
   inherit (pkgs) lib system;
 
   inherit (microvmConfig)
-    hostName user
-    vcpu mem balloonMem interfaces shares socket forwardPorts devices graphics
+    hostName
+    vcpu mem balloonMem interfaces shares socket forwardPorts devices
     kernel initrdPath
-    storeOnDisk bootDisk storeDisk;
+    storeOnDisk storeDisk;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
   volumes = withDriveLetters microvmConfig;
 
-  arch = builtins.head (builtins.split "-" system);
   # PCI required by vfio-pci for PCI passthrough
   pciInDevices = lib.any ({ bus, ... }: bus == "pci") devices;
   requirePci = pciInDevices;
@@ -40,23 +39,12 @@ let
       else throw "Too big PCI addr: ${pkgs.lib.toHexString addr}"
     else "device";
 
-  kernelPath = {
-    x86_64-linux = "${kernel.dev}/vmlinux";
-    aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
-  }.${system};
-
   enumerate = n: xs:
     if xs == []
     then []
     else [
       (builtins.head xs // { index = n; })
     ] ++ (enumerate (n + 1) (builtins.tail xs));
-
-  canSandbox =
-    # Don't let qemu sandbox itself if it is going to call qemu-bridge-helper
-    ! lib.any ({ type, ... }:
-      type == "bridge"
-    ) microvmConfig.interfaces;
 
   forwardPortsOptions =
       let
@@ -80,7 +68,6 @@ in {
   command = lib.escapeShellArgs (
     [
       "${pkgs.stratovirt}/bin/stratovirt"
-      # "-disable-seccomp"
       "-name" hostName
       "-machine" machine
       "-m" (toString (mem + balloonMem))

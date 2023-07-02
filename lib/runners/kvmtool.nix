@@ -9,7 +9,7 @@ let
     hostName preStart user
     vcpu mem balloonMem interfaces volumes shares devices
     kernel initrdPath
-    bootDisk storeDisk storeOnDisk;
+    storeDisk storeOnDisk;
 in {
   preStart = ''
     ${preStart}

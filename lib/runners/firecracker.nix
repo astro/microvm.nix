@@ -1,13 +1,16 @@
 { pkgs
 , microvmConfig
-, kernel
 , ...
 }:
 
 let
   inherit (pkgs) lib system;
   inherit (microvmConfig)
-    vcpu mem user interfaces volumes shares socket devices bootDisk storeDisk storeOnDisk;
+    user socket
+    vcpu mem
+    interfaces volumes shares devices
+    kernel initrdPath
+    bootDisk storeDisk storeOnDisk;
   kernelPath = {
     x86_64-linux = "${kernel.dev}/vmlinux";
     aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
@@ -23,7 +26,7 @@ in {
         "-m" (toString mem)
         "-c" (toString vcpu)
         "--kernel=${kernelPath}"
-        "--initrd-path=${bootDisk.passthru.initrd}"
+        "--initrd-path=${initrdPath}"
         "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd ${toString microvmConfig.kernelParams}"
       ]
       ++

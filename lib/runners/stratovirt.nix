@@ -1,13 +1,16 @@
 { pkgs
 , microvmConfig
-, kernel
 , macvtapFds
 }:
 
 let
   inherit (pkgs) lib system;
 
-  inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces shares socket forwardPorts devices graphics storeOnDisk bootDisk storeDisk;
+  inherit (microvmConfig)
+    hostName user
+    vcpu mem balloonMem interfaces shares socket forwardPorts devices graphics
+    kernel initrdPath
+    storeOnDisk bootDisk storeDisk;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
   volumes = withDriveLetters microvmConfig;
@@ -84,13 +87,12 @@ in {
       "-smp" (toString vcpu)
 
       "-kernel" "${kernel}/bzImage"
-      "-initrd" bootDisk.passthru.initrd
+      "-initrd" initrdPath
       "-append" "console=${console} edd=off reboot=t panic=-1 verbose ${toString microvmConfig.kernelParams}"
 
       "-serial" "stdio"
       "-object" "rng-random,id=rng,filename=/dev/random"
       "-device" "virtio-rng-${devType 1},rng=rng,id=rng_dev"
-      "-D"
     ] ++
     lib.optionals storeOnDisk [
       "-drive" "id=store,format=raw,readonly=on,file=${storeDisk},if=none,aio=io_uring"

@@ -53,9 +53,8 @@ writeScriptBin "build-microvm" ''
         self.nixosModules.microvm
       ];
     };
-    inherit (extended.config.boot.kernelPackages) kernel;
   in self.lib.buildRunner {
-    inherit pkgs kernel;
+    inherit pkgs;
     microvmConfig = {
       inherit (extended.config.networking) hostName;
     } // extended.config.microvm;

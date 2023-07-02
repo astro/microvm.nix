@@ -26,7 +26,6 @@ in
           inherit (config.networking) hostName;
           inherit hypervisor;
         } // config.microvm;
-        inherit (config.boot.kernelPackages) kernel;
         inherit (config.system.build) toplevel;
       }
     );

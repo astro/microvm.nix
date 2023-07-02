@@ -1,6 +1,5 @@
 { pkgs
 , microvmConfig
-, kernel
 , macvtapFds
 }:
 

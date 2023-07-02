@@ -45,6 +45,20 @@ in
       type = with types; nullOr str;
     };
 
+    kernel = mkOption {
+      description = "Kernel package to use for MicroVM runners";
+      default = config.boot.kernelPackages.kernel;
+      defaultText = literalExpression ''"''${config.boot.kernelPackages.kernel}"'';
+      type = types.package;
+    };
+
+    initrdPath = mkOption {
+      description = "Path to the initrd file in the initrd package";
+      default = "${config.system.build.initialRamdisk}/${config.system.boot.loader.initrdFile}";
+      defaultText = literalExpression ''"''${config.system.build.initialRamdisk}/''${config.system.boot.loader.initrdFile}"'';
+      type = types.path;
+    };
+
     vcpu = mkOption {
       description = "Number of virtual CPU cores";
       default = 1;

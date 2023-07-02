@@ -1,12 +1,13 @@
 { pkgs
 , microvmConfig
-, kernel
 , macvtapFds
 }:
 
 let
   inherit (pkgs) lib system;
-  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices graphics bootDisk storeDisk storeOnDisk;
+  inherit (microvmConfig)
+    vcpu mem balloonMem user interfaces volumes shares socket devices graphics
+    kernel initrdPath bootDisk storeDisk storeOnDisk;
   inherit (microvmConfig.crosvm) pivotRoot extraArgs;
 
   mktuntap = pkgs.callPackage ../../pkgs/mktuntap.nix {};
@@ -118,7 +119,7 @@ in {
       }.${bus}) devices
       ++
       [
-        "--initrd" bootDisk.passthru.initrd
+        "--initrd" initrdPath
         "${kernelPath}"
       ]
       ++

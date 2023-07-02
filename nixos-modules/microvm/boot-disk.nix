@@ -1,19 +1,21 @@
 { config, lib, pkgs, ... }:
 
 let
-  inherit (config.system.boot.loader) kernelFile initrdFile;
+  inherit (config.system.boot.loader) kernelFile;
+  inherit (config.microvm) initrdPath;
 
   kernelPath =
-    "${config.boot.kernelPackages.kernel}/${kernelFile}";
-  initrdPath =
-    "${config.system.build.initialRamdisk}/${initrdFile}";
+    "${config.microvm.kernel}/${kernelFile}";
 
 in {
   options.microvm = with lib; {
     bootDisk = mkOption {
       type = types.path;
       description = ''
-        Generated
+        Generated.
+
+        Required for Hypervisors that do not support direct
+        kernel+initrd loading.
       '';
     };
   };
@@ -25,10 +27,6 @@ in {
         libguestfs
       ];
       LIBGUESTFS_PATH = pkgs.libguestfs-appliance;
-      passthru = {
-        kernel = kernelPath;
-        initrd = initrdPath;
-      };
     } ''
       # kernel + initrd + slack, in sectors
       EFI_SIZE=$(( ( ( $(stat -c %s ${kernelPath}) + $(stat -c %s ${initrdPath}) + 16 * 4096 ) / ( 2048 * 512 ) + 1 ) * 2048 ))
@@ -53,7 +51,7 @@ in {
       cat > entry.conf <<EOF
       title microvm.nix (${config.system.nixos.label})
       linux /${kernelFile}
-      initrd /${initrdFile}
+      initrd /${baseNameOf initrdPath}
       EOF
       guestfs copy-in entry.conf /loader/entries/
       guestfs copy-in ${kernelPath} /

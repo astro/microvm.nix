@@ -209,7 +209,8 @@ in
             '';
           };
           macvtap.link = mkOption {
-            type = str;
+            type = nullOr str;
+            default = null;
             description = ''
               Attach network interface to host interface for type = "macvlan"
             '';

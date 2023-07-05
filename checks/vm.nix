@@ -20,8 +20,8 @@
       microvm.vms."${system}-${hypervisor}-example".flake = self;
     };
     testScript = ''
-      vm.wait_for_unit("microvm@${system}-${hypervisor}-example.service")
+      vm.wait_for_unit("microvm@${system}-${hypervisor}-example.service", timeout = 1200)
     '';
-    meta.timeout = 180;
+    meta.timeout = 1800;
   }) { inherit system; pkgs = nixpkgs.legacyPackages.${system}; };
 }

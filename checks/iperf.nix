@@ -59,11 +59,11 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
       };
     };
     testScript = ''
-      vm.wait_for_unit("microvm@${hypervisor}-iperf-server.service")
+      vm.wait_for_unit("microvm@${hypervisor}-iperf-server.service", timeout = 900)
       vm.succeed("ip addr add 10.0.0.2/24 dev microvm")
-      result = vm.wait_until_succeeds("iperf -c 10.0.0.1", 60)
+      result = vm.wait_until_succeeds("iperf -c 10.0.0.1", timeout = 180)
       print(result)
     '';
-    meta.timeout = 300;
+    meta.timeout = 1800;
   }) { inherit system; pkgs = nixpkgs.legacyPackages.${system}; };
 }

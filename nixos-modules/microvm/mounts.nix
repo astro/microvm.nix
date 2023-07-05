@@ -86,7 +86,7 @@ lib.mkIf config.microvm.guest.enable {
         depends = [ roStore writableStoreOverlay ];
       };
     }
-  ) ( {
+  ) {
     # a tmpfs / by default. can be overwritten.
     "/" = lib.mkDefault {
       device = "rootfs";
@@ -94,7 +94,7 @@ lib.mkIf config.microvm.guest.enable {
       options = [ "size=50%,mode=0755" ];
       neededForBoot = true;
     };
-  } ) (
+  } (
     # Volumes
     builtins.foldl' (result: { mountPoint, letter, fsType ? defaultFsType, ... }:
       result // lib.optionalAttrs (mountPoint != null) {
@@ -114,10 +114,8 @@ lib.mkIf config.microvm.guest.enable {
           "virtiofs" = [ "defaults" ];
           "9p" = [ "trans=virtio" "version=9p2000.L"  "msize=65536" ];
         }.${proto};
-        neededForBoot = (
-          source == "/nix/store" ||
-          mountPoint == config.microvm.writableStoreOverlay
-        );
+        neededForBoot = source == "/nix/store" ||
+          mountPoint == config.microvm.writableStoreOverlay;
       };
     }) {} config.microvm.shares
   ) ];

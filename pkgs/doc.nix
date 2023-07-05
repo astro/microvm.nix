@@ -2,12 +2,12 @@
 
 let
   microvmDoc = nixosOptionsDoc {
-    options = (lib.evalModules {
+    inherit ((lib.evalModules {
       modules = [
         ../nixos-modules/microvm/options.nix
         { _module.args.pkgs = pkgs; }
       ];
-    }).options;
+    })) options;
   };
 
 in

@@ -13,7 +13,7 @@ let
   mktuntap = pkgs.callPackage ../../pkgs/mktuntap.nix {};
 
   inherit (macvtapFds) nextFreeFd;
-  interfaceFds = (
+  inherit ((
     builtins.foldl' ({ interfaceFds, nextFreeFd }: { type, id, ... }:
       if type == "tap"
       then {
@@ -26,7 +26,7 @@ let
       then { inherit interfaceFds nextFreeFd; }
       else throw "Interface type not supported for crosvm: ${type}"
     ) { interfaceFds = macvtapFds; inherit nextFreeFd; } interfaces
-  ).interfaceFds;
+  )) interfaceFds;
 
   kernelPath = {
     x86_64-linux = "${kernel.dev}/vmlinux";

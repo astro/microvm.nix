@@ -13,7 +13,7 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
             self.nixosModules.microvm
             {
               microvm = {
-                hypervisor = hypervisor;
+                inherit hypervisor;
                 interfaces = [ {
                   type = "tap";
                   id = "microvm";

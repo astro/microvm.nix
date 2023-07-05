@@ -13,7 +13,7 @@ lib.mkIf config.microvm.guest.enable {
       '';
     }) (
       builtins.attrValues (
-        lib.groupBy ({ image, ... }: image) config.microvm.volumes
+        builtins.groupBy ({ image, ... }: image) config.microvm.volumes
       )
     )
     ++
@@ -25,7 +25,7 @@ lib.mkIf config.microvm.guest.enable {
       '';
     }) (
       builtins.attrValues (
-        lib.groupBy ({ id, ... }: id) config.microvm.interfaces
+        builtins.groupBy ({ id, ... }: id) config.microvm.interfaces
       )
     )
     ++
@@ -65,7 +65,7 @@ lib.mkIf config.microvm.guest.enable {
       '';
     }) (
       builtins.attrValues (
-        lib.groupBy ({ tag, ... }: tag) config.microvm.shares
+        builtins.groupBy ({ tag, ... }: tag) config.microvm.shares
       )
     )
     ++
@@ -77,7 +77,7 @@ lib.mkIf config.microvm.guest.enable {
       '';
     }) (
       builtins.attrValues (
-        lib.groupBy ({ socket, ... }: toString socket) (
+        builtins.groupBy ({ socket, ... }: toString socket) (
           builtins.filter ({ proto, ... }: proto == "virtiofs")
             config.microvm.shares
         )

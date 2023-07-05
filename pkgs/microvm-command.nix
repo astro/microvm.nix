@@ -18,9 +18,9 @@ writeScriptBin "microvm" ''
   #! ${pkgs.runtimeShell}
   set -e
 
-  PATH=${lib.makeBinPath ([
+  PATH=${lib.makeBinPath [
     git jq nix
-  ])}:$PATH
+  ]}:$PATH
   STATE_DIR=/var/lib/microvms
   ACTION=help
   FLAKE=git+file:///etc/nixos

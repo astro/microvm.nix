@@ -17,7 +17,7 @@ let
     '';
 
     microvm = {
-      hypervisor = hypervisor;
+      inherit hypervisor;
       # share the host's /nix/store if the hypervisor can do 9p
       shares = lib.optional (builtins.elem hypervisor hypervisorsWith9p) {
         tag = "ro-store";

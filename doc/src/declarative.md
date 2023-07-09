@@ -32,8 +32,6 @@ nixos-containers work if you are familiar with those.
       # The configuration for the MicroVM.
       # Multiple definitions will be merged as expected.
       config = {
-        imports = [ microvm.microvm ];
-
         # It is highly recommended to share the host's nix-store
         # with the VMs to prevent building huge images.
         microvm.shares = [{

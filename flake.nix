@@ -81,6 +81,7 @@
                 crosvm kvmtool
                 stratovirt
                 rust-hypervisor-firmware virtiofsd
+                cloud-hypervisor-graphics
               ];
               pathsToLink = [ "/" ];
               extraOutputsToInstall = [ "dev" ];

@@ -85,6 +85,7 @@
               ];
               pathsToLink = [ "/" ];
               extraOutputsToInstall = [ "dev" ];
+              ignoreCollisions = true;
             };
             cloud-hypervisor-graphics = pkgs.callPackage ./pkgs/spectrum-os/cloud-hypervisor {};
           } //

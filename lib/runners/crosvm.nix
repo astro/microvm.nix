@@ -109,6 +109,8 @@ in {
       (builtins.concatMap ({ id, type, mac, ... }:
         if type == "tap"
         then ["--net" "tap-name=${id},mac=${mac}"]
+        else if type == "macvtap"
+        then  ["--net" "tap-fd=${id},mac=${mac}"]
         else throw "Unsupported interface type ${type} for crosvm"
       ) microvmConfig.interfaces)
       ++

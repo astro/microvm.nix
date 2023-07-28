@@ -42,6 +42,7 @@ lib.mkIf config.microvm.guest.enable {
       "/nix/store" = {
         device = roStoreDisk;
         fsType = storeDiskType;
+        options = [ "x-systemd.after=systemd-modules-load.service" ];
         neededForBoot = true;
       };
     }
@@ -68,6 +69,7 @@ lib.mkIf config.microvm.guest.enable {
       "/nix/.ro-store" = {
         device = roStoreDisk;
         fsType = storeDiskType;
+        options = [ "x-systemd.after=systemd-modules-load.service" ];
         neededForBoot = true;
       };
     }
@@ -111,7 +113,7 @@ lib.mkIf config.microvm.guest.enable {
         device = tag;
         fsType = proto;
         options = {
-          "virtiofs" = [ "defaults" ];
+          "virtiofs" = [ "defaults" "x-systemd.after=systemd-modules-load.service" ];
           "9p" = [ "trans=virtio" "version=9p2000.L"  "msize=65536" ];
         }.${proto};
         neededForBoot = source == "/nix/store" ||

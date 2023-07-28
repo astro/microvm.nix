@@ -217,6 +217,7 @@ in
       "microvm@${name}" = {
         # restartIfChanged is opt-out, so we have to include the definition unconditionally
         serviceConfig.X-RestartIfChanged = [ "" microvmConfig.restartIfChanged ];
+        path = lib.mkForce [];
         # If the given declarative microvm wants to be restarted on change,
         # We have to make sure this service group is restarted. To make sure
         # that this service is also changed when the microvm configuration changes,
@@ -226,14 +227,17 @@ in
       };
       "microvm-tap-interfaces@${name}" = {
         serviceConfig.X-RestartIfChanged = [ "" microvmConfig.restartIfChanged ];
+        path = lib.mkForce [];
         overrideStrategy = "asDropin";
       };
       "microvm-pci-devices@${name}" = {
         serviceConfig.X-RestartIfChanged = [ "" microvmConfig.restartIfChanged ];
+        path = lib.mkForce [];
         overrideStrategy = "asDropin";
       };
       "microvm-virtiofsd@${name}" = {
         serviceConfig.X-RestartIfChanged = [ "" microvmConfig.restartIfChanged ];
+        path = lib.mkForce [];
         overrideStrategy = "asDropin";
       };
     })) {

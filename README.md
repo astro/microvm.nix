@@ -96,11 +96,3 @@ MicroVMs. They listen for ssh with an empty root password.
 nix run microvm#graphics neverball
 ```
 
-## Commercial support
-
-The author can implement additional features. Re-use our experience in
-building infrastructure with these techologies!
-
-If the project is already working fine for you, I will be very happy
-if you pressed the 💗sponsor button. This income allows me to spend
-more time maintaining my open-source projects.

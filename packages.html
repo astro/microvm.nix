@@ -157,7 +157,7 @@ and no virtiofsd is started. These can be worked around by relying on
 <h2 id="add-a-runner-package-to-your-flake"><a class="header" href="#add-a-runner-package-to-your-flake">Add a runner package to your Flake</a></h2>
 <p>To add this runner permanently add a package like this to the outputs
 of your <code>flake.nix</code>:</p>
-<pre><code class="language-nix">packages.x86_64-linux.my-microvm = self.nixosConfigurations.my-microvm.config.declaredRunner;
+<pre><code class="language-nix">packages.x86_64-linux.my-microvm = self.nixosConfigurations.my-microvm.config.microvm.declaredRunner;
 </code></pre>
 <p>You can then run the MicroVM with a simple <code>nix run .#my-microvm</code></p>
 

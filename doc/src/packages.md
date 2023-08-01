@@ -19,7 +19,7 @@ nix run .#nixosConfigurations.my-microvm.config.microvm.declaredRunner
 To add this runner permanently add a package like this to the outputs
 of your `flake.nix`:
 ```nix
-packages.x86_64-linux.my-microvm = self.nixosConfigurations.my-microvm.config.declaredRunner;
+packages.x86_64-linux.my-microvm = self.nixosConfigurations.my-microvm.config.microvm.declaredRunner;
 ```
 
 You can then run the MicroVM with a simple `nix run .#my-microvm`

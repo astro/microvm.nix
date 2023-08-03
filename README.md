@@ -50,7 +50,7 @@ imperatively with the provided `microvm` command.
 | [firecracker](https://firecracker-microvm.github.io/)                   | Rust     | no 9p/virtiofs shares                    |
 | [crosvm](https://chromium.googlesource.com/chromiumos/platform/crosvm/) | Rust     | 9p shares broken                         |
 | [kvmtool](https://github.com/kvmtool/kvmtool)                           | C        | no virtiofs shares, no control socket    |
-| [stratovirt](https://github.com/kvmtool/kvmtool)                        | Rust     | no 9p/virtiofs shares, no control socket |
+| [stratovirt](https://github.com/openeuler-mirror/stratovirt)            | Rust     | no 9p/virtiofs shares, no control socket |
 
 
 ## Installation

@@ -41,11 +41,8 @@ nixos-containers work if you are familiar with those.
           proto = "virtiofs";
         }];
 
-        # This is necessary to import the host's nix-store database
-        microvm.writableStoreOverlay = true;
-
         # Any other configuration for your MicroVM
-        #...
+        # [...]
       };
     };
   };

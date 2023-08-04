@@ -315,7 +315,7 @@ in
       default = ! lib.any ({ source, ... }:
         source == "/nix/store"
       ) config.microvm.shares;
-      description = "Whether to include the required /nix/store on the boot disk.";
+      description = "Whether to boot with the storeDisk, that is, unless the host's /nix/store is a microvm.share.";
     };
 
     writableStoreOverlay = mkOption {
@@ -325,7 +325,14 @@ in
       description = ''
         Path to the writable /nix/store overlay.
 
-        Make sure that the path points to a writable filesystem (tmpfs, volume, or share).
+        If set to a filesystem path, the initrd will mount /nix/store
+        as an overlay filesystem consisting of the read-only part as a
+        host share or from the built storeDisk, and this configuration
+        option as the writable overlay part. This allows you to build
+        nix derivations *inside* the VM.
+
+        Make sure that the path points to a writable filesystem
+        (tmpfs, volume, or share).
       '';
     };
 

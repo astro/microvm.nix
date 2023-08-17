@@ -96,3 +96,9 @@ MicroVMs. They listen for ssh with an empty root password.
 nix run microvm#graphics neverball
 ```
 
+## Commercial support
+
+Looking for help or customization?
+
+Get in touch with Numtide to get a quote. We make it easy for companies to
+work with Open Source projects: <https://numtide.com/contact>

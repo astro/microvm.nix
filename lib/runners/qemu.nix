@@ -170,7 +170,7 @@ in {
             ]
           )
         )
-        "-device" "virtio-net-${devType},netdev=${id},mac=${mac}"
+        "-device" "virtio-net-${devType},netdev=${id},mac=${mac},romfile="
       ]) interfaces
     )
     ++

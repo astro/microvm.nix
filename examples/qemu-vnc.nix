@@ -29,8 +29,6 @@ nixpkgs.lib.nixosSystem {
       networking.hostName = "qemu-vnc";
       system.stateVersion = config.system.nixos.version;
 
-      # qbios doesn't seem to support vga display
-      microvm.qemu.bios.enable = false;
       microvm.qemu.extraArgs = [
         "-vnc" ":0"
         "-vga" "qxl"
@@ -60,13 +58,6 @@ nixpkgs.lib.nixosSystem {
       };
 
       hardware.opengl.enable = true;
-
-      # We have to add a share to enable pcie in qemu. Otherwise seabios seems to not find a boot device
-      microvm.shares = [{
-        tag = "share";
-        source = "/tmp/share";
-        mountPoint = "/home/user/share";
-      }];
 
       environment.systemPackages = with pkgs; [
         xdg-utils # Required

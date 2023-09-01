@@ -19,7 +19,7 @@ let
     else pkgs.qemu_kvm;
 
   inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces shares socket forwardPorts devices graphics storeOnDisk kernel initrdPath storeDisk;
-  inherit (microvmConfig.qemu) extraArgs bios;
+  inherit (microvmConfig.qemu) extraArgs;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
   volumes = withDriveLetters microvmConfig;
@@ -99,8 +99,6 @@ in {
       "-device" "i8042"
 
       "-append" "earlyprintk=ttyS0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
-    ] ++ lib.optionals bios.enable [
-      "-bios" "${bios.path}"
     ] ++
     lib.optionals (system == "aarch64-linux") [
       "-cpu" "host"

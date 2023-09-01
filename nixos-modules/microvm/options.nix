@@ -364,22 +364,6 @@ in
       description = "Extra arguments to pass to qemu.";
     };
 
-    qemu.bios = {
-      enable = mkOption {
-        type = types.bool;
-        # `qboot` comes out of `pkgsi686Linux` which is only available
-        # under the following condition:
-        default = with pkgs.stdenv.hostPlatform; isLinux && isx86;
-        description = "Enable BIOS argument to qemu.";
-      };
-
-      path = mkOption {
-        type = types.path;
-	      default = "${pkgs.qboot}/bios.bin";
-	      description = "BIOS binary path";
-      };
-    };
-
     crosvm.extraArgs = mkOption {
       type = with types; listOf str;
       default = [];

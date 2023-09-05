@@ -150,7 +150,8 @@ writeScriptBin "microvm" ''
       ;;
 
     run)
-      exec "$DIR/current/bin/microvm-run"
+      cd "$DIR"
+      exec ./current/bin/microvm-run
       ;;
 
     list)

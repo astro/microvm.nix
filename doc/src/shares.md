@@ -48,3 +48,8 @@ don't work currently, so resort to using a volume for that:
   } ];
 }
 ```
+
+**Caveat:** The Nix database will forget all built packages after a
+reboot, containing only what is needed for the VM's NixOS
+system. Until this has been solved, it is recommended to just delete
+and recreate the overlay after MicroVM shutdown or before startup.

@@ -170,7 +170,9 @@ in {
             ]
           )
         )
-        "-device" "virtio-net-${devType},netdev=${id},mac=${mac},romfile="
+        "-device" ("virtio-net-${devType},netdev=${id},mac=${mac}" +
+	  # romfile= does not work with x86_64-linux and -M microvm setting
+	  lib.optionalString (requirePci || system != "x86_64-linux") ",romfile=")
       ]) interfaces
     )
     ++

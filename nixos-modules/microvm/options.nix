@@ -257,7 +257,7 @@ in
             description = "Socket for communication with virtiofs daemon";
           };
           source = mkOption {
-            type = path;
+            type = nonEmptyStr;
             description = "Path to shared directory tree";
           };
           mountPoint = mkOption {

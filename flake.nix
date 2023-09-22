@@ -108,8 +108,7 @@
 
         # hydraJobs are checks
         hydraJobs = builtins.mapAttrs (_: check:
-          with nixpkgs.lib;
-          hydraJob (recursiveUpdate check {
+          (nixpkgs.lib.recursiveUpdate check {
             meta.timeout = 12 * 60 * 60;
           })
         ) self.checks.${system};

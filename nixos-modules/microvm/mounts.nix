@@ -24,11 +24,7 @@ let
       if storeDiskType == "erofs"
       # erofs supports filesystem labels
       then "/dev/disk/by-label/nix-store"
-      else
-        # squashfs does not support any filesystem identifiers
-        if config.microvm.hypervisor == "cloud-hypervisor"
-        then "/dev/vdb"
-        else "/dev/vda"
+      else "/dev/vda"
     else throw "No disk letter when /nix/store is not in disk";
 
 in

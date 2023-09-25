@@ -5,7 +5,12 @@
 
 let
   inherit (pkgs) lib;
-  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem graphics bootDisk storeDisk storeOnDisk;
+  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem graphics storeDisk storeOnDisk kernel initrdPath;
+
+  kernelPath = {
+    x86_64-linux = "${kernel.dev}/vmlinux";
+    aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
+  }.${pkgs.system};
 
   # balloon
   useBallooning = balloonMem > 0;
@@ -92,7 +97,8 @@ in {
         "--watchdog"
         "--console" "null"
         "--serial" "tty"
-        "--kernel" "${pkgs.rust-hypervisor-firmware}/bin/hypervisor-fw"
+        "--kernel" kernelPath
+        "--initramfs" initrdPath
         "--cmdline" "console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
         "--seccomp" "true"
         "--memory" memOps
@@ -105,8 +111,6 @@ in {
       lib.optionals useBallooning [ "--balloon" balloonOps ]
       ++
       arg "--disk" (
-        [ "path=${bootDisk},readonly=on" ]
-        ++
         lib.optional storeOnDisk "path=${storeDisk},readonly=on"
         ++
         map ({ image, ... }: "path=${image}") volumes

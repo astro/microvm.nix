@@ -9,6 +9,11 @@ let
         microvm.hypervisor = "qemu";
       } ];
     } {
+      id = "cloud-hypervisor";
+      modules = [ {
+        microvm.hypervisor = "cloud-hypervisor";
+      } ];
+    } {
       id = "crosvm";
       modules = [ {
         microvm.hypervisor = "crosvm";
@@ -22,12 +27,6 @@ let
       id = "kvmtool";
       modules = [ {
         microvm.hypervisor = "kvmtool";
-      } ];
-    } ] ++ nixpkgs.lib.optional (system == "x86_64-linux") {
-      # rust-hypervisor-firmware is only available on x86_64
-      id = "cloud-hypervisor";
-      modules = [ {
-        microvm.hypervisor = "cloud-hypervisor";
       } ];
     })
     # ro-store

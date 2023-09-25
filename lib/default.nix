@@ -15,16 +15,10 @@ rec {
 
   withDriveLetters = { volumes, hypervisor, storeOnDisk, ... }:
     let
-      offset = (
-        if hypervisor == "cloud-hypervisor"
-        # requires bootDisk
-        then 1
-        else 0
-      ) + (
+      offset =
         if storeOnDisk
         then 1
-        else 0
-      );
+        else 0;
     in
     map ({ fst, snd }:
       fst // {

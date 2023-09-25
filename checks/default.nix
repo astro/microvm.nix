@@ -28,7 +28,7 @@ let
       modules = [ {
         microvm.hypervisor = "kvmtool";
       } ];
-    })
+    } ])
     # ro-store
     [ {
       # squashfs/erofs

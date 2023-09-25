@@ -167,10 +167,9 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="frequently-asked-questions"><a class="header" href="#frequently-asked-questions">Frequently Asked Questions</a></h1>
-<p>A few caveats. Contributions to eliminate those are welcome.</p>
 <h2 id="can-i-support-the-development-and-maintenance-of-this-project"><a class="header" href="#can-i-support-the-development-and-maintenance-of-this-project">Can I support the development and maintenance of this project?</a></h2>
 <p><a href="https://github.com/sponsors/astro">❤ Sponsor</a></p>
-<h2 id="my-microvm-has-too-many-dependencies"><a class="header" href="#my-microvm-has-too-many-dependencies">My MicroVM has too many dependencies</a></h2>
+<h2 id="how-can-i-make-my-microvm-smaller"><a class="header" href="#how-can-i-make-my-microvm-smaller">How can I make my MicroVM smaller?</a></h2>
 <p>For the system NixOS already offers a few knobs to shrink an
 installation for non-graphical usage:</p>
 <pre><code class="language-nix">{
@@ -226,7 +225,7 @@ up using the <code>-m</code>/<code>--merge</code> switch.</p>
 <p>Yes. This scenario is enabled through the flake's <code>lib.buildRunner</code>
 function. See the <a href="https://github.com/astro/microvm.nix/blob/main/pkgs/build-microvm.nix"><code>nix run microvm#build-microvm</code></a>
 script that you will need to customize to fit your deployment scenario.</p>
-<h2 id="how-do-i-deploy-imperatively-from-continuous-integration"><a class="header" href="#how-do-i-deploy-imperatively-from-continuous-integration">How do I deploy imperatively from Continuous Integration?</a></h2>
+<h2 id="how-can-i-deploy-imperatively-from-continuous-integration"><a class="header" href="#how-can-i-deploy-imperatively-from-continuous-integration">How can I deploy imperatively from Continuous Integration?</a></h2>
 <p>Do this by integrating into your automation what the <code>microvm</code> command
 does.</p>
 <pre><code class="language-nix">environment.systemPackages = [ (

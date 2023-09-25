@@ -1,12 +1,10 @@
 # Frequently Asked Questions
 
-A few caveats. Contributions to eliminate those are welcome.
-
 ## Can I support the development and maintenance of this project?
 
 [❤ Sponsor](https://github.com/sponsors/astro)
 
-## My MicroVM has too many dependencies
+## How can I make my MicroVM smaller?
 
 For the system NixOS already offers a few knobs to shrink an
 installation for non-graphical usage:
@@ -80,7 +78,7 @@ function. See the [`nix run
 microvm#build-microvm`](https://github.com/astro/microvm.nix/blob/main/pkgs/build-microvm.nix)
 script that you will need to customize to fit your deployment scenario.
 
-## How do I deploy imperatively from Continuous Integration?
+## How can I deploy imperatively from Continuous Integration?
 
 Do this by integrating into your automation what the `microvm` command
 does.

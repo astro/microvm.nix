@@ -30,7 +30,7 @@
 
     microvm.kernelParams = config.boot.kernelParams ++ [
       "init=${config.system.build.toplevel}/init"
-    ]);
+    ];
 
     # modules that consume boot time but have rare use-cases
     boot.blacklistedKernelModules = [

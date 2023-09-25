@@ -1,4 +1,4 @@
-From ee17b58f30e65a37a0526a4df60f9810fa19b138 Mon Sep 17 00:00:00 2001
+From 708d7f885e0d81ef912c9baf073fd61ba919c213 Mon Sep 17 00:00:00 2001
 From: David Stevens <stevensd@chromium.org>
 Date: Thu, 13 Oct 2022 10:37:47 +0900
 Subject: [PATCH 2/2] devices: vhost-user: add protocol flag for shmem
@@ -17,14 +17,14 @@ Commit-Queue: David Stevens <stevensd@chromium.org>
 (cherry-picked from commit 60aa43629ae9be2cc3df37c648ab7e0e5ff2172c)
 Signed-off-by: Alyssa Ross <hi@alyssa.is>
 ---
- src/vhost_user/master.rs  | 5 +++++
- src/vhost_user/message.rs | 2 ++
+ crates/vhost/src/vhost_user/master.rs  | 5 +++++
+ crates/vhost/src/vhost_user/message.rs | 2 ++
  2 files changed, 7 insertions(+)
 
-diff --git a/src/vhost_user/master.rs b/src/vhost_user/master.rs
-index deab6a7..2bbf8d6 100644
---- a/src/vhost_user/master.rs
-+++ b/src/vhost_user/master.rs
+diff --git a/crates/vhost/src/vhost_user/master.rs b/crates/vhost/src/vhost_user/master.rs
+index 60bb551..ac1520f 100644
+--- a/crates/vhost/src/vhost_user/master.rs
++++ b/crates/vhost/src/vhost_user/master.rs
 @@ -357,6 +357,11 @@ impl VhostUserMaster for Master {
      fn set_protocol_features(&mut self, features: VhostUserProtocolFeatures) -> Result<()> {
          let mut node = self.node();
@@ -37,11 +37,11 @@ index deab6a7..2bbf8d6 100644
          let val = VhostUserU64::new(features.bits());
          let hdr = node.send_request_with_body(MasterReq::SET_PROTOCOL_FEATURES, &val, None)?;
          // Don't wait for ACK here because the protocol feature negotiation process hasn't been
-diff --git a/src/vhost_user/message.rs b/src/vhost_user/message.rs
-index adb485b..09362fb 100644
---- a/src/vhost_user/message.rs
-+++ b/src/vhost_user/message.rs
-@@ -417,6 +417,8 @@ bitflags! {
+diff --git a/crates/vhost/src/vhost_user/message.rs b/crates/vhost/src/vhost_user/message.rs
+index 46b73ff..9d8c121 100644
+--- a/crates/vhost/src/vhost_user/message.rs
++++ b/crates/vhost/src/vhost_user/message.rs
+@@ -426,6 +426,8 @@ bitflags! {
          const CONFIGURE_MEM_SLOTS = 0x0000_8000;
          /// Support reporting status.
          const STATUS = 0x0001_0000;
@@ -51,5 +51,5 @@ index adb485b..09362fb 100644
  }
  
 -- 
-2.37.1
+2.41.0
 

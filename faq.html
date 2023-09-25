@@ -170,6 +170,22 @@
 <p>A few caveats. Contributions to eliminate those are welcome.</p>
 <h2 id="can-i-support-the-development-and-maintenance-of-this-project"><a class="header" href="#can-i-support-the-development-and-maintenance-of-this-project">Can I support the development and maintenance of this project?</a></h2>
 <p><a href="https://github.com/sponsors/astro">❤ Sponsor</a></p>
+<h2 id="my-microvm-has-too-many-dependencies"><a class="header" href="#my-microvm-has-too-many-dependencies">My MicroVM has too many dependencies</a></h2>
+<p>For the system NixOS already offers a few knobs to shrink an
+installation for non-graphical usage:</p>
+<pre><code class="language-nix">{
+  environment.noXlibs = true;
+  documentation.enable = false;
+  documentation.nixos.enable = false;
+}
+</code></pre>
+<p>Some hypervisors have more dependencies than others, yet QEMU remains
+unmatched. You can try to use the more minimal QEMU package that is
+actually intended for NixOS tests:</p>
+<pre><code class="language-nix">nixpkgs.config.packageOverrides = pkgs: {
+  qemu_kvm = pkgs.qemu_test;
+};
+</code></pre>
 <h2 id="how-to-centralize-logging-with-journald"><a class="header" href="#how-to-centralize-logging-with-journald">How to centralize logging with journald?</a></h2>
 <p>That is possible without even requiring a network transport by just
 making the journals available to the host as a share. Because journald
@@ -210,6 +226,59 @@ up using the <code>-m</code>/<code>--merge</code> switch.</p>
 <p>Yes. This scenario is enabled through the flake's <code>lib.buildRunner</code>
 function. See the <a href="https://github.com/astro/microvm.nix/blob/main/pkgs/build-microvm.nix"><code>nix run microvm#build-microvm</code></a>
 script that you will need to customize to fit your deployment scenario.</p>
+<h2 id="how-do-i-deploy-imperatively-from-continuous-integration"><a class="header" href="#how-do-i-deploy-imperatively-from-continuous-integration">How do I deploy imperatively from Continuous Integration?</a></h2>
+<p>Do this by integrating into your automation what the <code>microvm</code> command
+does.</p>
+<pre><code class="language-nix">environment.systemPackages = [ (
+  # Provide a manual updating script that fetches the latest
+  # updated+built system from Hydra
+  pkgs.writeScriptBin &quot;update-microvm&quot; ''
+    #! ${pkgs.runtimeShell} -e
+
+    if [ $# -lt 1 ]; then
+      NAMES=&quot;$(ls -1 /var/lib/microvms)&quot;
+    else
+      NAMES=&quot;$@&quot;
+    fi
+
+    for NAME in $NAMES; do
+      echo MicroVM $NAME
+      cd /var/lib/microvms/$NAME
+      # Is this truly the flake that is being built on Hydra?
+      if [ &quot;$(cat flake)&quot; = &quot;git+https://gitea.example.org/org/nix-config?ref=flake-update&quot; ]; then
+        NEW=$(curl -sLH &quot;Accept: application/json&quot; https://hydra.example.org/job/org/nix-config/$NAME/latest | ${pkgs.jq}/bin/jq -er .buildoutputs.out.path)
+        nix copy --from https://nix-cache.example.org $NEW
+
+        if [ -e booted ]; then
+          nix store diff-closures $(readlink booted) $NEW
+        elif [ -e current ]; then
+          echo &quot;NOT BOOTED! Diffing to old current:&quot;
+          nix store diff-closures $(readlink current) $NEW
+        else
+          echo &quot;NOT BOOTED?&quot;
+        fi
+
+        CHANGED=no
+        if ! [ -e current ]; then
+          ln -s $NEW current
+          CHANGED=yes
+        elif [ &quot;$(readlink current)&quot; != $NEW ]; then
+          rm -f old
+          cp --no-dereference current old
+          rm -f current
+          ln -s $NEW current
+          CHANGED=yes
+        fi
+      fi
+
+      if [ &quot;$CHANGED&quot; = &quot;yes&quot; ]; then
+        systemctl restart microvm@$NAME
+      fi
+      echo
+    done
+  ''
+) ];
+</code></pre>
 
                     </main>
 

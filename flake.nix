@@ -81,7 +81,7 @@
                 firectl firecracker
                 crosvm kvmtool
                 stratovirt
-                rust-hypervisor-firmware virtiofsd
+                virtiofsd
                 cloud-hypervisor-graphics
               ];
               pathsToLink = [ "/" ];

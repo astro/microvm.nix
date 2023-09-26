@@ -10,8 +10,6 @@ let
     kernel initrdPath storeDisk storeOnDisk;
   inherit (microvmConfig.crosvm) pivotRoot extraArgs;
 
-  mktuntap = pkgs.callPackage ../../pkgs/mktuntap.nix {};
-
   inherit (macvtapFds) nextFreeFd;
   inherit ((
     builtins.foldl' ({ interfaceFds, nextFreeFd }: { type, id, ... }:
@@ -56,14 +54,6 @@ in {
     if user != null
     then throw "crosvm will not change user"
     else lib.escapeShellArgs (
-      lib.concatLists (lib.imap0 (i: ({ id, type, ... }:
-        lib.optionals (type == "tap") [
-          "${mktuntap}/bin/mktuntap"
-          "-i" id
-          "-p" "-v" "-B"
-          (toString interfaceFds.${id})
-        ])) microvmConfig.interfaces)
-      ++
       [
         "${pkgs.crosvm}/bin/crosvm" "run"
         "-m" (toString (mem + balloonMem))
@@ -109,9 +99,11 @@ in {
         ]
       ) shares
       ++
-      builtins.concatMap ({ id, ... }: [
-        "--tap-fd" (toString interfaceFds.${id})
-      ]) interfaces
+      (builtins.concatMap ({ id, type, mac, ... }:
+        if type == "tap"
+        then ["--net" "tap-name=${id},mac=${mac}"]
+        else throw "Unsupported interface type ${type} for crosvm"
+      ) microvmConfig.interfaces)
       ++
       builtins.concatMap ({ bus, path }: {
         pci = [ "--vfio" "/sys/bus/pci/devices/${path},iommu=viommu" ];

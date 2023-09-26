@@ -69,7 +69,6 @@
           in {
             build-microvm = pkgs.callPackage ./pkgs/build-microvm.nix { inherit self; };
             doc = pkgs.callPackage ./pkgs/doc.nix { inherit nixpkgs; };
-            mktuntap = pkgs.callPackage ./pkgs/mktuntap.nix {};
             microvm = import ./pkgs/microvm-command.nix {
               inherit pkgs;
             };

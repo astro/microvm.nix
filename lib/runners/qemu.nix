@@ -39,7 +39,7 @@ let
             then "pci"
             else "device";
   kernelPath = {
-    x86_64-linux = "${kernel.dev}/vmlinux";
+    x86_64-linux = "${kernel.out}/bzImage";
     aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
   }.${system};
 

@@ -38,10 +38,7 @@ let
   devType = if requirePci
             then "pci"
             else "device";
-  kernelPath = {
-    x86_64-linux = "${kernel.dev}/vmlinux";
-    aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
-  }.${system};
+  kernelPath = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
 
   enumerate = n: xs:
     if xs == []

@@ -215,7 +215,7 @@ microvm.shares = [ {
     machineId = self.lib.addresses.machineId.${vmHost};
   in
     # creates a symlink of each MicroVM's journal under the host's /var/log/journal
-    &quot;L+ /var/log/journal/${machineId} - - - /var/lib/microvms/${vmHost}/journal/${machineId}&quot;
+    &quot;L+ /var/log/journal/${machineId} - - - - /var/lib/microvms/${vmHost}/journal/${machineId}&quot;
 ) (builtins.attrNames self.lib.addresses.machineId);
 </code></pre>
 <p>Once your MicroVM's journal data is visible in the

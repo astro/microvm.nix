@@ -25,7 +25,9 @@ in
 
   config = lib.mkIf (cfg.guest.enable && cfg.optimize.enable) {
     # Avoids X deps in closure due to dbus dependencies
-    environment.noXlibs = lib.mkIf (!cfg.graphics.enable) true;
+    environment.noXlibs = lib.mkIf (
+      (!cfg.graphics.enable) && cfg.hypervisor != "stratovirt"
+    ) true;
 
     # The docs are pretty chonky
     documentation.enable = lib.mkDefault false;

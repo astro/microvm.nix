@@ -6,17 +6,33 @@
 let
   inherit (pkgs) lib system;
 
-  qemu =
-    if lib.any ({ bus, ... }: bus == "usb") microvmConfig.devices
-    then pkgs.qemu_kvm.overrideAttrs (oa: {
-      configureFlags = oa.configureFlags ++ [
-        "--enable-libusb"
-      ];
-      buildInputs = oa.buildInputs ++ (with pkgs; [
-        libusb
-      ]);
-    })
-    else pkgs.qemu_kvm;
+  enableLibusb = pkg: pkg.overrideAttrs (oa: {
+    configureFlags = oa.configureFlags ++ [
+      "--enable-libusb"
+    ];
+    buildInputs = oa.buildInputs ++ (with pkgs; [
+      libusb
+    ]);
+  });
+
+  minimizeQemuClosureSize = pkg: (pkg.override (oa: {
+    # standin for disabling everything guilike by hand
+    nixosTestRunner = if graphics.enable then oa.nixosTestRunner else true;
+    enableDocs = false;
+  })).overrideAttrs (oa: {
+    postFixup = ''
+      ${oa.postFixup or ""}
+      # This particular firmware causes 192mb of closure size
+      ${lib.optionalString (system != "aarch64-linux") "rm -rf $out/share/qemu/edk2-arm-*"}
+    '';
+  });
+
+  overrideQemu = x: lib.pipe x (
+    lib.optional (lib.any ({ bus, ... }: bus == "usb") microvmConfig.devices) enableLibusb
+    ++ lib.optional (microvmConfig.optimize.enable) minimizeQemuClosureSize
+  );
+
+  qemu = overrideQemu pkgs.qemu_kvm;
 
   inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces shares socket forwardPorts devices graphics storeOnDisk kernel initrdPath storeDisk;
   inherit (microvmConfig.qemu) extraArgs;

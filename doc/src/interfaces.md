@@ -8,7 +8,7 @@ configuration:
     type = "tap";
 
     # interface name on the host
-    id = "microvm-a1";
+    id = "vm-a1";
 
     # Ethernet address of the MicroVM's interface, not the host's
     #

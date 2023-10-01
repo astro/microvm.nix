@@ -16,6 +16,7 @@ in
     ./system.nix
     ./mounts.nix
     ./graphics.nix
+    ./optimization.nix
   ];
 
   config = {

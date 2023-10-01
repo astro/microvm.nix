@@ -70,8 +70,6 @@ let
     echo '${builtins.toJSON data}'
   '';
 in {
-  hypervisor = "qemu";
-
   command = lib.escapeShellArgs (
     [
       "${qemu}/bin/qemu-system-${arch}"

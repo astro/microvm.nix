@@ -51,6 +51,7 @@ pkgs.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}"
   meta.mainProgram = "microvm-run";
   passthru = {
     inherit canShutdown;
+    inherit (microvmConfig) hypervisor;
   };
 } ''
   mkdir -p $out/bin

@@ -63,8 +63,6 @@ let
     echo '${builtins.toJSON data}' | nc -U "${socket}"
   '';
 in {
-  hypervisor = "stratovirt";
-
   command = lib.escapeShellArgs (
     [
       "${pkgs.stratovirt}/bin/stratovirt"

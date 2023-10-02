@@ -4,29 +4,6 @@
 
 [❤ Sponsor](https://github.com/sponsors/astro)
 
-## How can I make my MicroVM smaller?
-
-For the system NixOS already offers a few knobs to shrink an
-installation for non-graphical usage:
-
-```nix
-{
-  environment.noXlibs = true;
-  documentation.enable = false;
-  documentation.nixos.enable = false;
-}
-```
-
-Some hypervisors have more dependencies than others, yet QEMU remains
-unmatched. You can try to use the more minimal QEMU package that is
-actually intended for NixOS tests:
-
-```nix
-nixpkgs.config.packageOverrides = pkgs: {
-  qemu_kvm = pkgs.qemu_test;
-};
-```
-
 ## How to centralize logging with journald?
 
 That is possible without even requiring a network transport by just

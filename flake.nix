@@ -76,10 +76,12 @@
             prebuilt = pkgs.buildEnv {
               name = "prebuilt";
               paths = with self.packages.${system}; with pkgs; [
-                qemu_kvm cloud-hypervisor
-                firectl firecracker
-                crosvm kvmtool
-                stratovirt
+                qemu-example
+                cloud-hypervisor-example
+                firecracker-example
+                crosvm-example
+                kvmtool-example
+                stratovirt-example
                 virtiofsd
                 cloud-hypervisor-graphics
               ];

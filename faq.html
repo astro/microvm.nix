@@ -169,22 +169,6 @@
                         <h1 id="frequently-asked-questions"><a class="header" href="#frequently-asked-questions">Frequently Asked Questions</a></h1>
 <h2 id="can-i-support-the-development-and-maintenance-of-this-project"><a class="header" href="#can-i-support-the-development-and-maintenance-of-this-project">Can I support the development and maintenance of this project?</a></h2>
 <p><a href="https://github.com/sponsors/astro">❤ Sponsor</a></p>
-<h2 id="how-can-i-make-my-microvm-smaller"><a class="header" href="#how-can-i-make-my-microvm-smaller">How can I make my MicroVM smaller?</a></h2>
-<p>For the system NixOS already offers a few knobs to shrink an
-installation for non-graphical usage:</p>
-<pre><code class="language-nix">{
-  environment.noXlibs = true;
-  documentation.enable = false;
-  documentation.nixos.enable = false;
-}
-</code></pre>
-<p>Some hypervisors have more dependencies than others, yet QEMU remains
-unmatched. You can try to use the more minimal QEMU package that is
-actually intended for NixOS tests:</p>
-<pre><code class="language-nix">nixpkgs.config.packageOverrides = pkgs: {
-  qemu_kvm = pkgs.qemu_test;
-};
-</code></pre>
 <h2 id="how-to-centralize-logging-with-journald"><a class="header" href="#how-to-centralize-logging-with-journald">How to centralize logging with journald?</a></h2>
 <p>That is possible without even requiring a network transport by just
 making the journals available to the host as a share. Because journald

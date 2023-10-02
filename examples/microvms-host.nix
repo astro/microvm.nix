@@ -19,6 +19,8 @@ nixpkgs.lib.nixosSystem {
           microvm.flake = self;
         };
       };
+      # won't build stratovirt else. TODO: why?
+      environment.noXlibs = lib.mkForce false;
       environment.systemPackages = [
         pkgs.git
       ];

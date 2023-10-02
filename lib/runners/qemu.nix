@@ -29,7 +29,7 @@ let
 
   overrideQemu = x: lib.pipe x (
     lib.optional (lib.any ({ bus, ... }: bus == "usb") microvmConfig.devices) enableLibusb
-    ++ lib.optional (microvmConfig.optimize.enable) minimizeQemuClosureSize
+    ++ lib.optional microvmConfig.optimize.enable minimizeQemuClosureSize
   );
 
   qemu = overrideQemu pkgs.qemu_kvm;

@@ -3,7 +3,7 @@
 let
   variants = [
     # hypervisor
-    ([ {
+    [ {
       id = "qemu";
       modules = [ {
         microvm.hypervisor = "qemu";
@@ -28,7 +28,7 @@ let
       modules = [ {
         microvm.hypervisor = "kvmtool";
       } ];
-    } ])
+    } ]
     # ro-store
     [ {
       # squashfs/erofs

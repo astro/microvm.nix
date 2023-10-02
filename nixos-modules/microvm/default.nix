@@ -23,10 +23,10 @@ in
     microvm.runner = lib.genAttrs microvm-lib.hypervisors (hypervisor:
       microvm-lib.buildRunner {
         inherit pkgs;
-        microvmConfig = {
+        microvmConfig = config.microvm // {
           inherit (config.networking) hostName;
           inherit hypervisor;
-        } // config.microvm;
+        };
         inherit (config.system.build) toplevel;
       }
     );

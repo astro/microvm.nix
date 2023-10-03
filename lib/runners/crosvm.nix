@@ -31,7 +31,14 @@ let
     aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
   }.${system};
 
+  gpuParams = {
+    context-types = "virgl:virgl2:cross-domain";
+    egl = true;
+    vulkan = true;
+  };
+
 in {
+
   preStart = ''
     rm -f ${socket}
     ${microvmConfig.preStart}
@@ -42,8 +49,8 @@ in {
     rm -f ${graphics.socket}
     ${pkgs.crosvm}/bin/crosvm device gpu \
       --socket ${graphics.socket} \
-      --wayland-sock $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY \
-      --params '{"context-types":"virgl:virgl2:cross-domain"}' \
+      --wayland-sock $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY\
+      --params '${builtins.toJSON gpuParams}' \
       &
     while ! [ -S ${graphics.socket} ]; do
       sleep .1

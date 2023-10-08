@@ -1,6 +1,8 @@
 # Closure size and startup time optimization for disposable use-cases
 { config, lib, pkgs, ... }:
-let cfg = config.microvm;
+
+let
+  cfg = config.microvm;
 in
 {
   options.microvm.optimize = {
@@ -32,8 +34,14 @@ in
     # The docs are pretty chonky
     documentation.enable = lib.mkDefault false;
 
-    # Use systemd initrd for startup speed
-    boot.initrd.systemd.enable = lib.mkDefault true;
+    # Use systemd initrd for startup speed.
+    # TODO: error mounting /nix/store on crosvm, firecracker, kvmtool
+    boot.initrd.systemd.enable = lib.mkDefault (
+      builtins.elem cfg.hypervisor [
+        "qemu"
+        "cloud-hypervisor"
+        "stratovirt"
+      ]);
 
     # networkd is used due to some strange startup time issues with nixos's
     # homegrown dhcp implementation

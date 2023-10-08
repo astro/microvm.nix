@@ -110,7 +110,7 @@ in {
         if type == "tap"
         then ["--net" "tap-name=${id},mac=${mac}"]
         else if type == "macvtap"
-        then  ["--net" "tap-fd=${id},mac=${mac}"]
+        then ["--net" "tap-fd=${toString macvtapFds.${id}},mac=${mac}"]
         else throw "Unsupported interface type ${type} for crosvm"
       ) microvmConfig.interfaces)
       ++

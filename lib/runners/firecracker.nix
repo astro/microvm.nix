@@ -81,7 +81,9 @@ in {
   preStart = ''
     ${preStart}
 
-    mv '${socket}' '${socket}.old'
+    if [ -e '${socket}' ]; then
+      mv '${socket}' '${socket}.old'
+    fi
   '';
 
   canShutdown = socket != null;

@@ -35,11 +35,12 @@ in
     documentation.enable = lib.mkDefault false;
 
     # Use systemd initrd for startup speed.
-    # TODO: error mounting /nix/store on crosvm, firecracker, kvmtool
+    # TODO: error mounting /nix/store on crosvm, kvmtool
     boot.initrd.systemd.enable = lib.mkDefault (
       builtins.elem cfg.hypervisor [
         "qemu"
         "cloud-hypervisor"
+        "firecracker"
         "stratovirt"
       ]);
 

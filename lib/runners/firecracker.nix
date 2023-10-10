@@ -6,56 +6,83 @@
 let
   inherit (pkgs) lib system;
   inherit (microvmConfig)
-    user socket
+    hostName user socket preStart
     vcpu mem
     interfaces volumes shares devices
     kernel initrdPath
-    storeDisk storeOnDisk;
+    storeDisk;
+
   kernelPath = {
     x86_64-linux = "${kernel.dev}/vmlinux";
     aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
   }.${system};
+
+  # Firecracker config, as JSON in `configFile`
+  config = {
+    boot-source = {
+      kernel_image_path = kernelPath;
+      initrd_path = initrdPath;
+      boot_args = "console=ttyS0 noapic reboot=k panic=1 pci=off i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd ${toString microvmConfig.kernelParams}";
+    };
+    machine-config = {
+      vcpu_count = vcpu;
+      mem_size_mib = mem;
+      # Without this, starting of firecracker fails with an error message:
+      # Enabling simultaneous multithreading is not supported on aarch64
+      smt = system != "aarch64-linux";
+    };
+    drives = [ {
+      drive_id = "store";
+      path_on_host = storeDisk;
+      is_root_device = false;
+      is_read_only = true;
+      io_engine = "Async";
+    } ] ++ map ({ image, ... }: {
+      drive_id = image;
+      path_on_host = image;
+      is_root_device = false;
+      is_read_only = false;
+      io_engine = "Async";
+    }) volumes;
+    network-interfaces = map ({ type, id, mac, ... }:
+      if type == "tap"
+      then {
+        iface_id = id;
+        host_dev_name = id;
+        guest_mac = mac;
+      }
+      else throw "Network interface type ${type} not implemented for Firecracker"
+    ) interfaces;
+    vsock = null;
+  };
+
+  configFile = pkgs.writeText "firecracker-${hostName}.json" (
+    builtins.toJSON config
+  );
+
 in {
   command =
     if user != null
     then throw "firecracker will not change user"
-    else lib.escapeShellArgs (
-      [
-        "${pkgs.firectl}/bin/firectl"
-        "--firecracker-binary=${pkgs.firecracker}/bin/firecracker"
-        "-m" (toString mem)
-        "-c" (toString vcpu)
-        "--kernel=${kernelPath}"
-        "--initrd-path=${initrdPath}"
-        "--kernel-opts=console=ttyS0 noapic reboot=k panic=1 pci=off i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd ${toString microvmConfig.kernelParams}"
-      ]
-      ++
-      lib.optional storeOnDisk "--root-drive=${storeDisk}:ro"
-      ++
-      # Without this, starting of firecracker fails with an error message:
-      # Enabling simultaneous multithreading is not supported on aarch64
-      lib.optionals (system == "aarch64-linux") [ "--disable-smt" ]
-      ++
-      lib.optionals (socket != null) [ "-s" socket ]
-      ++
-      map ({ image, ... }:
-        "--add-drive=${image}:rw"
-      ) volumes
-      ++
-      map (_:
-        throw "9p/virtiofs shares not implemented for Firecracker"
-      ) shares
-      ++
-      map ({ type, id, mac, ... }:
-        if type == "tap"
-        then "--tap-device=${id}/${mac}"
-        else throw "Unsupported interface type ${type} for Firecracker"
-      ) interfaces
-      ++
-      map (_:
-        throw "devices passthrough is not implemented for Firecracker"
-      ) devices
-    );
+    else if shares != []
+    then throw "9p/virtiofs shares not implemented for Firecracker"
+    else if devices != []
+    then throw "devices passthrough not implemented for Firecracker"
+    else lib.escapeShellArgs [
+      "${pkgs.firecracker}/bin/firecracker"
+      "--config-file" configFile
+      "--api-sock" (
+        if socket != null
+        then socket
+        else throw "Firecracker must be configured with an API socket (option microvm.socket)!"
+      )
+    ];
+
+  preStart = ''
+    ${preStart}
+
+    mv '${socket}' '${socket}.old'
+  '';
 
   canShutdown = socket != null;
 

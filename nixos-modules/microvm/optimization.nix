@@ -29,7 +29,9 @@ in
     # Avoids X deps in closure due to dbus dependencies
     environment.noXlibs = lib.mkIf (
       (!cfg.graphics.enable) && cfg.hypervisor != "stratovirt"
-    ) true;
+    ) (
+      lib.mkDefault true
+    );
 
     # The docs are pretty chonky
     documentation.enable = lib.mkDefault false;
@@ -49,6 +51,6 @@ in
     networking.useNetworkd = lib.mkDefault true;
     # Due to a bug in systemd-networkd: https://github.com/systemd/systemd/issues/29388
     # we cannot use systemd-networkd-wait-online.
-    systemd.network.wait-online.enable = false;
+    systemd.network.wait-online.enable = lib.mkDefault false;
   };
 }

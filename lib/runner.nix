@@ -76,8 +76,8 @@ pkgs.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}"
     lib.optionalString (
       interface.type == "macvtap" &&
       interface ? id &&
-      (interface.interface.macvtap.link or null) != null &&
-      (interface.interface.macvtap.mode or null) != null
+      (interface.macvtap.link or null) != null &&
+      (interface.macvtap.mode or null) != null
     ) ''
       echo "${builtins.concatStringsSep " " [
         interface.id

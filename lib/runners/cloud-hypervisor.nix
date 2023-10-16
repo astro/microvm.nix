@@ -151,8 +151,7 @@ in {
 
         api -X PUT http://localhost/api/v1/vm.power-button
 
-        # wait for exit
-        ${pkgs.socat}/bin/socat STDOUT UNIX:${socket},shut-none
+        ${pkgs.util-linux}/bin/waitpid $MAINPID
       ''
     else throw "Cannot shutdown without socket";
 

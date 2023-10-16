@@ -79,6 +79,7 @@ nix run microvm#firecracker-example
 nix run microvm#cloud-hypervisor-example
 nix run microvm#crosvm-example
 nix run microvm#kvmtool-example
+nix run microvm#stratovirt-example
 ```
 
 ### Run a MicroVM example with nested MicroVMs on 5 different Hypervisors

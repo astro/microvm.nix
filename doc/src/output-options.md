@@ -5,8 +5,15 @@ nixosSystem for you to use inside and outside your configuration.
 
 | Option                   | Purpose                                                   |
 |--------------------------|-----------------------------------------------------------|
-| `microvm.runners`        | Attribute set of runner packages per known Hypervisor.    |
 | `microvm.declaredRunner` | Runner package selected according to `microvm.hypervisor` |
+| `microvm.runners`        | Attribute set of runner packages per known Hypervisor.    |
+
+The `microvm.declaredRunner` selects the hypervisor according to the
+configured `microvm.hypervisor`.
+
+```bash
+nix run .#nixosConfigurations.my-microvm.config.microvm.declaredRunner
+```
 
 The `microvm.runners` option provides a runner for each known
 Hypervisor regardless of the `microvm.hypervisor` config setting. To
@@ -16,9 +23,13 @@ build *my-microvm* for Firecracker for example:
 nix run .#nixosConfigurations.my-microvm.config.microvm.runners.firecracker
 ```
 
-The `microvm.declaredRunner` selects the hypervisor according to the
-configured `microvm.hypervisor`.
+## Configure `microvm.hypervisor`, use `microvm.declaredRunner`!
 
-```bash
-nix run .#nixosConfigurations.my-microvm.config.microvm.declaredRunner
-```
+One of the `microvm.runners` is picked by `microvm.declaredRunner` by
+evaluating `microvm.hypervisor`.
+
+You may switch the Hypervisor quickly, but use `declaredRunner` in
+production. Any other NixOS configuration that evaluates the
+`microvm.hypervisor` option can be wrong when you pick from
+`microvm.runners` directly. One example would be the defaults set by
+`microvm.optimize`.

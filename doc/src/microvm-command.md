@@ -48,7 +48,8 @@ Listing your MicroVMs is as trivial as `ls -1 /var/lib/microvms`
 
 For more insight, the following command will read the current system
 version of all MicroVMs and compare them to what the corresponding
-flake evaluates. It is therefore quite slow to run, yet useful.
+flake evaluates. It is therefore quite slow to run, yet very useful
+for an updatable VM overview.
 
 ```bash
 microvm -l

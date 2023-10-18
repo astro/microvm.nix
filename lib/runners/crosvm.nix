@@ -6,7 +6,8 @@
 let
   inherit (pkgs) lib system;
   inherit (microvmConfig)
-    vcpu mem balloonMem user interfaces volumes shares socket devices graphics
+    vcpu mem balloonMem user interfaces volumes shares
+    socket devices vsock graphics
     kernel initrdPath storeDisk storeOnDisk;
   inherit (microvmConfig.crosvm) pivotRoot extraArgs;
 
@@ -118,6 +119,10 @@ in {
         pci = [ "--vfio" "/sys/bus/pci/devices/${path},iommu=viommu" ];
         usb = throw "USB passthrough is not supported on crosvm";
       }.${bus}) devices
+      ++
+      lib.optionals (vsock.cid != null) [
+        "--vsock" (toString vsock.cid)
+      ]
       ++
       [
         "--initrd" initrdPath

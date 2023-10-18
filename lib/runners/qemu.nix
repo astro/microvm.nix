@@ -34,7 +34,7 @@ let
 
   qemu = overrideQemu pkgs.qemu_kvm;
 
-  inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces shares socket forwardPorts devices graphics storeOnDisk kernel initrdPath storeDisk;
+  inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
   inherit (microvmConfig.qemu) extraArgs;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
@@ -202,6 +202,11 @@ in {
         "-device" "usb-host,${path}"
       ];
     }.${bus}) devices
+    ++
+    lib.optionals (vsock.cid != null) [
+      "-device"
+      "vhost-vsock-${devType},guest-cid=${toString vsock.cid}"
+    ]
     ++
     extraArgs
   );

@@ -7,7 +7,7 @@ let
   inherit (pkgs) lib;
   inherit (microvmConfig)
     hostName preStart user
-    vcpu mem balloonMem interfaces volumes shares devices
+    vcpu mem balloonMem interfaces volumes shares devices vsock
     kernel initrdPath
     storeDisk storeOnDisk;
 in {
@@ -65,6 +65,10 @@ in {
         pci = lib.escapeShellArg "--vfio-pci=${path}";
         usb = throw "USB passthrough is not supported on kvmtool";
       }.${bus}) devices
+      ++
+      lib.optionals (vsock.cid != null) [
+        "--vsock" (toString vsock.cid)
+      ]
     );
 
   # `lkvm stop` works but is not graceful.

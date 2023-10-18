@@ -17,6 +17,18 @@
         "x86_64-linux"
         "aarch64-linux"
       ];
+
+      overrideWaypipe = pkgs:
+        pkgs.waypipe.overrideAttrs (attrs: {
+          version = "unstable-2023-10-02";
+          src = pkgs.fetchFromGitLab {
+            domain = "gitlab.freedesktop.org";
+            owner = "mstoeckl";
+            repo = "waypipe";
+            rev = "ca4809435e781dfc6bd3006fde605860c8dcf179";
+            hash = "sha256-tSLPlf7fVq8vwbr7fHotqM/sBSXYMDM1V5yth5bhi38=";
+          };
+        });
     in
       flake-utils.lib.eachSystem systems (system: {
 
@@ -61,6 +73,14 @@
                 exec $RUNNER/bin/microvm-run
               '');
             };
+            # Run this on your host to accept Wayland connections
+            # on AF_VSOCK.
+            waypipe-client = {
+              type = "app";
+              program = toString (pkgs.writeShellScript "waypipe-client" ''
+                exec ${self.packages.${system}.waypipe}/bin/waypipe --vsock -s 6000 client
+              '');
+            };
           };
 
         packages =
@@ -90,6 +110,7 @@
               ignoreCollisions = true;
             };
             cloud-hypervisor-graphics = pkgs.callPackage ./pkgs/spectrum-os/cloud-hypervisor {};
+            waypipe = overrideWaypipe pkgs;
           } //
           # wrap self.nixosConfigurations in executable packages
           builtins.foldl' (result: systemName:
@@ -119,6 +140,7 @@
 
         overlay = final: prev: {
           cloud-hypervisor-graphics = prev.callPackage ./pkgs/spectrum-os/cloud-hypervisor {};
+          waypipe = overrideWaypipe prev;
         };
 
         nixosModules = {

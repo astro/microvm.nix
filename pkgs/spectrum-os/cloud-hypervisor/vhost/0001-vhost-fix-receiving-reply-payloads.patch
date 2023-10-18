@@ -1,0 +1,113 @@
+From a1434fa3cb740ecf675c56db746f5098e6267a12 Mon Sep 17 00:00:00 2001
+From: David Stevens <stevensd@chromium.org>
+Date: Wed, 15 Jun 2022 15:56:18 +0900
+Subject: [PATCH 1/3] vhost: fix receiving reply payloads
+
+The existing code confuses the length of the request with the length of
+the reply in recv_reply_with_payload. This makes it impossible to use
+for any requests where the reply differs in size. Fix this by
+determining payload size after reading the reply header.
+
+(cherry-picked from crosvm commit 31f04e92709980a4ffc56b1631f8b4be437cc2fe)
+
+Co-authored-by: Alyssa Ross <hi@alyssa.is>
+Signed-off-by: Alyssa Ross <hi@alyssa.is>
+---
+ crates/vhost/src/vhost_user/connection.rs | 29 ++++++++++-------------
+ crates/vhost/src/vhost_user/master.rs     | 16 +++----------
+ 2 files changed, 15 insertions(+), 30 deletions(-)
+
+diff --git a/crates/vhost/src/vhost_user/connection.rs b/crates/vhost/src/vhost_user/connection.rs
+index 4a62e12..3c308a8 100644
+--- a/crates/vhost/src/vhost_user/connection.rs
++++ b/crates/vhost/src/vhost_user/connection.rs
+@@ -551,7 +551,7 @@ impl<R: Req> Endpoint<R> {
+     /// accepted and all other file descriptor will be discard silently.
+     ///
+     /// # Return:
+-    /// * - (message header, message body, size of payload, [received files]) on success.
++    /// * - (message header, message body, payload, [received files]) on success.
+     /// * - SocketRetry: temporary error caused by signals or short of resources.
+     /// * - SocketBroken: the underline socket is broken.
+     /// * - SocketError: other socket related errors.
+@@ -560,15 +560,13 @@ impl<R: Req> Endpoint<R> {
+     #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
+     pub fn recv_payload_into_buf<T: ByteValued + Sized + VhostUserMsgValidator>(
+         &mut self,
+-        buf: &mut [u8],
+-    ) -> Result<(VhostUserMsgHeader<R>, T, usize, Option<Vec<File>>)> {
+-        let mut hdr = VhostUserMsgHeader::default();
++    ) -> Result<(VhostUserMsgHeader<R>, T, Vec<u8>, Option<Vec<File>>)> {
+         let mut body: T = Default::default();
++        let (hdr, files) = self.recv_header()?;
++
++        let payload_size = hdr.get_size() as usize - mem::size_of::<T>();
++        let mut buf: Vec<u8> = vec![0; payload_size];
+         let mut iovs = [
+-            iovec {
+-                iov_base: (&mut hdr as *mut VhostUserMsgHeader<R>) as *mut c_void,
+-                iov_len: mem::size_of::<VhostUserMsgHeader<R>>(),
+-            },
+             iovec {
+                 iov_base: (&mut body as *mut T) as *mut c_void,
+                 iov_len: mem::size_of::<T>(),
+@@ -578,19 +576,16 @@ impl<R: Req> Endpoint<R> {
+                 iov_len: buf.len(),
+             },
+         ];
+-        // SAFETY: Safe because we own hdr and body and have a mutable borrow of buf, and
+-        // hdr and body are ByteValued, and it's safe to fill a byte slice with
+-        // arbitrary data.
+-        let (bytes, files) = unsafe { self.recv_into_iovec_all(&mut iovs[..])? };
+-
+-        let total = mem::size_of::<VhostUserMsgHeader<R>>() + mem::size_of::<T>();
+-        if bytes < total {
++        // SAFETY: Safe because we own body and buf, and body is ByteValued, and it's safe
++        // to fill a byte slice with arbitrary data.
++        let (bytes, more_files) = unsafe { self.recv_into_iovec_all(&mut iovs)? };
++        if bytes < hdr.get_size() as usize {
+             return Err(Error::PartialMessage);
+-        } else if !hdr.is_valid() || !body.is_valid() {
++        } else if !body.is_valid() || more_files.is_some() {
+             return Err(Error::InvalidMessage);
+         }
+ 
+-        Ok((hdr, body, bytes - total, files))
++        Ok((hdr, body, buf, files))
+     }
+ }
+ 
+diff --git a/crates/vhost/src/vhost_user/master.rs b/crates/vhost/src/vhost_user/master.rs
+index feeb984..89aec20 100644
+--- a/crates/vhost/src/vhost_user/master.rs
++++ b/crates/vhost/src/vhost_user/master.rs
+@@ -673,23 +673,13 @@ impl MasterInternal {
+         &mut self,
+         hdr: &VhostUserMsgHeader<MasterReq>,
+     ) -> VhostUserResult<(T, Vec<u8>, Option<Vec<File>>)> {
+-        if mem::size_of::<T>() > MAX_MSG_SIZE
+-            || hdr.get_size() as usize <= mem::size_of::<T>()
+-            || hdr.get_size() as usize > MAX_MSG_SIZE
+-            || hdr.is_reply()
+-        {
++        if mem::size_of::<T>() > MAX_MSG_SIZE || hdr.is_reply() {
+             return Err(VhostUserError::InvalidParam);
+         }
+         self.check_state()?;
+ 
+-        let mut buf: Vec<u8> = vec![0; hdr.get_size() as usize - mem::size_of::<T>()];
+-        let (reply, body, bytes, files) = self.main_sock.recv_payload_into_buf::<T>(&mut buf)?;
+-        if !reply.is_reply_for(hdr)
+-            || reply.get_size() as usize != mem::size_of::<T>() + bytes
+-            || files.is_some()
+-            || !body.is_valid()
+-            || bytes != buf.len()
+-        {
++        let (reply, body, buf, files) = self.main_sock.recv_payload_into_buf::<T>()?;
++        if !reply.is_reply_for(hdr) || files.is_some() || !body.is_valid() {
+             return Err(VhostUserError::InvalidMessage);
+         }
+ 
+-- 
+2.42.0
+

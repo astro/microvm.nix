@@ -2,26 +2,26 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "cloud-hypervisor";
-  version = "34.0";
+  version = "35.0";
 
   src = fetchFromGitHub {
     owner = "cloud-hypervisor";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-+uicO6tPLzwlA4/Fao2J8n82Qnt3C6OfqRxn1pVh7XE=";
+    sha256 = "sha256-HZt5xfsP9l18S6nPyVhLNAs5vgDSVYOMFwThzCCon7E=";
   };
 
   cargoLock = {
     lockFile = ./Cargo.lock;
     outputHashes = {
-      "acpi_tables-0.1.0" = "sha256-OdtnF2fV6oun3NeCkXdaGU3U7ViBcgFKqHKdyZsRsPA=";
+      "acpi_tables-0.1.0" = "sha256-OGJX05yNwE7zZzATs8y0EZ714+lB+FgSia0TygRwWAU=";
       "kvm-bindings-0.6.0" = "sha256-wGdAuPwsgRIqx9dh0m+hC9A/Akz9qg9BM+p06Fi5ACM=";
       "kvm-ioctls-0.13.0" = "sha256-jHnFGwBWnAa2lRu4a5eRNy1Y26NX5MV8alJ86VR++QE=";
-      "micro_http-0.1.0" = "sha256-w2witqKXE60P01oQleujmHSnzMKxynUGKWyq5GEh1Ew=";
-      "mshv-bindings-0.1.1" = "sha256-9Q7IXznZ+qdf/d4gO7qVEjbNUUygQDNYLNxz2BECLHc=";
+      "micro_http-0.1.0" = "sha256-wX35VsrO1vxQcGbOrP+yZm9vG0gcTZLe7gH7xuAa12w=";
+      "mshv-bindings-0.1.1" = "sha256-8fEWawNeJ96CczFoJD3cqCsrROEvh8wJ4I0ForwzTJY=";
       "versionize_derive-0.1.4" = "sha256-oGuREJ5+FDs8ihmv99WmjIPpL2oPdOr4REk6+7cV/7o=";
-      "vfio-bindings-0.4.0" = "sha256-8zdpLD9e1TAwG+m6ifS7/Fh39fAs5VxtnS5gUj/eKmY=";
-      "vfio_user-0.1.0" = "sha256-b/gL6vPMW44O44lBIjqS+hgqVUUskBmttGk5UKIMgZk=";
+      "vfio-bindings-0.4.0" = "sha256-hGhfOE9q9sf/tzPuaAHOca+JKCutcm1Myu1Tt9spaIQ=";
+      "vfio_user-0.1.0" = "sha256-fAqvy3YTDKXQqtJR+R2nBCWIYe89zTwtbgvJfPLqs1Q=";
       "vm-fdt-0.2.0" = "sha256-lKW4ZUraHomSDyxgNlD5qTaBTZqM0Fwhhh/08yhrjyE=";
     };
   };
@@ -32,8 +32,8 @@ rustPlatform.buildRustPackage rec {
     name = "vhost";
     owner = "rust-vmm";
     repo = "vhost";
-    rev = "bdc6f2ab2b3dbd3b9574100ac641a2f8e9667400";
-    hash = "sha256-p58Jty+GpRFOO9+YcAnDtAAOYi19+7I6FgvnHZZTj0w=";
+    rev = "vhost-user-backend-v0.10.1";
+    hash = "sha256-pq545s7sqE0GFFkEkAvKwFKLuRArNThmRFqEYS3nNVo=";
   };
 
   postUnpack = ''
@@ -47,8 +47,9 @@ rustPlatform.buildRustPackage rec {
   ];
 
   vhostPatches = [
-    vhost/0001-vhost_user-add-shared-memory-region-support.patch
-    vhost/0002-devices-vhost-user-add-protocol-flag-for-shmem.patch
+    vhost/0001-vhost-fix-receiving-reply-payloads.patch
+    vhost/0002-vhost_user-add-shared-memory-region-support.patch
+    vhost/0003-vhost-user-add-protocol-flag-for-shmem.patch
   ];
 
   postPatch = ''
@@ -77,6 +78,7 @@ rustPlatform.buildRustPackage rec {
     description = "Open source Virtual Machine Monitor (VMM) that runs on top of KVM";
     changelog = "https://github.com/cloud-hypervisor/cloud-hypervisor/releases/tag/v${version}";
     license = with licenses; [ asl20 bsd3 ];
+    mainProgram = "cloud-hypervisor";
     maintainers = with maintainers; [ offline qyliss ];
     platforms = [ "aarch64-linux" "x86_64-linux" ];
   };

@@ -1,7 +1,7 @@
-From 22c27c55300acc69a0409c5716371d3b914012c9 Mon Sep 17 00:00:00 2001
+From e1f7130bfbe529a7fda1a598866e0dea41b6ba74 Mon Sep 17 00:00:00 2001
 From: David Stevens <stevensd@chromium.org>
 Date: Wed, 15 Jun 2022 16:45:12 +0900
-Subject: [PATCH 1/2] vhost_user: add shared memory region support
+Subject: [PATCH 2/3] vhost_user: add shared memory region support
 
 Add support for shared memory regions to vhost-user. This is adding
 support for a front-end message to query for necessary shared memory
@@ -32,7 +32,7 @@ Signed-off-by: Alyssa Ross <alyssa.ross@unikie.com>
  7 files changed, 247 insertions(+), 20 deletions(-)
 
 diff --git a/crates/vhost-user-backend/src/handler.rs b/crates/vhost-user-backend/src/handler.rs
-index 15f07f0..10493b7 100644
+index 262bf6c..73402b2 100644
 --- a/crates/vhost-user-backend/src/handler.rs
 +++ b/crates/vhost-user-backend/src/handler.rs
 @@ -11,9 +11,9 @@ use std::sync::Arc;
@@ -48,7 +48,7 @@ index 15f07f0..10493b7 100644
  };
  use vhost::vhost_user::{
      Error as VhostUserError, Result as VhostUserResult, Slave, VhostUserSlaveReqHandlerMut,
-@@ -591,6 +591,10 @@ where
+@@ -602,6 +602,10 @@ where
  
          Ok(())
      }
@@ -73,7 +73,7 @@ index ae728a0..00a1ae8 100644
 +    }
  }
 diff --git a/crates/vhost/src/vhost_user/master.rs b/crates/vhost/src/vhost_user/master.rs
-index 8170718..60bb551 100644
+index 89aec20..6808cb0 100644
 --- a/crates/vhost/src/vhost_user/master.rs
 +++ b/crates/vhost/src/vhost_user/master.rs
 @@ -72,6 +72,9 @@ pub trait VhostUserMaster: VhostBackend {
@@ -86,7 +86,7 @@ index 8170718..60bb551 100644
  }
  
  fn error_code<T>(err: VhostUserError) -> Result<T> {
-@@ -527,6 +530,28 @@ impl VhostUserMaster for Master {
+@@ -513,6 +516,28 @@ impl VhostUserMaster for Master {
          let hdr = node.send_request_with_body(MasterReq::REM_MEM_REG, &body, None)?;
          node.wait_for_ack(&hdr).map_err(|e| e.into())
      }
@@ -116,7 +116,7 @@ index 8170718..60bb551 100644
  
  impl AsRawFd for Master {
 diff --git a/crates/vhost/src/vhost_user/master_req_handler.rs b/crates/vhost/src/vhost_user/master_req_handler.rs
-index 4225ba6..b2d8c19 100644
+index c9c528b..3d01542 100644
 --- a/crates/vhost/src/vhost_user/master_req_handler.rs
 +++ b/crates/vhost/src/vhost_user/master_req_handler.rs
 @@ -33,6 +33,16 @@ pub trait VhostUserMasterReqHandler {
@@ -206,7 +206,7 @@ index 4225ba6..b2d8c19 100644
                  // Expect a single file is passed.
                  match files {
                      Some(files) if files.len() == 1 => Ok(()),
-@@ -326,12 +367,12 @@ impl<S: VhostUserMasterReqHandler> MasterReqHandler<S> {
+@@ -327,12 +368,12 @@ impl<S: VhostUserMasterReqHandler> MasterReqHandler<S> {
          ))
      }
  
@@ -226,10 +226,10 @@ index 4225ba6..b2d8c19 100644
              let def_err = libc::EINVAL;
              let val = match res {
 diff --git a/crates/vhost/src/vhost_user/message.rs b/crates/vhost/src/vhost_user/message.rs
-index b2882bc..46b73ff 100644
+index bbd8eb9..be24992 100644
 --- a/crates/vhost/src/vhost_user/message.rs
 +++ b/crates/vhost/src/vhost_user/message.rs
-@@ -140,8 +140,10 @@ pub enum MasterReq {
+@@ -146,8 +146,10 @@ pub enum MasterReq {
      /// Query the backend for its device status as defined in the VIRTIO
      /// specification.
      GET_STATUS = 40,
@@ -241,7 +241,7 @@ index b2882bc..46b73ff 100644
  }
  
  impl From<MasterReq> for u32 {
-@@ -172,16 +174,20 @@ pub enum SlaveReq {
+@@ -178,16 +180,20 @@ pub enum SlaveReq {
      VRING_CALL = 4,
      /// Indicate that an error occurred on the specific vring.
      VRING_ERR = 5,
@@ -267,7 +267,7 @@ index b2882bc..46b73ff 100644
  }
  
  impl From<SlaveReq> for u32 {
-@@ -862,6 +868,99 @@ impl VhostUserMsgValidator for VhostUserFSSlaveMsg {
+@@ -972,6 +978,99 @@ impl VhostUserMsgValidator for VhostUserFSSlaveMsg {
      }
  }
  
@@ -367,7 +367,7 @@ index b2882bc..46b73ff 100644
  /// Inflight I/O descriptor state for split virtqueues
  #[repr(packed)]
  #[derive(Clone, Copy, Default)]
-@@ -993,6 +1092,31 @@ impl QueueRegionPacked {
+@@ -1103,6 +1202,31 @@ impl QueueRegionPacked {
      }
  }
  
@@ -441,7 +441,7 @@ index ade1e91..b7ecd20 100644
      fn fs_slave_map(&self, fs: &VhostUserFSSlaveMsg, fd: &dyn AsRawFd) -> HandlerResult<u64> {
          self.send_message(SlaveReq::FS_MAP, fs, Some(&[fd.as_raw_fd()]))
 diff --git a/crates/vhost/src/vhost_user/slave_req_handler.rs b/crates/vhost/src/vhost_user/slave_req_handler.rs
-index 69df122..6a17be6 100644
+index e998339..b84feca 100644
 --- a/crates/vhost/src/vhost_user/slave_req_handler.rs
 +++ b/crates/vhost/src/vhost_user/slave_req_handler.rs
 @@ -70,6 +70,7 @@ pub trait VhostUserSlaveReqHandler {
@@ -471,7 +471,7 @@ index 69df122..6a17be6 100644
  }
  
  /// Server to handle service requests from masters from the master communication channel.
-@@ -511,6 +517,15 @@ impl<S: VhostUserSlaveReqHandler> SlaveReqHandler<S> {
+@@ -519,6 +525,15 @@ impl<S: VhostUserSlaveReqHandler> SlaveReqHandler<S> {
                  let res = self.backend.remove_mem_region(&msg);
                  self.send_ack_message(&hdr, res)?;
              }
@@ -488,5 +488,5 @@ index 69df122..6a17be6 100644
                  return Err(Error::InvalidMessage);
              }
 -- 
-2.41.0
+2.42.0
 

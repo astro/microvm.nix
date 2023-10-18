@@ -1,0 +1,38 @@
+From 3a44f7aaad8dd8ce1c2c5b75a30326df1f043f22 Mon Sep 17 00:00:00 2001
+From: David Stevens <stevensd@chromium.org>
+Date: Thu, 13 Oct 2022 10:37:47 +0900
+Subject: [PATCH 3/3] vhost-user: add protocol flag for shmem
+
+Add a vhost protocol feature flag for shared memory region support. This
+is necessary to avoid sending the GET_SHARED_MEMORY_REGIONS message to
+backends which don't support it.
+
+BUG=b:252901073
+TEST=crosvm device wl
+
+Change-Id: I044926e982526c3c76063b5386cab0db72524707
+Reviewed-on: https://chromium-review.googlesource.com/c/crosvm/crosvm/+/3951472
+Reviewed-by: Daniel Verkamp <dverkamp@chromium.org>
+Commit-Queue: David Stevens <stevensd@chromium.org>
+(cherry-picked from commit 60aa43629ae9be2cc3df37c648ab7e0e5ff2172c)
+Signed-off-by: Alyssa Ross <hi@alyssa.is>
+---
+ crates/vhost/src/vhost_user/message.rs | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/crates/vhost/src/vhost_user/message.rs b/crates/vhost/src/vhost_user/message.rs
+index be24992..5fb2fb8 100644
+--- a/crates/vhost/src/vhost_user/message.rs
++++ b/crates/vhost/src/vhost_user/message.rs
+@@ -435,6 +435,8 @@ bitflags! {
+         const STATUS = 0x0001_0000;
+         /// Support Xen mmap.
+         const XEN_MMAP = 0x0002_0000;
++        /// Support shared memory regions.
++        const SHARED_MEMORY_REGIONS = 0x0002_0000;
+     }
+ }
+ 
+-- 
+2.42.0
+

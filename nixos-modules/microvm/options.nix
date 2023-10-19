@@ -16,6 +16,14 @@ in
       '';
     };
 
+    cpu = mkOption {
+      type = with types; nullOr str;
+      default = null;
+      description = ''
+        What CPU to emulate, if any. If different from the host architecture, it will have a serious performance hit. Not supported by all hypervisors.
+      '';
+    };
+
     hypervisor = mkOption {
       type = types.enum self-lib.hypervisors;
       default = "qemu";

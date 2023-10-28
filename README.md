@@ -5,6 +5,8 @@
   <a href="https://astro.github.io/microvm.nix/">HTML</a>
   <a href="doc/src/SUMMARY.md">Markdown</a>
   •
+  <strong><a href="https://matrix.to/#/#microvm.nix:envs.net">Matrix chat</a></strong>
+  •
   <strong><a href="https://github.com/sponsors/astro">Support the project</a></strong>
 </p>
 <p align="center">

@@ -1,21 +1,12 @@
-# A simple network setup
-
-While networking infrastructure is out of scope for the **microvm.nix**
-flake, here is some guidance for providing the MicroVMs on your NixOS
-machine with internet access.
-
-Because we already use systemd for MicroVM startup, let's pick
-`systemd-networkd`:
-```nix
-networking.useNetworkd = true;
-```
+# Advanced network setup
 
 ## A bridge to link TAP interfaces
 
-To make your MicroVM reachable, use a TAP interface to get a virtual
-Ethernet interface on the host. Although it is possible to assign
-individual IP configuration to these individual interfaces, let us
+Instead of placing microVMs directly on a LAN, one can also use a TAP interfac
+eto get a virtual Ethernet interface on the host. Although it is possible to
+assign individual IP configuration to these individual interfaces, let us
 avoid the additional configuration effort and create a bridge instead:
+
 ```nix
 systemd.network = {
   netdevs."10-microvm".netdevConfig = {

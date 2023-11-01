@@ -4,6 +4,10 @@ While networking infrastructure is out of scope for the **microvm.nix**
 flake, here is some guidance for providing the MicroVMs on your NixOS
 machine with internet access.
 
+Use this for your local LAN where IP addresses are free and
+plentiful. If not, head over to the
+[advanced networking](./advanced-network.md) page.
+
 Because we already use systemd for MicroVM startup, let's pick
 `systemd-networkd`:
 ```nix
@@ -79,3 +83,14 @@ systemd.network.networks."20-lan" = {
 };
 ```
 
+## Advanced: Improving Performance
+
+If you prioritize network performance over inter-VM communication on
+the virtual bridge, have a look into these alternatives:
+
+- Network interfaces with `type = "macveth"` are supported in
+  microvm.nix. While they're technically tap devices, they attach to
+  an external Ethernet port, eliminating the `br0` bridge.
+
+- Server Ethernet cards support SR-IOV: setup Virtual Function devices
+  for PCI passthru into MicroVMs.

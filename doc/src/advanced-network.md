@@ -1,5 +1,12 @@
 # Advanced network setup
 
+Renting a server in a datacenter usually gets you one IP address. You
+should not bridge your local VM traffic together with the physical
+Ethernet uplink port. Instead, setup a bridge only for the Virtual
+Machines, and provide them with Internet through NAT just like your
+plastic ADSL router at home.
+
+
 ## A bridge to link TAP interfaces
 
 Instead of placing MicroVMs directly on a LAN, one can also use a TAP

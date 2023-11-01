@@ -167,11 +167,17 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="advanced-network-setup"><a class="header" href="#advanced-network-setup">Advanced network setup</a></h1>
+<p>Renting a server in a datacenter usually gets you one IP address. You
+should not bridge your local VM traffic together with the physical
+Ethernet uplink port. Instead, setup a bridge only for the Virtual
+Machines, and provide them with Internet through NAT just like your
+plastic ADSL router at home.</p>
 <h2 id="a-bridge-to-link-tap-interfaces"><a class="header" href="#a-bridge-to-link-tap-interfaces">A bridge to link TAP interfaces</a></h2>
-<p>Instead of placing microVMs directly on a LAN, one can also use a TAP interfac
-eto get a virtual Ethernet interface on the host. Although it is possible to
-assign individual IP configuration to these individual interfaces, let us
-avoid the additional configuration effort and create a bridge instead:</p>
+<p>Instead of placing MicroVMs directly on a LAN, one can also use a TAP
+interface to get a virtual Ethernet interface on the host. Although it
+is possible to assign individual IP configuration to these individual
+interfaces, let us avoid the additional configuration effort and
+create a bridge instead:</p>
 <pre><code class="language-nix">systemd.network = {
   netdevs.&quot;10-microvm&quot;.netdevConfig = {
     Kind = &quot;bridge&quot;;

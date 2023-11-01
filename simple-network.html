@@ -170,17 +170,20 @@
 <p>While networking infrastructure is out of scope for the <strong>microvm.nix</strong>
 flake, here is some guidance for providing the MicroVMs on your NixOS
 machine with internet access.</p>
+<p>Use this for your local LAN where IP addresses are free and
+plentiful. If not, head over to the
+<a href="./advanced-network.html">advanced networking</a> page.</p>
 <p>Because we already use systemd for MicroVM startup, let's pick
 <code>systemd-networkd</code>:</p>
 <pre><code class="language-nix">networking.useNetworkd = true;
 </code></pre>
 <h2 id="a-bridge-to-link-tap-interfaces"><a class="header" href="#a-bridge-to-link-tap-interfaces">A bridge to link TAP interfaces</a></h2>
 <p>To make your MicroVM reachable, the host will place its Ethernet port (<code>eno1</code>)
-on a bridge (<code>br0</code>). This bridge will have the microVM's TAP interface attached
-to it - directly placing the microVM on your local network.</p>
+on a bridge (<code>br0</code>). This bridge will have the MicroVM's TAP interface attached
+to it - directly placing the MicroVM on your local network.</p>
 <p>Note that the addresses provided below are examples and you must adjust these
-for your network settings. Also note that the <code>eno1</code> must be paired on the
-bridge with the <code>vm-*</code> TAP interfaces that you will specify in the microVM
+for your network settings. Also note that the <code>eno1</code> must be attached to the
+bridge with the <code>vm-*</code> TAP interfaces that you will specify in the MicroVM
 definition.</p>
 <pre><code class="language-nix">systemd.network.enable = true;
 
@@ -209,10 +212,10 @@ systemd.network.networks.&quot;10-lan-bridge&quot; = {
   linkConfig.RequiredForOnline = &quot;routable&quot;;
 };
 </code></pre>
-<p>Now that the host is configured, you can define a microVM to have a static IP
+<p>Now that the host is configured, you can define a MicroVM to have a static IP
 address with:</p>
 <pre><code class="language-nix">microvm = {
-  #...add additional microVM configuration here
+  #...add additional MicroVM configuration here
   interfaces = [
     {
       type = &quot;tap&quot;;
@@ -235,8 +238,20 @@ systemd.network.networks.&quot;20-lan&quot; = {
   };
 };
 </code></pre>
-<p>For more networking options - such as port forwards for a single IP address,
-see the <a href="./advanced-network.html">advanced networking</a> page.</p>
+<h2 id="advanced-improving-performance"><a class="header" href="#advanced-improving-performance">Advanced: Improving Performance</a></h2>
+<p>If you prioritize network performance over inter-VM communication on
+the virtual bridge, have a look into these alternatives:</p>
+<ul>
+<li>
+<p>Network interfaces with <code>type = &quot;macveth&quot;</code> are supported in
+microvm.nix. While they're technically tap devices, they attach to
+an external Ethernet port, eliminating the <code>br0</code> bridge.</p>
+</li>
+<li>
+<p>Server Ethernet cards support SR-IOV: setup Virtual Function devices
+for PCI passthru into MicroVMs.</p>
+</li>
+</ul>
 
                     </main>
 

@@ -13,12 +13,12 @@ networking.useNetworkd = true;
 ## A bridge to link TAP interfaces
 
 To make your MicroVM reachable, the host will place its Ethernet port (`eno1`)
-on a bridge (`br0`). This bridge will have the microVM's TAP interface attached
-to it - directly placing the microVM on your local network.
+on a bridge (`br0`). This bridge will have the MicroVM's TAP interface attached
+to it - directly placing the MicroVM on your local network.
 
 Note that the addresses provided below are examples and you must adjust these
-for your network settings. Also note that the `eno1` must be paired on the
-bridge with the `vm-*` TAP interfaces that you will specify in the microVM
+for your network settings. Also note that the `eno1` must be attached to the
+bridge with the `vm-*` TAP interfaces that you will specify in the MicroVM
 definition.
 
 ```nix
@@ -50,12 +50,12 @@ systemd.network.networks."10-lan-bridge" = {
 };
 ```
 
-Now that the host is configured, you can define a microVM to have a static IP
+Now that the host is configured, you can define a MicroVM to have a static IP
 address with:
 
 ```nix
 microvm = {
-  #...add additional microVM configuration here
+  #...add additional MicroVM configuration here
   interfaces = [
     {
       type = "tap";
@@ -79,5 +79,3 @@ systemd.network.networks."20-lan" = {
 };
 ```
 
-For more networking options - such as port forwards for a single IP address,
-see the [advanced networking](./advanced-network.md) page.

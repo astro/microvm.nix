@@ -2,10 +2,11 @@
 
 ## A bridge to link TAP interfaces
 
-Instead of placing microVMs directly on a LAN, one can also use a TAP interfac
-eto get a virtual Ethernet interface on the host. Although it is possible to
-assign individual IP configuration to these individual interfaces, let us
-avoid the additional configuration effort and create a bridge instead:
+Instead of placing MicroVMs directly on a LAN, one can also use a TAP
+interface to get a virtual Ethernet interface on the host. Although it
+is possible to assign individual IP configuration to these individual
+interfaces, let us avoid the additional configuration effort and
+create a bridge instead:
 
 ```nix
 systemd.network = {

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Host systemd services - microvm.nix</title>
+        <title>Advanced network setup - microvm.nix</title>
 
 
         <!-- Custom HTML head -->
@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.4.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.5.</strong> Options reference</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html" class="active"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.4.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.5.</strong> Options reference</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html" class="active"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -166,47 +166,96 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="systemd-services-on-a-microvm-host"><a class="header" href="#systemd-services-on-a-microvm-host">systemd services on a MicroVM host</a></h1>
-<p>The <code>host</code> nixosModule provides a few systemd services for additional
-bringup which is not available when running a MicroVM interactively
-from a package.</p>
-<h2 id="install-microvm-nameservice"><a class="header" href="#install-microvm-nameservice"><code>install-microvm-${name}.service</code></a></h2>
-<p>Creates and prepares a subdirectory under <code>/var/lib/microvms</code> for
-<a href="./declarative.html">declarative MicroVMs</a> according to the
-<code>microvm.vms</code> option.</p>
-<p>If the MicroVM subdirectory under <code>/var/lib/microvms</code> already exists,
-<strong>and</strong> the MicroVM is configured to be built from a flake's
-<code>nixosConfigurations</code>, this systemd unit will be skipped. The reason
-for this behavior is that it is easier to update with the <a href="./microvm-command.html"><code>microvm</code>
-command</a> instead of restarting all virtual
-machines on a host when doing <code>nixos-rebuild switch</code>.</p>
-<h2 id="microvm-tap-interfacesservice"><a class="header" href="#microvm-tap-interfacesservice"><code>microvm-tap-interfaces@.service</code></a></h2>
-<p>Creates TAP virtual network interfaces for the user that will run MicroVMs.</p>
-<h2 id="microvm-macvtap-interfacesservice"><a class="header" href="#microvm-macvtap-interfacesservice"><code>microvm-macvtap-interfaces@.service</code></a></h2>
-<p>Creates MACVTAP virtual network interfaces for the user that will run MicroVMs.</p>
-<h2 id="microvm-pci-devicesservice"><a class="header" href="#microvm-pci-devicesservice"><code>microvm-pci-devices@.service</code></a></h2>
-<p>Prepares PCI devices for passthrough
-(<a href="https://www.kernel.org/doc/html/latest/driver-api/vfio.html">VFIO</a>).</p>
-<h2 id="microvm-virtiofsdservice"><a class="header" href="#microvm-virtiofsdservice"><code>microvm-virtiofsd@.service</code></a></h2>
-<p>Starts a fleet of virtiofsd servers, one for each <code>virtiofs</code>
-mountpoint in <code>microvm.shares</code>.</p>
-<h2 id="microvmservice"><a class="header" href="#microvmservice"><code>microvm@.service</code></a></h2>
-<p>Runs the actual MicroVM through
-<code>/var/lib/microvms/%i/current/bin/microvm-run</code> where <code>%i</code> is the
-MicroVM name.</p>
-<h2 id="microvmstarget"><a class="header" href="#microvmstarget"><code>microvms.target</code></a></h2>
-<p>Depends on the <code>microvm@.service</code> instance for all configured
-<code>microvm.autostart</code>.</p>
+                        <h1 id="advanced-network-setup"><a class="header" href="#advanced-network-setup">Advanced network setup</a></h1>
+<h2 id="a-bridge-to-link-tap-interfaces"><a class="header" href="#a-bridge-to-link-tap-interfaces">A bridge to link TAP interfaces</a></h2>
+<p>Instead of placing microVMs directly on a LAN, one can also use a TAP interfac
+eto get a virtual Ethernet interface on the host. Although it is possible to
+assign individual IP configuration to these individual interfaces, let us
+avoid the additional configuration effort and create a bridge instead:</p>
+<pre><code class="language-nix">systemd.network = {
+  netdevs.&quot;10-microvm&quot;.netdevConfig = {
+    Kind = &quot;bridge&quot;;
+    Name = &quot;microvm&quot;;
+  };
+  networks.&quot;10-microvm&quot; = {
+    matchConfig.Name = &quot;microvm&quot;;
+    networkConfig = {
+      DHCPServer = true;
+      IPv6SendRA = true;
+    };
+    addresses = [ {
+      addressConfig.Address = &quot;10.0.0.1/24&quot;;
+    } {
+      addressConfig.Address = &quot;fd12:3456:789a::1/64&quot;;
+    } ];
+    ipv6Prefixes = [ {
+      ipv6PrefixConfig.Prefix = &quot;fd12:3456:789a::/64&quot;;
+    } ];
+  };
+};
+</code></pre>
+<p>This configuration will hand out IP addresses to clients on the
+bridge. In practise, better leave out the DHCP server and its state by
+opting for declarative, versioned configuration instead.</p>
+<p>Last, the TAP interfaces of MicroVMs shall be attached to this central
+bridge. Make sure your <code>matchConfig</code> matches just the interfaces you
+want!</p>
+<pre><code class="language-nix">systemd.network = {
+  networks.&quot;11-microvm&quot; = {
+    matchConfig.Name = &quot;vm-*&quot;;
+    # Attach to the bridge that was configured above
+    networkConfig.Bridge = &quot;microvm&quot;;
+  };
+};
+</code></pre>
+<h2 id="provide-internet-access-with-nat"><a class="header" href="#provide-internet-access-with-nat">Provide Internet Access with NAT</a></h2>
+<p>IPv4 addresses are exhausted. It is a very common case that you get
+one public IPv4 address for your machine. The solution is to route
+your internal virtual machines with <em>Network Address Translation</em>.</p>
+<p>You might not get a dedicated /64 IPv6 prefix to route to your
+MicroVMs. NAT works for this address family, too!</p>
+<pre><code class="language-nix">networking.nat = {
+  enable = true;
+  enableIPv6 = true;
+  # Change this to the interface with upstream Internet access
+  externalInterface = &quot;eth0&quot;;
+  internalInterfaces = [ &quot;microvm&quot; ];
+};
+</code></pre>
+<p>Check out
+<a href="https://search.nixos.org/options?channel=unstable&amp;show=networking.nat.forwardPorts&amp;query=networking.nat.forwardPorts"><code>networking.nat.forwardPorts</code></a>
+to make your MicroVM's services available to networks outside your
+host!</p>
+<h2 id="port-forwarding"><a class="header" href="#port-forwarding">Port forwarding</a></h2>
+<p>Isolating your public Internet services is a great use-case for
+virtualization. But how does traffic get to you when your MicroVMs
+have private IP addresses behind NAT?</p>
+<p>NixOS has got you covered with the <code>networking.nat.forwardPorts</code>
+option! This example forwards TCP ports 80 (HTTP) and 443 (HTTPS) to
+other hosts:</p>
+<pre><code class="language-nix">networking.nat = {
+  enable = true;
+  forwardPorts = [ {
+    proto = &quot;tcp&quot;;
+    sourcePort = 80;
+    destination = my-addresses.http-reverse-proxy.ip4;
+  } {
+    proto = &quot;tcp&quot;;
+    sourcePort = 443;
+    destination = my-addresses.https-reverse-proxy.ip4;
+  } ];
+};
+</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="advanced-network.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="simple-network.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="declarative.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="host-systemd.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -216,11 +265,11 @@ MicroVM name.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="advanced-network.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="simple-network.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="declarative.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="host-systemd.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

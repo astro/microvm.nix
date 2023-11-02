@@ -42,10 +42,12 @@ let
     free_page_reporting = "on";
   };
 
-  # cloud-hypervisor >= 30.0 has a new command-line arguments syntax
-  hasNewArgSyntax = builtins.compareVersions pkgs.cloud-hypervisor.version "30.0" >= 0;
+  # cloud-hypervisor >= 30.0 < 36.0 temporarily replaced clap with argh
+  hasArghSyntax =
+    builtins.compareVersions pkgs.cloud-hypervisor.version "30.0" >= 0 &&
+    builtins.compareVersions pkgs.cloud-hypervisor.version "36.0" < 0;
   arg =
-    if hasNewArgSyntax
+    if hasArghSyntax
     then switch: params:
       # `--switch param0 --switch param1 ...`
       builtins.concatMap (param: [ switch param ]) params

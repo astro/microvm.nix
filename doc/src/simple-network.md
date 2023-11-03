@@ -88,7 +88,7 @@ systemd.network.networks."20-lan" = {
 If you prioritize network performance over inter-VM communication on
 the virtual bridge, have a look into these alternatives:
 
-- Network interfaces with `type = "macveth"` are supported in
+- Network interfaces with `type = "macvtap"` are supported in
   microvm.nix. While they're technically tap devices, they attach to
   an external Ethernet port, eliminating the `br0` bridge.
 

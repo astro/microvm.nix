@@ -1,5 +1,5 @@
 # Closure size and startup time optimization for disposable use-cases
-{ config, lib, pkgs, ... }:
+{ config, options, lib, pkgs, ... }:
 
 let
   cfg = config.microvm;
@@ -52,5 +52,10 @@ in
     # Due to a bug in systemd-networkd: https://github.com/systemd/systemd/issues/29388
     # we cannot use systemd-networkd-wait-online.
     systemd.network.wait-online.enable = lib.mkDefault false;
+
+    # Exclude switch-to-confguration.pl from toplevel.
+    system = lib.optionalAttrs (options.system ? switch) {
+      switch.enable = lib.mkDefault false;
+    };
   };
 }

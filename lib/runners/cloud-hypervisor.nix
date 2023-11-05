@@ -15,6 +15,8 @@ let
   # balloon
   useBallooning = balloonMem > 0;
 
+  useVirtiofs = builtins.any ({ proto, ... }: proto == "virtiofs") shares;
+
   # Transform attrs to parameters in form of `key1=value1,key2=value2,[...]`
   opsMapped = ops: lib.concatStringsSep "," (lib.mapAttrsToList (k: v: "${k}=${v}") ops);
 
@@ -22,7 +24,9 @@ let
   memOps = opsMapped ({
     size = "${toString mem}M";
     mergeable = "on";
-    shared = "on";
+    # Shared memory is required for usage with virtiofsd but it
+    # prevents Kernel Same-page Merging.
+    shared = if useVirtiofs then "on" else "off";
   }
   # add ballooning options and override 'size' key
   // lib.optionalAttrs useBallooning {

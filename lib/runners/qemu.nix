@@ -69,23 +69,21 @@ let
       type == "bridge"
     ) microvmConfig.interfaces;
 
-  forwardPortsOptions =
-      let
-        forwardingOptions = lib.flip lib.concatMapStrings forwardPorts
-          ({ proto, from, host, guest }:
-            if from == "host"
-              then "hostfwd=${proto}:${host.address}:${toString host.port}-" +
-                   "${guest.address}:${toString guest.port},"
-              else "guestfwd=${proto}:${guest.address}:${toString guest.port}-" +
-                   "cmd:${pkgs.netcat}/bin/nc ${host.address} ${toString host.port},"
-          );
-      in
-      [ forwardingOptions ];
+  tapMultiQueue = vcpu > 1;
+
+  forwardingOptions = lib.concatMapStrings ({ proto, from, host, guest }: {
+    host = "hostfwd=${proto}:${host.address}:${toString host.port}-" +
+           "${guest.address}:${toString guest.port},";
+    guest = "guestfwd=${proto}:${guest.address}:${toString guest.port}-" +
+            "cmd:${pkgs.netcat}/bin/nc ${host.address} ${toString host.port},";
+  }.${from}) forwardPorts;
 
   writeQmp = data: ''
     echo '${builtins.toJSON data}'
   '';
 in {
+  inherit tapMultiQueue;
+
   command = lib.escapeShellArgs (
     [
       "${qemu}/bin/qemu-system-${arch}"
@@ -168,7 +166,9 @@ in {
               (if type == "macvtap" then "tap" else "${type}")
               "id=${id}"
             ]
-            ++ lib.optionals (type == "user" && forwardPortsOptions != []) forwardPortsOptions
+            ++ lib.optionals (type == "user" && forwardPorts != []) [
+              forwardingOptions
+            ]
             ++ lib.optionals (type == "bridge") [
               "br=${bridge}" "helper=/run/wrappers/bin/qemu-bridge-helper"
             ]
@@ -176,14 +176,25 @@ in {
               "ifname=${id}"
               "script=no" "downscript=no"
             ]
-            ++ lib.optionals (type == "macvtap") [
-              "fd=${toString macvtapFds.${id}}"
+            ++ lib.optionals (type == "macvtap") [ (
+              let
+                fds = macvtapFds.${id};
+              in
+                if builtins.length fds == 1
+                then "fd=${toString (builtins.head fds)}"
+                else "fds=${lib.concatMapStringsSep ":" toString fds}"
+            ) ]
+            ++ lib.optionals (type == "tap" && tapMultiQueue) [
+              "queues=${toString vcpu}"
             ]
           )
         )
-        "-device" ("virtio-net-${devType},netdev=${id},mac=${mac}" +
-	  # romfile= does not work with x86_64-linux and -M microvm setting
-	  lib.optionalString (requirePci || system != "x86_64-linux") ",romfile=")
+        "-device" "virtio-net-${devType},netdev=${id},mac=${mac}${
+          # romfile= does not work with x86_64-linux and -M microvm setting
+          lib.optionalString (requirePci || system != "x86_64-linux") ",romfile="
+        }${
+          lib.optionalString tapMultiQueue ",mq=on,vectors=${toString (2 * vcpu + 2)}"
+        }"
       ]) interfaces
     )
     ++

@@ -267,12 +267,14 @@ in
         scriptArgs = "%i";
         script = ''
           cd ${stateDir}/$1
+          TAP_FLAGS="$(cat current/share/microvm/tap-flags)"
+
           for id in $(cat current/share/microvm/tap-interfaces); do
             if [ -e /sys/class/net/$id ]; then
               ${pkgs.iproute2}/bin/ip tuntap del name $id mode tap
             fi
 
-            ${pkgs.iproute2}/bin/ip tuntap add name $id mode tap user ${user}
+            ${pkgs.iproute2}/bin/ip tuntap add name $id mode tap user ${user} $TAP_FLAGS
             ${pkgs.iproute2}/bin/ip link set $id up
           done
         '';

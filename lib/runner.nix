@@ -7,7 +7,9 @@ let
   inherit (pkgs) lib writeScriptBin;
 
   inherit (import ./. { nixpkgs-lib = lib; }) createVolumesScript makeMacvtap;
-  inherit (makeMacvtap microvmConfig) openMacvtapFds macvtapFds;
+  inherit (makeMacvtap {
+    inherit microvmConfig hypervisorConfig;
+  }) openMacvtapFds macvtapFds;
 
   hypervisorConfig = import (./runners + "/${microvmConfig.hypervisor}.nix") {
     inherit pkgs microvmConfig macvtapFds;
@@ -15,6 +17,7 @@ let
 
   inherit (hypervisorConfig) command canShutdown shutdownCommand;
   preStart = hypervisorConfig.preStart or microvmConfig.preStart;
+  tapMultiQueue = hypervisorConfig.tapMultiQueue or false;
 
   runScriptBin = pkgs.writeScriptBin "microvm-run" ''
     #! ${pkgs.runtimeShell} -e
@@ -67,6 +70,10 @@ pkgs.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}"
   mkdir -p $out/share/microvm
   ln -s ${toplevel} $out/share/microvm/system
 
+  echo vnet_hdr > $out/share/microvm/tap-flags
+  ${lib.optionalString tapMultiQueue ''
+    echo multi_queue >> $out/share/microvm/tap-flags
+  ''}
   ${lib.concatMapStringsSep " " (interface:
     lib.optionalString (interface.type == "tap" && interface ? id) ''
       echo "${interface.id}" >> $out/share/microvm/tap-interfaces

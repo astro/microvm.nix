@@ -46,6 +46,13 @@ let
     free_page_reporting = "on";
   };
 
+  tapMultiQueue = vcpu > 1;
+
+  # Multi-queue options
+  mqOps = lib.optionalAttrs tapMultiQueue {
+    num_queues = toString vcpu;
+  };
+
   # cloud-hypervisor >= 30.0 < 36.0 temporarily replaced clap with argh
   hasArghSyntax =
     builtins.compareVersions pkgs.cloud-hypervisor.version "30.0" >= 0 &&
@@ -71,6 +78,8 @@ let
   };
 
 in {
+  inherit tapMultiQueue;
+
   preStart = ''
     ${microvmConfig.preStart}
     ${lib.optionalString (socket != null) ''
@@ -117,14 +126,21 @@ in {
       lib.optionals useBallooning [ "--balloon" balloonOps ]
       ++
       arg "--disk" (
-        lib.optional storeOnDisk "path=${storeDisk},readonly=on"
+        lib.optional storeOnDisk (opsMapped ({
+          path = toString storeDisk;
+          readonly = "on";
+        } // mqOps))
         ++
-        map ({ image, ... }: "path=${image}") volumes
+        map ({ image, ... }: (opsMapped ({
+          path = toString image;
+        } // mqOps))) volumes
       )
       ++
       arg "--fs" (map ({ proto, socket, tag, ... }:
         if proto == "virtiofs"
-        then "tag=${tag},socket=${socket}"
+        then opsMapped ({
+          inherit tag socket;
+        } // mqOps)
         else throw "cloud-hypervisor supports only shares that are virtiofs"
       ) shares)
       ++
@@ -132,9 +148,19 @@ in {
       ++
       arg "--net" (map ({ type, id, mac, ... }:
         if type == "tap"
-        then "tap=${id},mac=${mac}"
+        then opsMapped ({
+          tap = id;
+          inherit mac;
+        } // lib.optionalAttrs tapMultiQueue {
+          num_queues = toString (2 * vcpu);
+        })
         else if type == "macvtap"
-        then "fd=${toString macvtapFds.${id}},mac=${mac}"
+        then opsMapped ({
+          fd = "[${lib.concatMapStringsSep "," toString macvtapFds.${id}}]";
+          inherit mac;
+        } // lib.optionalAttrs tapMultiQueue {
+          num_queues = toString (2 * vcpu);
+        })
         else throw "Unsupported interface type ${type} for Cloud-Hypervisor"
       ) interfaces)
       ++

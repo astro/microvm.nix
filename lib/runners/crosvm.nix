@@ -107,13 +107,24 @@ in {
         ]
       ) shares
       ++
-      (builtins.concatMap ({ id, type, mac, ... }:
-        if type == "tap"
-        then ["--net" "tap-name=${id},mac=${mac}"]
-        else if type == "macvtap"
-        then ["--net" "tap-fd=${toString macvtapFds.${id}},mac=${mac}"]
-        else throw "Unsupported interface type ${type} for crosvm"
-      ) microvmConfig.interfaces)
+      (builtins.concatMap ({ id, type, mac, ... }: [
+        "--net"
+        (lib.concatStringsSep "," ([
+          ( if type == "tap"
+            then "tap-name=${id}"
+            else if type == "macvtap"
+            then "tap-fd=${toString macvtapFds.${id}}"
+            else throw "Unsupported interface type ${type} for crosvm"
+          )
+          "mac=${mac}"
+        # ] ++ lib.optionals (vcpu > 1) [
+        #   "vq-pairs=${toString vcpu}"
+        ]))
+      ]) microvmConfig.interfaces)
+      # ++
+      # lib.optionals (vcpu > 1) [
+      #   "--net-vq-pairs" (toString vcpu)
+      # ]
       ++
       builtins.concatMap ({ bus, path }: {
         pci = [ "--vfio" "/sys/bus/pci/devices/${path},iommu=viommu" ];
@@ -126,7 +137,7 @@ in {
       ++
       [
         "--initrd" initrdPath
-        "${kernelPath}"
+        kernelPath
       ]
       ++
       extraArgs

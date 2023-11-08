@@ -48,8 +48,9 @@ rec {
 
   buildRunner = import ./runner.nix;
 
-  makeMacvtap = config: import ./macvtap.nix {
-    inherit config;
-    lib = nixpkgs-lib;
-  };
+  makeMacvtap = { microvmConfig, hypervisorConfig }:
+    import ./macvtap.nix {
+      inherit microvmConfig hypervisorConfig;
+      lib = nixpkgs-lib;
+    };
 }

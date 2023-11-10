@@ -138,9 +138,9 @@ in {
       ++
       arg "--fs" (map ({ proto, socket, tag, ... }:
         if proto == "virtiofs"
-        then opsMapped ({
+        then opsMapped {
           inherit tag socket;
-        } // mqOps)
+        }
         else throw "cloud-hypervisor supports only shares that are virtiofs"
       ) shares)
       ++

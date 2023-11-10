@@ -271,7 +271,7 @@ in
 
           for id in $(cat current/share/microvm/tap-interfaces); do
             if [ -e /sys/class/net/$id ]; then
-              ${pkgs.iproute2}/bin/ip tuntap del name $id mode tap
+              ${pkgs.iproute2}/bin/ip tuntap del name $id mode tap $TAP_FLAGS
             fi
 
             ${pkgs.iproute2}/bin/ip tuntap add name $id mode tap user ${user} $TAP_FLAGS

@@ -378,7 +378,7 @@ in
           GuessMainPID = "no";
           WorkingDirectory = "${stateDir}/%i";
           Restart = "always";
-          RestartSec = "1s";
+          RestartSec = "5s";
           SyslogIdentifier = "microvm-virtiofsd@%i";
           LimitNOFILE = 1048576;
         };
@@ -428,7 +428,7 @@ in
           ExecStop = "${stateDir}/%i/booted/bin/microvm-shutdown";
           TimeoutStopSec = 90;
           Restart = "always";
-          RestartSec = "1s";
+          RestartSec = "5s";
           User = user;
           Group = group;
           SyslogIdentifier = "microvm@%i";

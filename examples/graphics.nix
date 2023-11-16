@@ -55,7 +55,7 @@ nixpkgs.lib.nixosSystem {
           # Environment = "WAYLAND_DISPLAY=wayland-1";
           ExecStart = "${wayland-proxy-virtwl}/bin/wayland-proxy-virtwl --virtio-gpu --x-display=0 --xwayland-binary=${xwayland}/bin/Xwayland";
           Restart = "on-failure";
-          RestartSec = 1;
+          RestartSec = 5;
         };
         wantedBy = [ "default.target" ];
       };

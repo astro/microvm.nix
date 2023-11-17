@@ -466,6 +466,6 @@ in
     '';
 
     # Enable Kernel Same-Page Merging
-    hardware.ksm.enable = true;
+    hardware.ksm.enable = lib.mkDefault true;
   };
 }

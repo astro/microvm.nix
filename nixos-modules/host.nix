@@ -388,13 +388,13 @@ in
         script = ''
           for d in current/share/microvm/virtiofs/*; do
             SOCKET=$(cat $d/socket)
-            SOURCE=$(cat $d/source)
-            mkdir -p $SOURCE
+            SOURCE="$(cat $d/source)"
+            mkdir -p "$SOURCE"
 
             virtiofsd \
               --socket-path=$SOCKET \
               --socket-group=${config.users.users.microvm.group} \
-              --shared-dir $SOURCE \
+              --shared-dir "$SOURCE" \
               --rlimit-nofile ${toString serviceConfig.LimitNOFILE} \
               --thread-pool-size `nproc` \
               --posix-acl --xattr \

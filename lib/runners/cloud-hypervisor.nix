@@ -26,7 +26,7 @@ let
     mergeable = "on";
     # Shared memory is required for usage with virtiofsd but it
     # prevents Kernel Same-page Merging.
-    shared = if useVirtiofs or graphics.enable then "on" else "off";
+    shared = if useVirtiofs || graphics.enable then "on" else "off";
   }
   # add ballooning options and override 'size' key
   // lib.optionalAttrs useBallooning {

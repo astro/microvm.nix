@@ -1,4 +1,4 @@
-{ config, options, lib, ... }:
+{ config, lib, ... }:
 let
 
   inherit (config.networking) hostName;

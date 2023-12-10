@@ -1,4 +1,4 @@
-{ config, options, lib, pkgs, ... }:
+{ config, options, lib, ... }:
 let
   self-lib = import ../../lib {
     nixpkgs-lib = lib;

@@ -1,5 +1,5 @@
 # Closure size and startup time optimization for disposable use-cases
-{ config, options, lib, pkgs, ... }:
+{ config, options, lib, ... }:
 
 let
   cfg = config.microvm;

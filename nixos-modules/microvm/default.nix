@@ -17,6 +17,7 @@ in
     ./mounts.nix
     ./graphics.nix
     ./optimization.nix
+    ./ssh-deploy.nix
   ];
 
   config = {

@@ -3,6 +3,15 @@
 
 let
   cfg = config.microvm;
+
+
+  canSwitchViaSsh =
+    config.services.openssh.enable &&
+    # Is the /nix/store mounted from the host?
+    builtins.any ({ source, ... }:
+      source == "/nix/store"
+    ) config.microvm.shares;
+
 in
 {
   options.microvm.optimize = {
@@ -54,7 +63,7 @@ in
     systemd.network.wait-online.enable = lib.mkDefault false;
 
     # Exclude switch-to-confguration.pl from toplevel.
-    system = lib.optionalAttrs (options.system ? switch) {
+    system = lib.optionalAttrs (options.system ? switch && !canSwitchViaSsh) {
       switch.enable = lib.mkDefault false;
     };
   };

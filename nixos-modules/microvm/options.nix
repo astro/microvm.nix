@@ -20,7 +20,10 @@ in
       type = with types; nullOr str;
       default = null;
       description = ''
-        What CPU to emulate, if any. If different from the host architecture, it will have a serious performance hit. Not supported by all hypervisors.
+        What CPU to emulate, if any. If different from the host
+        architecture, it will have a serious performance hit.
+
+        Only supported with qemu.
       '';
     };
 

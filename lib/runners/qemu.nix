@@ -39,37 +39,43 @@ let
   inherit (microvmConfig.qemu) extraArgs;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
+
   volumes = withDriveLetters microvmConfig;
 
   arch = builtins.head (builtins.split "-" system);
 
-  cpuArgs = ["-cpu"] ++ (
-    if microvmConfig.cpu == null then
-      (
-        if system == "x86_64-linux" then
-          ["host,+x2apic"]
-        else
-          ["host"]
-      )
-    else
-      [microvmConfig.cpu]
-  );
+  cpuArgs = [
+    "-cpu"
+    (
+      if microvmConfig.cpu != null
+      then microvmConfig.cpu
+      else if system == "x86_64-linux"
+      then "host,+x2apic"
+      else "host"
+    ) ];
 
-  accel = if pkgs.buildPlatform == pkgs.hostPlatform then "accel=kvm:tcg"
+  accel =
+    if pkgs.buildPlatform == pkgs.hostPlatform
+    then "accel=kvm:tcg"
     else "accel=tcg";
+
   # PCI required by vfio-pci for PCI passthrough
   pciInDevices = lib.any ({ bus, ... }: bus == "pci") devices;
+
   requirePci = shares != [] || pciInDevices;
+
   machine = {
     x86_64-linux =
       if requirePci
       then "q35,${accel},mem-merge=on,sata=off"
-      else "microvm,${accel}:tcg,pit=off,pic=off,rtc=off,mem-merge=on";
+      else "microvm,${accel},pit=off,pic=off,rtc=off,mem-merge=on";
     aarch64-linux = "virt,gic-version=max,${accel}";
   }.${system};
+
   devType = if requirePci
             then "pci"
             else "device";
+
   kernelPath = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
 
   enumerate = n: xs:
@@ -206,8 +212,12 @@ in {
           )
         )
         "-device" "virtio-net-${devType},netdev=${id},mac=${mac}${
-          # romfile= does not work with x86_64-linux and -M microvm setting or -cpu different than host
-          lib.optionalString (requirePci || (microvmConfig.cpu == null && system != "x86_64-linux")) ",romfile="
+          # romfile= does not work with x86_64-linux and -M microvm
+          # setting or -cpu different than host
+          lib.optionalString (
+            requirePci ||
+            (microvmConfig.cpu == null && system != "x86_64-linux")
+          ) ",romfile="
         }${
           lib.optionalString tapMultiQueue ",mq=on,vectors=${toString (2 * vcpu + 2)}"
         }"

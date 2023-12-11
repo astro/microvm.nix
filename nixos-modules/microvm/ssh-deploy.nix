@@ -107,8 +107,8 @@ in
       echo "Copying derivations to $HOST"
       nix copy --no-check-sigs --to "ssh-ng://$HOST" \
         --derivation \
-        "${paths.closureInfoDrv}^*" \
-        "${paths.runnerDrv}^*"
+        "${paths.closureInfoDrv}^out" \
+        "${paths.runnerDrv}^out"
 
       ssh "$HOST" -- bash -e <<__SSH__
       set -eou pipefail
@@ -122,16 +122,16 @@ in
       ln -sfT \$PWD/booted /nix/var/nix/gcroots/microvm/booted-${hostName}
       ln -sfT \$PWD/old /nix/var/nix/gcroots/microvm/old-${hostName}
 
-      echo "Building toplevel ${paths.toplevelDrv}"
+      echo "Building toplevel ${paths.toplevelOut}"
       nix build -L --accept-flake-config --no-link \
-        ${with paths; lib.concatStringsSep " " [
+        ${with paths; lib.concatMapStringsSep " " (drv: "'${drv}^out'") [
           nixDrv
           closureInfoDrv
           toplevelDrv
         ]}
       echo "Building MicroVM runner for ${hostName}"
       nix build -L --accept-flake-config -o new \
-        ${paths.runnerDrv}
+        "${paths.runnerDrv}^out"
 
       if [[ $(realpath ./current) != $(realpath ./new) ]]; then
         echo "Installing MicroVM ${hostName}"

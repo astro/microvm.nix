@@ -32,28 +32,50 @@ let
     ++ lib.optional microvmConfig.optimize.enable minimizeQemuClosureSize
   );
 
-  qemu = overrideQemu pkgs.qemu_kvm;
+  qemu = overrideQemu (if pkgs.buildPlatform == pkgs.hostPlatform then
+    pkgs.buildPackages.qemu_kvm else pkgs.buildPackages.qemu_full);
 
-  inherit (microvmConfig) hostName vcpu mem balloonMem user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
+  inherit (microvmConfig) hostName cpu vcpu mem balloonMem user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
   inherit (microvmConfig.qemu) extraArgs;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
+
   volumes = withDriveLetters microvmConfig;
 
   arch = builtins.head (builtins.split "-" system);
+
+  cpuArgs = [
+    "-cpu"
+    (
+      if microvmConfig.cpu != null
+      then microvmConfig.cpu
+      else if system == "x86_64-linux"
+      then "host,+x2apic"
+      else "host"
+    ) ];
+
+  accel =
+    if pkgs.buildPlatform == pkgs.hostPlatform
+    then "accel=kvm:tcg"
+    else "accel=tcg";
+
   # PCI required by vfio-pci for PCI passthrough
   pciInDevices = lib.any ({ bus, ... }: bus == "pci") devices;
+
   requirePci = shares != [] || pciInDevices;
+
   machine = {
     x86_64-linux =
       if requirePci
-      then "q35,accel=kvm:tcg,mem-merge=on,sata=off"
-      else "microvm,accel=kvm:tcg,pit=off,pic=off,rtc=off,mem-merge=on";
-    aarch64-linux = "virt,gic-version=max,accel=kvm:tcg";
+      then "q35,${accel},mem-merge=on,sata=off"
+      else "microvm,${accel},pit=off,pic=off,rtc=off,mem-merge=on";
+    aarch64-linux = "virt,gic-version=max,${accel}";
   }.${system};
+
   devType = if requirePci
             then "pci"
             else "device";
+
   kernelPath = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
 
   enumerate = n: xs:
@@ -91,7 +113,6 @@ in {
       "-M" machine
       "-m" (toString (mem + balloonMem))
       "-smp" (toString vcpu)
-      "-enable-kvm"
       "-nodefaults" "-no-user-config"
       # qemu just hangs after shutdown, allow to exit by rebooting
       "-no-reboot"
@@ -103,15 +124,16 @@ in {
       "-serial" "chardev:stdio"
       "-device" "virtio-rng-${devType}"
     ] ++
+    lib.optionals (pkgs.buildPlatform == pkgs.hostPlatform) [
+      "-enable-kvm"
+    ] ++
+    cpuArgs ++
     lib.optionals (system == "x86_64-linux") [
-      "-cpu" "host,+x2apic"
       "-device" "i8042"
 
       "-append" "earlyprintk=ttyS0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
     ] ++
     lib.optionals (system == "aarch64-linux") [
-      "-cpu" "host"
-
       "-append" "console=ttyAMA0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
     ] ++
     lib.optionals storeOnDisk [
@@ -190,8 +212,12 @@ in {
           )
         )
         "-device" "virtio-net-${devType},netdev=${id},mac=${mac}${
-          # romfile= does not work with x86_64-linux and -M microvm setting
-          lib.optionalString (requirePci || system != "x86_64-linux") ",romfile="
+          # romfile= does not work with x86_64-linux and -M microvm
+          # setting or -cpu different than host
+          lib.optionalString (
+            requirePci ||
+            (microvmConfig.cpu == null && system != "x86_64-linux")
+          ) ",romfile="
         }${
           lib.optionalString tapMultiQueue ",mq=on,vectors=${toString (2 * vcpu + 2)}"
         }"

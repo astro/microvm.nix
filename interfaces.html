@@ -201,6 +201,8 @@ when running as root, which we advise against. Instead, create the
 interfaces before starting a MicroVM:</p>
 <pre><code class="language-bash">sudo ip tuntap add $IFACE_NAME mode tap user $USER
 </code></pre>
+<p><strong>Note:</strong> add <code>multi_queue</code> to this command line if the VM is configured
+with more than one CPU core.</p>
 <p>When running MicroVMs through the <code>host</code> module, the tap network
 interfaces are created through a systemd service dependency.</p>
 <h2 id="type--macvtap"><a class="header" href="#type--macvtap"><code>type = &quot;macvtap&quot;</code></a></h2>
@@ -217,7 +219,7 @@ sudo ip l add link $LINK name $ID type macvtap mode bridge
 # Obtain the interface index number
 IFINDEX=$(cat /sys/class/net/$ID/ifindex)
 # Grant yourself permission
-chown $USER /dev/tap$IFINDEX
+sudo chown $USER /dev/tap$IFINDEX
 </code></pre>
 <p>When running MicroVMs through the <code>host</code> module, the macvtap network
 interfaces are created through a systemd service dependency. Per

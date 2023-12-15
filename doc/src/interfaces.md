@@ -36,8 +36,11 @@ when running as root, which we advise against. Instead, create the
 interfaces before starting a MicroVM:
 
 ```bash
-sudo ip tuntap add $IFACE_NAME mode tap user $USER multi_queue vnet_hdr
+sudo ip tuntap add $IFACE_NAME mode tap user $USER
 ```
+
+**Note:** add `multi_queue` to this command line if the VM is configured
+with more than one CPU core.
 
 When running MicroVMs through the `host` module, the tap network
 interfaces are created through a systemd service dependency.

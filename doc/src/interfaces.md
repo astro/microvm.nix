@@ -36,7 +36,7 @@ when running as root, which we advise against. Instead, create the
 interfaces before starting a MicroVM:
 
 ```bash
-sudo ip tuntap add $IFACE_NAME mode tap user $USER
+sudo ip tuntap add $IFACE_NAME mode tap user $USER multi_queue vnet_hdr
 ```
 
 When running MicroVMs through the `host` module, the tap network
@@ -60,7 +60,7 @@ sudo ip l add link $LINK name $ID type macvtap mode bridge
 # Obtain the interface index number
 IFINDEX=$(cat /sys/class/net/$ID/ifindex)
 # Grant yourself permission
-chown $USER /dev/tap$IFINDEX
+sudo chown $USER /dev/tap$IFINDEX
 ```
 
 When running MicroVMs through the `host` module, the macvtap network

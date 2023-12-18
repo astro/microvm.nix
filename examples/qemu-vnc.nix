@@ -19,6 +19,7 @@ nixpkgs.lib.nixosSystem {
     ({ config, lib, pkgs, ... }: {
       microvm = {
         hypervisor = "qemu";
+        graphics.enable = true;
         interfaces = lib.optional (tapInterface != null) {
           type = "tap";
           id = tapInterface;

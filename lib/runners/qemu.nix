@@ -31,7 +31,7 @@ let
   });
 
   overrideQemu = x: lib.pipe x (
-    lib.optional (lib.any ({ bus, ... }: bus == "usb") microvmConfig.devices) enableLibusb
+    lib.optional requireUsb enableLibusb
     ++ lib.optional microvmConfig.optimize.enable minimizeQemuClosureSize
   );
 
@@ -44,6 +44,10 @@ let
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
 
   volumes = withDriveLetters microvmConfig;
+
+  requireUsb =
+    graphics.enable ||
+    lib.any ({ bus, ... }: bus == "usb") microvmConfig.devices;
 
   arch = builtins.head (builtins.split "-" system);
 
@@ -65,19 +69,30 @@ let
   # PCI required by vfio-pci for PCI passthrough
   pciInDevices = lib.any ({ bus, ... }: bus == "pci") devices;
 
-  requirePci = shares != [] || pciInDevices;
+  requirePci =
+    graphics.enable ||
+    shares != [] ||
+    pciInDevices;
 
   machine = {
-    x86_64-linux =
-      if requirePci
-      then "q35,${accel},mem-merge=on,sata=off"
-      else "microvm,${accel},pit=off,pic=off,rtc=off,mem-merge=on";
+    x86_64-linux = builtins.concatStringsSep "," [
+      "microvm"
+      accel
+      "mem-merge=on"
+      "pit=off"
+      "pic=off"
+      "mem-merge=on"
+      "acpi=on"
+      "pcie=${if requirePci then "on" else "off"}"
+      "usb=${if requireUsb then "on" else "off"}"
+    ];
     aarch64-linux = "virt,gic-version=max,${accel}";
   }.${system};
 
-  devType = if requirePci
-            then "pci"
-            else "device";
+  devType =
+    if requirePci
+    then "pci"
+    else "device";
 
   kernelPath = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
 
@@ -227,9 +242,7 @@ in {
       ]) interfaces
     )
     ++
-    lib.optionals (lib.any ({ bus, ... }:
-      bus == "usb"
-    ) devices) [
+    lib.optionals requireUsb [
       "-usb"
       "-device" "usb-ehci"
     ]

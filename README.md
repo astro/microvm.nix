@@ -69,6 +69,8 @@ examples.)
 
 ```shell
 nix flake init -t microvm
+$EDITOR flake.nix
+nix run .#my-microvm
 ```
 
 ## Examples

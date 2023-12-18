@@ -17,7 +17,10 @@ let
 
   minimizeQemuClosureSize = pkg: (pkg.override (oa: {
     # standin for disabling everything guilike by hand
-    nixosTestRunner = if graphics.enable then oa.nixosTestRunner else true;
+    nixosTestRunner =
+      if graphics.enable
+      then oa.nixosTestRunner or false
+      else true;
     enableDocs = false;
   })).overrideAttrs (oa: {
     postFixup = ''

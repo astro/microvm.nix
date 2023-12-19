@@ -49,7 +49,6 @@ in
     # TODO: error mounting /nix/store on crosvm, kvmtool
     boot.initrd.systemd.enable = lib.mkDefault (
       builtins.elem cfg.hypervisor [
-        "qemu"
         "cloud-hypervisor"
         "firecracker"
         "stratovirt"

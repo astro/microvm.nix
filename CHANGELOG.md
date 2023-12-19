@@ -18,7 +18,11 @@
   direct kernel+initramfs loading.
 * The microvm module now optimizes the NixOS configuration for size.
 * **crosvm** now supports **macvtap** interfaces.
-* Drop `microvm.qemu.bios` for simplicity.
+* The option `microvm.qemu.bios` has been dropped again for simplicity
+  reasons.
+
+  **qemu** boots fast with the shipped SeaBIOS if after both SATA and
+  the network interface option ROM (iPXE) have been disabled.
 * `microvm.kernelParams` always reuse `boot.kernelParams`
 * **firecracker** is no longer launched through **firectl**.
 * Networking example documentation has been split into multiple
@@ -34,12 +38,14 @@
 * Support *fully declarative* MicroVMs that are part of the host's
   NixOS configuration. **No Flakes required!**
 * We use **squashfs-tools-ng** now.
+* The `microvm-console` script has been removed because pty console
+  setup was too cumbersome to maintain across all hypervisors.
 
 ## 0.3.3 (2023-05-24)
 
 * Support for **macvtap** network interfaces has been added.
 * `boot.initrd.systemd.enable` is now supported.
-* Experimental **graphics** support
+* Experimental **graphics** support for qemu, and cloud-hypervisor
 * **qemu**: use qboot BIOS
 
 ## 0.3.2 (2022-12-25)

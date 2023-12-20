@@ -146,4 +146,13 @@ lib.mkIf config.microvm.guest.enable {
       };
     };
   };
+
+  # Fix for hanging shutdown
+  systemd.mounts = lib.mkIf config.boot.initrd.systemd.enable [ {
+    what = "store";
+    where = "/nix/store";
+    # Generate a `nix-store.mount.d/overrides.conf`
+    overrideStrategy = "asDropin";
+    unitConfig.DefaultDependencies = false;
+  } ];
 }

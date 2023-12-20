@@ -23,12 +23,16 @@
 
   **qemu** boots fast with the shipped SeaBIOS if after both SATA and
   the network interface option ROM (iPXE) have been disabled.
-* `microvm.kernelParams` always reuse `boot.kernelParams`
+* `microvm.kernelParams` always copy `boot.kernelParams`
 * **firecracker** is no longer launched through **firectl**.
 * Networking example documentation has been split into multiple
   scenarios.
-* **Vsocks** support has been added for Hypervisors that connect it to
-  the Linux host's *AF_VSOCK*: qemu, and crosvm.
+* **Vsock** support has been added for Hypervisors that connect them
+  to the Linux host's *AF_VSOCK*: qemu, crosvm, and kvmtool.
+* Our packages and overlay include the unstable version of
+  **waypipe**, featuring **Vsock** support.
+* Add support for the old command-line parameter syntax that returned
+  with **cloud-hypervisor** 36.0.
 
 ## 0.4.0 (2023-07-09)
 
@@ -40,6 +44,8 @@
 * We use **squashfs-tools-ng** now.
 * The `microvm-console` script has been removed because pty console
   setup was too cumbersome to maintain across all hypervisors.
+* `microvm.storeDiskType` defaults to `"erofs"` now for higher runtime
+  performance.
 
 ## 0.3.3 (2023-05-24)
 

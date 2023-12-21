@@ -99,7 +99,8 @@ lib.mkIf config.microvm.guest.enable {
         "${mountPoint}" = {
           inherit fsType;
           device = "/dev/vd${letter}";
-          neededForBoot = mountPoint == config.microvm.writableStoreOverlay;
+        } // lib.optionalAttrs (mountPoint == config.microvm.writableStoreOverlay) {
+          neededForBoot = true;
         };
       }) {} (withDriveLetters config.microvm)
   ) (
@@ -112,8 +113,8 @@ lib.mkIf config.microvm.guest.enable {
           "virtiofs" = [ "defaults" "x-systemd.after=systemd-modules-load.service" ];
           "9p" = [ "trans=virtio" "version=9p2000.L"  "msize=65536" ];
         }.${proto};
-        neededForBoot = source == "/nix/store" ||
-          mountPoint == config.microvm.writableStoreOverlay;
+      } // lib.optionalAttrs (source == "/nix/store" || mountPoint == config.microvm.writableStoreOverlay) {
+        neededForBoot = true;
       };
     }) {} config.microvm.shares
   ) ];

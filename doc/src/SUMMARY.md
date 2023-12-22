@@ -5,6 +5,7 @@
   - [Configuration options](./options.md)
   - [Network interfaces](./interfaces.md)
   - [Shared directories](./shares.md)
+  - [CPU emulation](./cpu-emulation.md)
   - [Output options](./output-options.md)
   - [Options reference](./microvm-options.md)
 - [Running a MicroVM as a package](./packages.md)
@@ -16,4 +17,3 @@
 - [Imperative MicroVM management](./microvm-command.md)
 - [Conventions](./conventions.md)
 - [Frequently Asked Questions](./faq.md)
-

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Intro - microvm.nix</title>
+        <title>CPU emulation - microvm.nix</title>
 
 
         <!-- Custom HTML head -->
@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html" class="active"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.4.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.5.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.6.</strong> Options reference</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html" class="active"><strong aria-hidden="true">2.4.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.5.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.6.</strong> Options reference</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -171,47 +171,84 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="intro"><a class="header" href="#intro">Intro</a></h1>
-<p><strong>microvm.nix</strong> is a Flake to run lightweight NixOS virtual machines
-on NixOS. Starting with the reasons why for the remainder of this
-chapter, this handbook guides you through the provisioning of MicroVMs
-on your NixOS machine.</p>
-<h2 id="compartmentalization"><a class="header" href="#compartmentalization">Compartmentalization</a></h2>
-<p>NixOS makes running services a breeze. Being able to quickly rollback
-configuration is a life-saver. Not so much however on systems that are
-shared by multiple services where maintenance of one affects others.</p>
-<p>Increase stability by partitioning services into virtual NixOS systems
-that can be updated individually.</p>
-<h2 id="the-case-against-containers"><a class="header" href="#the-case-against-containers">The Case Against Containers</a></h2>
-<p>Linux containers are not a single technology but a plethora of kernel
-features that serve to isolate various system resources so that the
-running system appears as one. It is still one shared Linux kernel
-with a huge attack surface.</p>
-<p>Virtual machines on the other hand run their own OS kernel, reducing
-the attack surface to the hypervisor and its device drivers. The
-resource usage however incurs some overhead when compared with
-containers, with memory allocation being especially inflexible.</p>
-<p><strong>microvm.nix</strong> ships an additional security feature: the root
-filesystem is a read-only squashfs that includes only the binaries of
-your configuration. That of course holds only true unless you mount the
-host's /nix/store as a share for faster build times, or mount the
-store with a writable overlay.</p>
-<h2 id="just-virtual-machines"><a class="header" href="#just-virtual-machines">Just Virtual Machines?</a></h2>
-<p>Full virtualization has been available for a long time with QEMU and
-VirtualBox. The <em>MicroVM</em> machine type highlights that virtualization
-overhead has been reduced a lot by replacing emulated devices with
-<em>virtio</em> interfaces that have been optimized for this environment.</p>
-<p>This Flake offers you to run your MicroVMs not only on QEMU but with
-other Hypervisors that have been explicitly authored for
-<em>virtio</em>. Some of them are written in Rust, a programming language
-that is renowned for being safer than C.</p>
+                        <h1 id="cpu-emulation"><a class="header" href="#cpu-emulation">CPU emulation</a></h1>
+<p>It's possible to emulate a CPU if desired. This feature is only
+supported by the qemu hypervisor.</p>
+<p><strong>Note:</strong> this feature has a significant performance impact.</p>
+<h2 id="defining-an-emulated-nixos-system"><a class="header" href="#defining-an-emulated-nixos-system">Defining an emulated NixOS system</a></h2>
+<p>You can call to <code>nixpkgs.lib.nixosSystem</code>, with the following key
+settings:</p>
+<ul>
+<li>
+<p>Set the <code>system</code> attribute to the host system.</p>
+</li>
+<li>
+<p>A module that sets <code>nixpkgs.crossSystem.config</code> to the guest
+system. This lets <code>microvm.nix</code> know that it's a cross-system
+environment.</p>
+</li>
+<li>
+<p>Set <code>microvm.hypervisor</code> to <code>qemu</code>, given this is the only
+hypervisor that supports this feature.</p>
+</li>
+<li>
+<p>Set <code>microvm.cpu</code> to the desired emulated CPU. You can find a <a href="https://www.qemu.org/docs/master/system/targets.html">list
+of the available systems
+here</a>.</p>
+</li>
+</ul>
+<pre><code class="language-nix"># Example flake.nix
+{
+  inputs = {
+    nixpkgs.url = &quot;github:nixos/nixpkgs/nixos-unstable&quot;;
+    microvm = {
+      url = &quot;github:astro/microvm.nix&quot;;
+      inputs.nixpkgs.follows = &quot;nixpkgs&quot;;
+    };
+  };
+
+  outputs = { self, nixpkgs, microvm }: {
+    emulated-dev = nixpkgs.lib.nixosSystem {
+      # host system
+      system = &quot;x86_64-linux&quot;;
+      modules = let
+        guestSystem = &quot;aarch64-unknown-linux-gnu&quot;;
+        # you can use packages in the guest machine with cross system configuration
+        pkgs = import nixpkgs {
+          system = &quot;x86_64-linux&quot;;
+          crossSystem.config = guestSystem;
+        };
+      in [
+        {nixpkgs.crossSystem.config = guestSystem;}
+        microvm.nixosModules.microvm
+        {
+          microvm = {
+            # you can choose what CPU will be emulated by qemu
+            cpu = &quot;cortex-a53&quot;;
+            hypervisor = &quot;qemu&quot;;
+          };
+          environment.systemPackages = with pkgs; [ cowsay htop ];
+          services.getty.autologinUser = &quot;root&quot;;
+          system.stateVersion = &quot;23.11&quot;;
+        }
+      ];
+    };
+  };
+}
+</code></pre>
+<p>You can run the example with <code>nix run .#emulated-dev.config.microvm.declaredRunner</code>.</p>
+<p>As shown in this example, you can use system packages on the guest
+system by using nixpkgs with a proper <code>crossSystem</code> configuration.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="shares.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
-                            <a rel="next prefetch" href="declaring.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="output-options.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -221,8 +258,11 @@ that is renowned for being safer than C.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="shares.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
-                    <a rel="next prefetch" href="declaring.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="output-options.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

@@ -176,7 +176,7 @@ in {
     if socket != null
     then ''
         api() {
-          ${pkgs.curl}/bin/curl \
+          ${pkgs.curl}/bin/curl -s \
             --unix-socket ${socket} \
             $@
         }

@@ -91,7 +91,7 @@ in {
   shutdownCommand =
     if socket != null
     then ''
-      ${pkgs.curl}/bin/curl \
+      ${pkgs.curl}/bin/curl -s \
         --unix-socket ${socket} \
         -X PUT http://localhost/actions \
         -d '{ "action_type": "SendCtrlAltDel" }'

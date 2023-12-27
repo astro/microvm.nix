@@ -9,9 +9,13 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    spectrum = {
+      url = "git+https://spectrum-os.org/git/spectrum";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, spectrum }:
     let
       systems = [
         "x86_64-linux"
@@ -109,7 +113,7 @@
               extraOutputsToInstall = [ "dev" ];
               ignoreCollisions = true;
             };
-            cloud-hypervisor-graphics = pkgs.callPackage ./pkgs/spectrum-os/cloud-hypervisor {};
+            cloud-hypervisor-graphics = pkgs.callPackage (spectrum + "/pkgs/cloud-hypervisor") {};
             waypipe = overrideWaypipe pkgs;
           } //
           # wrap self.nixosConfigurations in executable packages
@@ -139,7 +143,7 @@
         lib = import ./lib { nixpkgs-lib = nixpkgs.lib; };
 
         overlay = final: prev: {
-          cloud-hypervisor-graphics = prev.callPackage ./pkgs/spectrum-os/cloud-hypervisor {};
+          cloud-hypervisor-graphics = prev.callPackage (spectrum + "/pkgs/cloud-hypervisor") {};
           waypipe = overrideWaypipe prev;
         };
 

@@ -107,13 +107,11 @@
                 kvmtool-example
                 stratovirt-example
                 virtiofsd
-                cloud-hypervisor-graphics
               ];
               pathsToLink = [ "/" ];
               extraOutputsToInstall = [ "dev" ];
               ignoreCollisions = true;
             };
-            cloud-hypervisor-graphics = pkgs.callPackage (spectrum + "/pkgs/cloud-hypervisor") {};
             waypipe = overrideWaypipe pkgs;
           } //
           # wrap self.nixosConfigurations in executable packages

@@ -35,8 +35,8 @@ let
     ++ lib.optional microvmConfig.optimize.enable minimizeQemuClosureSize
   );
 
-  qemu = overrideQemu (if pkgs.buildPlatform == pkgs.hostPlatform then
-    pkgs.buildPackages.qemu_kvm else pkgs.buildPackages.qemu_full);
+  qemu = overrideQemu (if microvmConfig.cpu == null then
+    pkgs.qemu_kvm else pkgs.buildPackages.qemu_full);
 
   inherit (microvmConfig) hostName cpu vcpu mem balloonMem user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
   inherit (microvmConfig.qemu) extraArgs;
@@ -62,7 +62,7 @@ let
     ) ];
 
   accel =
-    if pkgs.buildPlatform == pkgs.hostPlatform
+    if microvmConfig.cpu == null
     then "accel=kvm:tcg"
     else "accel=tcg";
 
@@ -143,7 +143,7 @@ in {
       "-serial" "chardev:stdio"
       "-device" "virtio-rng-${devType}"
     ] ++
-    lib.optionals (pkgs.buildPlatform == pkgs.hostPlatform) [
+    lib.optionals (microvmConfig.cpu == null) [
       "-enable-kvm"
     ] ++
     cpuArgs ++

@@ -82,8 +82,7 @@ let
       "pit=off"
       "pic=off"
       "mem-merge=on"
-      # ACPI breaks boot with 2GB mem
-      "acpi=off"
+      "acpi=on"
       "pcie=${if requirePci then "on" else "off"}"
       "usb=${if requireUsb then "on" else "off"}"
     ];

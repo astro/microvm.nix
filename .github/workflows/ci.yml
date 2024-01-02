@@ -1,0 +1,48 @@
+name: "Continuous Integration"
+
+on:
+  workflow_dispatch: # allows manual triggering
+  push:
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.eval-jobs.outputs.matrix }}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: cachix/install-nix-action@v20
+    - name: Evaluate hydraJobs
+      id: eval-jobs
+      run: |
+        MATRIX=$(nix eval \
+          --accept-flake-config \
+          --json \
+          .#hydraJobs.x86_64-linux --apply builtins.attrNames \
+        )
+        echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
+  build:
+    name: ${{ matrix.check }}
+    needs: eval
+    strategy:
+      fail-fast: false
+      matrix:
+        check: ${{ fromJson(needs.eval.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    env:
+      NIX_ATTR: 'hydraJobs.x86_64-linux.${{ matrix.check }}'
+    steps:
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v20
+      - name: Build ${{ matrix.check }}
+        run: |
+          nix build \
+            -vL \
+            --accept-flake-config \
+            ".#$NIX_ATTR"

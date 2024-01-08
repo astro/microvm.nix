@@ -6,6 +6,8 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
     name = "vm-${hypervisor}-iperf";
     nodes.vm = {
       imports = [ self.nixosModules.host ];
+      # TODO: this is a farce of a flake. replace with declarative
+      # microvm.
       microvm.vms."${hypervisor}-iperf-server".flake = nixpkgs.legacyPackages.${system}.runCommand "${hypervisor}-iperf-server.flake" {
         passthru.nixosConfigurations."${hypervisor}-iperf-server" = nixpkgs.lib.nixosSystem {
           inherit system;
@@ -21,16 +23,14 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
                 } ];
               };
               networking.hostName = "${hypervisor}-microvm";
-              networking = {
-                interfaces.eth0 = {
-                  useDHCP = false;
-                  ipv4.addresses = [ {
-                    address = "10.0.0.1";
-                    prefixLength = 24;
-                  } ];
+              systemd.network = {
+                enable = true;
+                networks."10-eth" = {
+                  matchConfig.Type = "ether";
+                  address = [ "10.0.0.1/24" ];
                 };
-                firewall.enable = false;
               };
+              networking.firewall.enable = false;
               services.iperf3.enable = true;
             }
           ];

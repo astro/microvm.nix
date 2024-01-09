@@ -34,6 +34,7 @@ builtins.mapAttrs (_: nixos:
   } ''
     set -m
     microvm-run > $out &
+    export MAINPID=$!
 
     sleep 10
     echo Now shutting down

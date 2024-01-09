@@ -52,6 +52,11 @@ let
       modules = [ {
         microvm.hypervisor = "alioth";
       } ];
+    } {
+      id = "stratovirt";
+      modules = [ {
+        microvm.hypervisor = "stratovirt";
+      } ];
     } ]
     # ro-store
     [ {

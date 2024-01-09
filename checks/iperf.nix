@@ -61,10 +61,10 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
     testScript = ''
       import os
 
-      vm.wait_for_unit("microvm@${hypervisor}-iperf-server.service", timeout = 900)
+      vm.wait_for_unit("microvm@${hypervisor}-iperf-server.service", timeout = 600)
       vm.succeed("ip addr add 10.0.0.2/24 dev microvm")
 
-      result = vm.wait_until_succeeds("iperf -c 10.0.0.1", timeout = 180)
+      result = vm.wait_until_succeeds("iperf -c 10.0.0.1", timeout = 1200)
       print(result)
 
       path = "{}/summary.md".format(os.environ.get("out"))

@@ -46,3 +46,6 @@ jobs:
             -vL \
             --accept-flake-config \
             ".#$NIX_ATTR"
+          if [ -e result/summary.md ]; then
+            cat result/summary.md >> $GITHUB_STEP_SUMMARY
+          fi

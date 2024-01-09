@@ -47,6 +47,11 @@ let
       modules = [ {
         microvm.hypervisor = "kvmtool";
       } ];
+    } {
+      id = "stratovirt";
+      modules = [ {
+        microvm.hypervisor = "stratovirt";
+      } ];
     } ]
     # ro-store
     [ {

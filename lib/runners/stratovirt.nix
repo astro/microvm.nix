@@ -12,6 +12,8 @@ let
     kernel initrdPath
     storeOnDisk storeDisk;
 
+  tapMultiQueue = vcpu > 1;
+
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
   volumes = withDriveLetters microvmConfig;
 
@@ -25,8 +27,6 @@ let
       else "microvm";
     aarch64-linux = "virt";
   }.${system};
-
-  tapMultiQueue = vcpu > 1;
 
   console = {
     x86_64-linux = "ttyS0";
@@ -111,6 +111,7 @@ in {
             [
               (if type == "macvtap" then "tap" else "${type}")
               "id=${id}"
+              "queues=${toString (lib.min 16 vcpu)}"
             ]
             ++ lib.optionals (type == "user" && forwardPortsOptions != []) forwardPortsOptions
             ++ lib.optionals (type == "bridge") [
@@ -128,7 +129,15 @@ in {
           )
         )
         # TODO: devType (0x10 + i)
-        "-device" "virtio-net-${devType 30},id=net_${id},netdev=${id},mac=${mac}"
+        "-device" (
+          lib.concatStringsSep "," [
+            "virtio-net-${devType 30}"
+            "id=net_${id}"
+            "netdev=${id}"
+            "mac=${mac}"
+            "mq=${if tapMultiQueue then "on" else "off"}"
+          ]
+        )
       ]) interfaces
     )
     ++

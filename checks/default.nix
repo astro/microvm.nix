@@ -109,9 +109,14 @@ let
     } {
       # yes
       id = "systemd";
-      modules = [ {
+      modules = [ ({ config, ... }: {
         boot.initrd.systemd.enable = true;
-      } ];
+        microvm.testing.enableTest = ! builtins.elem config.microvm.hypervisor [
+          # Known broken
+          "crosvm"
+          "kvmtool"
+        ];
+      }) ];
     } ]
     # hardened profile
     [ {

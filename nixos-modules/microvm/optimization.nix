@@ -36,11 +36,7 @@ in
 
   config = lib.mkIf (cfg.guest.enable && cfg.optimize.enable) {
     # Avoids X deps in closure due to dbus dependencies
-    environment.noXlibs = lib.mkIf (
-      (!cfg.graphics.enable) && cfg.hypervisor != "stratovirt"
-    ) (
-      lib.mkDefault true
-    );
+    environment.noXlibs = lib.mkIf (!cfg.graphics.enable) (lib.mkDefault true);
 
     # The docs are pretty chonky
     documentation.enable = lib.mkDefault false;
@@ -54,6 +50,12 @@ in
         "firecracker"
         "stratovirt"
       ]);
+
+    nixpkgs.overlays = [
+      (final: prev: {
+        stratovirt = prev.stratovirt.override { gtk3 = null; };
+      })
+    ];
 
     # networkd is used due to some strange startup time issues with nixos's
     # homegrown dhcp implementation

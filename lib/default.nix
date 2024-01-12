@@ -56,9 +56,9 @@ rec {
         # Mark NOCOW
         chattr +C '${image}' || true
         fallocate -l${toString size}MiB '${image}'
-        mkfs.${fsType} ${pkgs.lib.optionalString (label != null) "-L '${label}'"} '${image}'
+        mkfs.${fsType} ${labelArgument} '${image}'
       fi
-    ''));
+    '')));
 
   buildRunner = import ./runner.nix;
 

@@ -19,23 +19,23 @@ let
   preStart = hypervisorConfig.preStart or microvmConfig.preStart;
   tapMultiQueue = hypervisorConfig.tapMultiQueue or false;
 
-  runScriptBin = pkgs.writeScriptBin "microvm-run" ''
-    #! ${pkgs.runtimeShell} -e
+  runScriptBin = pkgs.buildPackages.writeScriptBin "microvm-run" ''
+    #! ${pkgs.buildPackages.runtimeShell} -e
 
     ${preStart}
-    ${createVolumesScript pkgs microvmConfig.volumes}
+    ${createVolumesScript pkgs.buildPackages microvmConfig.volumes}
     ${lib.optionalString (hypervisorConfig.requiresMacvtapAsFds or false) openMacvtapFds}
 
     exec ${command}
   '';
 
-  shutdownScriptBin = pkgs.writeScriptBin "microvm-shutdown" ''
+  shutdownScriptBin = pkgs.buildPackages.writeScriptBin "microvm-shutdown" ''
     #! ${pkgs.runtimeShell} -e
 
     ${shutdownCommand}
   '';
 
-  balloonScriptBin = pkgs.writeScriptBin "microvm-balloon" ''
+  balloonScriptBin = pkgs.buildPackages.writeScriptBin "microvm-balloon" ''
     #! ${pkgs.runtimeShell} -e
 
     if [ -z "$1" ]; then
@@ -48,7 +48,7 @@ let
   '';
 in
 
-pkgs.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}"
+pkgs.buildPackages.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConfig.hostName}"
 {
   # for `nix run`
   meta.mainProgram = "microvm-run";

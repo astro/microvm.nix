@@ -15,6 +15,7 @@ let
         };
         microvm = {
           volumes = [ {
+            label = "var";
             mountPoint = "/var";
             image = "var.img";
             size = 32;

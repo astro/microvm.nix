@@ -94,11 +94,16 @@ lib.mkIf config.microvm.guest.enable {
     };
   } (
     # Volumes
-    builtins.foldl' (result: { mountPoint, letter, fsType ? defaultFsType, ... }:
+    builtins.foldl' (result: { label, mountPoint, letter, fsType ? defaultFsType, ... }:
       result // lib.optionalAttrs (mountPoint != null) {
         "${mountPoint}" = {
           inherit fsType;
-          device = "/dev/vd${letter}";
+          # Prioritize identifying a device by label if provided. This
+          # minimizes the risk of misidentifying a device.
+          device = if label != null then
+            "/dev/disk/by-label/${label}"
+          else
+            "/dev/vd${letter}";
         } // lib.optionalAttrs (mountPoint == config.microvm.writableStoreOverlay) {
           neededForBoot = true;
         };

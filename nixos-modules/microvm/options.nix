@@ -180,6 +180,11 @@ in
             type = str;
             description = "Path to disk image on the host";
           };
+          label = mkOption {
+            type = nullOr str;
+            default = null;
+            description = "Label of the volume, if any. Only applicable if autoCreate is true; otherwise labeling of the volume must be done manually";
+          };
           mountPoint = mkOption {
             type = nullOr path;
             description = "If and where to mount the volume inside the container";

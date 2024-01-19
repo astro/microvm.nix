@@ -269,7 +269,7 @@ does.</p>
 </code></pre>
 <h1 id="can-i-include-my-hosts-nixpkgs-channel-when-building-the-vm"><a class="header" href="#can-i-include-my-hosts-nixpkgs-channel-when-building-the-vm">Can I include my host's <code>&lt;nixpkgs&gt;</code> channel when building the VM?</a></h1>
 <p>Use the following configuration if you build your MicroVM with
-channels, not Flakes:</p>
+<code>--impure</code> from channels, not Flakes:</p>
 <pre><code class="language-nix">nix.nixPath = [
   &quot;nixpkgs=${builtins.storePath &lt;nixpkgs&gt;}&quot;
 ];

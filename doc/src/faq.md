@@ -115,7 +115,7 @@ environment.systemPackages = [ (
 # Can I include my host's `<nixpkgs>` channel when building the VM?
 
 Use the following configuration if you build your MicroVM with
-channels, not Flakes:
+`--impure` from channels, not Flakes:
 
 ```nix
 nix.nixPath = [

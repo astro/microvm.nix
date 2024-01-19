@@ -71,7 +71,7 @@ in
 
           flake = mkOption {
             description = "Source flake for declarative build";
-            type = nullOr path;
+            type = nullOr str;
             default = null;
           };
 
@@ -174,7 +174,7 @@ in
         inherit (microvmConfig) flake updateFlake;
         isFlake = flake != null;
         guestConfig = if isFlake
-                      then flake.nixosConfigurations.${name}.config
+                      then (builtins.getFlake flake).nixosConfigurations.${name}.config
                       else microvmConfig.config.config;
         runner = guestConfig.microvm.declaredRunner;
       in

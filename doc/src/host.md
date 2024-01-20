@@ -43,3 +43,14 @@ Prepare your host by including the microvm.nix `host` nixosModule:
   };
 }
 ```
+
+# Preparing a non-Flakes host
+
+If you really cannot migrate to Flakes easily, just import the `host`
+module directly in your NixOS configuration:
+
+```nix
+imports = [ (builtins.fetchGit {
+  url = "https://github.com/astro/microvm.nix";
+} + "/nixos-modules/host.nix") ];
+```

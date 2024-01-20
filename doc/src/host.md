@@ -52,5 +52,5 @@ module directly in your NixOS configuration:
 ```nix
 imports = [ (builtins.fetchGit {
   url = "https://github.com/astro/microvm.nix";
-} + "/nixos-modules/host.nix") ];
+} + "/nixos-modules/host") ];
 ```

@@ -147,7 +147,7 @@
 
         nixosModules = {
           microvm = import ./nixos-modules/microvm;
-          host = import ./nixos-modules/host.nix;
+          host = import ./nixos-modules/host;
         };
 
         defaultTemplate = self.templates.microvm;

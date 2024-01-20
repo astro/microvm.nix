@@ -49,7 +49,7 @@ rec {
              if (labelOption != null && label != null) then "${labelOption} '${label}'"
              else "";
       in (nixpkgs-lib.optionalString autoCreate ''
-      PATH=$PATH:${with pkgs.buildPackages; lib.makeBinPath [ coreutils util-linux e2fsprogs ]}
+      PATH=$PATH:${with pkgs.buildPackages; lib.makeBinPath [ coreutils util-linux e2fsprogs xfsprogs dosfstools ]}
 
       if [ ! -e '${image}' ]; then
         touch '${image}'

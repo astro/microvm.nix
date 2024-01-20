@@ -12,6 +12,12 @@ values:
 
   Expect `virtiofs` to yield better performance over `9p`.
 
+<div class="warning">
+When sharing a path that is on ZFS, the dataset must have options
+`-o xattr=sa -o acltype=posixacl`
+</div>
+
+
 ## Sharing a host's `/nix/store`
 
 If a share with `source = "/nix/store"` is defined, size and build

@@ -213,6 +213,13 @@ system</a></li>
   };
 }
 </code></pre>
+<h1 id="preparing-a-non-flakes-host"><a class="header" href="#preparing-a-non-flakes-host">Preparing a non-Flakes host</a></h1>
+<p>If you really cannot migrate to Flakes easily, just import the <code>host</code>
+module directly in your NixOS configuration:</p>
+<pre><code class="language-nix">imports = [ (builtins.fetchGit {
+  url = &quot;https://github.com/astro/microvm.nix&quot;;
+} + &quot;/nixos-modules/host.nix&quot;) ];
+</code></pre>
 
                     </main>
 

@@ -187,8 +187,9 @@ service that comes with the <code>microvm.nixosModules.host</code> module.</p>
 </li>
 </ul>
 <div class="warning">
-When sharing a path that is on ZFS, the dataset must have options
-`-o xattr=sa -o acltype=posixacl`
+When sharing a path that is on ZFS with virtiofs, the dataset must
+have options
+<code>-o xattr=sa -o acltype=posixacl</code>
 </div>
 <h2 id="sharing-a-hosts-nixstore"><a class="header" href="#sharing-a-hosts-nixstore">Sharing a host's <code>/nix/store</code></a></h2>
 <p>If a share with <code>source = &quot;/nix/store&quot;</code> is defined, size and build

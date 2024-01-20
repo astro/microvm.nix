@@ -52,7 +52,7 @@ nixos-containers work if you are familiar with those.
 ## Declarative deployment
 
 Why *deployed*? The per-MicroVM subdirectory under `/var/lib/microvms`
-is only created, if it did not exist before. This behavior is
+is only created if it did not exist before. This behavior is
 intended to ensure existence of MicroVMs that are critical to
 operation. To update them later you will have to use the [imperative microvm
 command](./microvm-command.md).

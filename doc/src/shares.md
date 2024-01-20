@@ -13,8 +13,9 @@ values:
   Expect `virtiofs` to yield better performance over `9p`.
 
 <div class="warning">
-When sharing a path that is on ZFS, the dataset must have options
-`-o xattr=sa -o acltype=posixacl`
+When sharing a path that is on ZFS with virtiofs, the dataset must
+have options
+<code>-o xattr=sa -o acltype=posixacl</code>
 </div>
 
 

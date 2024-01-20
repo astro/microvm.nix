@@ -186,6 +186,10 @@ service that comes with the <code>microvm.nixosModules.host</code> module.</p>
 <p>Expect <code>virtiofs</code> to yield better performance over <code>9p</code>.</p>
 </li>
 </ul>
+<div class="warning">
+When sharing a path that is on ZFS, the dataset must have options
+`-o xattr=sa -o acltype=posixacl`
+</div>
 <h2 id="sharing-a-hosts-nixstore"><a class="header" href="#sharing-a-hosts-nixstore">Sharing a host's <code>/nix/store</code></a></h2>
 <p>If a share with <code>source = &quot;/nix/store&quot;</code> is defined, size and build
 time of the stage1 squashfs for <code>/dev/vda</code> will be reduced
@@ -214,10 +218,12 @@ don't work currently, so resort to using a volume for that:</p>
   } ];
 }
 </code></pre>
-<p><strong>Caveat:</strong> The Nix database will forget all built packages after a
+<div class="warning">
+The Nix database will forget all built packages after a
 reboot, containing only what is needed for the VM's NixOS
 system. Until this has been solved, it is recommended to just delete
-and recreate the overlay after MicroVM shutdown or before startup.</p>
+and recreate the overlay after MicroVM shutdown or before startup.
+</div>
 
                     </main>
 

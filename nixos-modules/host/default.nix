@@ -39,7 +39,7 @@ in
                     };
                   in [
                     extraConfig
-                    ./microvm
+                    ../microvm
                   ] ++ (map (x: x.value) defs);
                 prefix = [ "microvm" "vms" name "config" ];
                 inherit (config) specialArgs pkgs;

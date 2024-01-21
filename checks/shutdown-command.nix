@@ -36,7 +36,7 @@ builtins.mapAttrs (_: nixos:
     microvm-run > $out &
     export MAINPID=$!
 
-    sleep 10
+    sleep 30
     echo Now shutting down
     microvm-shutdown
   ''

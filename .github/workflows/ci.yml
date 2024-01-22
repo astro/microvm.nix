@@ -29,6 +29,42 @@ jobs:
       fail-fast: false
       matrix:
         check: ${{ fromJson(needs.eval.outputs.matrix) }}
+        exclude:
+          # Cannot cross-build on Github CI
+          - check: qemu-tcg-9pstore-overlay-shutdown-command
+          - check: qemu-tcg-9pstore-overlay-startup-shutdown
+          - check: qemu-tcg-9pstore-overlay-systemd-shutdown-command
+          - check: qemu-tcg-9pstore-overlay-systemd-startup-shutdown
+          - check: qemu-tcg-9pstore-shutdown-command
+          - check: qemu-tcg-9pstore-startup-shutdown
+          - check: qemu-tcg-9pstore-systemd-shutdown-command
+          - check: qemu-tcg-9pstore-systemd-startup-shutdown
+          - check: qemu-tcg-overlay-shutdown-command
+          - check: qemu-tcg-overlay-startup-shutdown
+          - check: qemu-tcg-overlay-systemd-shutdown-command
+          - check: qemu-tcg-overlay-systemd-startup-shutdown
+          - check: qemu-tcg-shutdown-command
+          - check: qemu-tcg-startup-shutdown
+          - check: qemu-tcg-systemd-shutdown-command
+          - check: qemu-tcg-systemd-startup-shutdown
+          # Known broken
+          - check: cloud-hypervisor-overlay-startup-shutdown
+          - check: cloud-hypervisor-overlay-shutdown-command
+          - check: cloud-hypervisor-overlay-systemd-startup-shutdown
+          - check: cloud-hypervisor-overlay-systemd-shutdown-command
+          - check: firecracker-overlay-shutdown-command
+          - check: firecracker-overlay-startup-shutdown
+          - check: firecracker-overlay-overlay-startup-shutdown
+          - check: stratovirt-startup-shutdown
+          - check: stratovirt-shutdown-command
+          - check: stratovirt-systemd-startup-shutdown
+          - check: vm-firecracker
+          - check: vm-firecracker-iperf
+          - check: vm-stratovirt-iperf
+          # Not finishing
+          - check: firecracker-overlay-systemd-startup-shutdown
+          - check: qemu-overlay-startup-shutdown
+          - check: qemu-overlay-systemd-startup-shutdown
     runs-on: ubuntu-latest
     env:
       NIX_ATTR: 'hydraJobs.x86_64-linux.${{ matrix.check }}'
@@ -43,7 +79,7 @@ jobs:
       - name: Build ${{ matrix.check }}
         run: |
           nix build \
-            -vL \
+            -L \
             --accept-flake-config \
             ".#$NIX_ATTR"
           if [ -e result/summary.md ]; then

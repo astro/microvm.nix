@@ -394,6 +394,14 @@ in
       description = "Extra arguments to pass to qemu.";
     };
 
+    qemu.serialConsole = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Whether to enable the virtual serial console on qemu.
+      '';
+    };
+
     crosvm.extraArgs = mkOption {
       type = with types; listOf str;
       default = [];

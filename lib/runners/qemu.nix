@@ -39,7 +39,7 @@ let
     pkgs.qemu_kvm else pkgs.buildPackages.qemu_full);
 
   inherit (microvmConfig) hostName cpu vcpu mem balloonMem user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
-  inherit (microvmConfig.qemu) extraArgs;
+  inherit (microvmConfig.qemu) extraArgs serialConsole;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
 
@@ -121,6 +121,17 @@ let
   writeQmp = data: ''
     echo '${builtins.toJSON data}'
   '';
+
+  kernelConsole =
+    if microvmConfig.qemu.serialConsole == false
+    then ""
+    else if system == "x86_64-linux"
+    then "earlyprintk=ttyS0 console=ttyS0"
+    else if system == "aarch64-linux"
+    then "console=ttyAMA0"
+    else "";
+
+
 in {
   inherit tapMultiQueue;
 
@@ -139,8 +150,10 @@ in {
       "-initrd" initrdPath
 
       "-chardev" "stdio,id=stdio,signal=off"
-      "-serial" "chardev:stdio"
       "-device" "virtio-rng-${devType}"
+    ] ++
+    lib.optionals serialConsole [
+      "-serial" "chardev:stdio"
     ] ++
     lib.optionals (microvmConfig.cpu == null) [
       "-enable-kvm"
@@ -149,10 +162,10 @@ in {
     lib.optionals (system == "x86_64-linux") [
       "-device" "i8042"
 
-      "-append" "earlyprintk=ttyS0 console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+      "-append" "${kernelConsole} reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
     ] ++
     lib.optionals (system == "aarch64-linux") [
-      "-append" "console=ttyAMA0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+      "-append" "${kernelConsole} reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
     ] ++
     lib.optionals storeOnDisk [
       "-drive" "id=store,format=raw,read-only=on,file=${storeDisk},if=none,aio=io_uring"

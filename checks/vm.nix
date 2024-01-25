@@ -16,6 +16,10 @@
       ];
       # Must be big enough for the store overlay volume
       virtualisation.diskSize = 4096;
+      # Hack for slow Github CI
+      systemd.extraConfig = ''
+        DefaultTimeoutStartSec=600
+      '';
 
       microvm.vms."${system}-${hypervisor}-example".flake = self;
     };

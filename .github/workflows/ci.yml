@@ -76,6 +76,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
       - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v20
+      - uses: DeterminateSystems/magic-nix-cache-action@v2
       - name: Build ${{ matrix.check }}
         run: |
           nix build \

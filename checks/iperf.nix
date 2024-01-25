@@ -32,6 +32,10 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
               };
               networking.firewall.enable = false;
               services.iperf3.enable = true;
+              # Hack for slow Github CI
+              systemd.extraConfig = ''
+                DefaultTimeoutStartSec=600
+              '';
             }
           ];
         };

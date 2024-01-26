@@ -54,6 +54,7 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
         # # keep the store paths built inside the VM across reboots
         # writableStoreUseTmpfs = false;
         qemu.options = [
+          "-M" "q35,accel=kvm"
           "-cpu"
           {
             "aarch64-linux" = "cortex-a72";

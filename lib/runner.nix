@@ -19,7 +19,7 @@ let
   preStart = hypervisorConfig.preStart or microvmConfig.preStart;
   tapMultiQueue = hypervisorConfig.tapMultiQueue or false;
 
-  execArg = lib.optionalString microvmConfig.prettyProcname
+  execArg = lib.optionalString microvmConfig.prettyProcnames
     ''-a "microvm@${microvmConfig.hostName}"'';
 
   runScriptBin = pkgs.buildPackages.writeScriptBin "microvm-run" ''

@@ -12,7 +12,7 @@ in
       type = types.bool;
       default = true;
       description = ''
-        Whether to enable the microvm.nix guest module.
+        Whether to enable the microvm.nix guest module at all.
       '';
     };
 

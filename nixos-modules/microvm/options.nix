@@ -414,6 +414,14 @@ in
       description = "A Hypervisor's sandbox directory";
     };
 
+    prettyProcnames = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Set a recognizable process name right before executing the Hyperisor.
+      '';
+    };
+
     runner = mkOption {
       description = "Generated Hypervisor runner for this NixOS";
       type = with types; attrsOf package;

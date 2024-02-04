@@ -19,6 +19,9 @@ let
   preStart = hypervisorConfig.preStart or microvmConfig.preStart;
   tapMultiQueue = hypervisorConfig.tapMultiQueue or false;
 
+  execArg = lib.optionalString microvmConfig.prettyProcname
+    ''-a "microvm@${microvmConfig.hostName}"'';
+
   runScriptBin = pkgs.buildPackages.writeScriptBin "microvm-run" ''
     #! ${pkgs.buildPackages.runtimeShell} -e
 
@@ -26,7 +29,7 @@ let
     ${createVolumesScript pkgs.buildPackages microvmConfig.volumes}
     ${lib.optionalString (hypervisorConfig.requiresMacvtapAsFds or false) openMacvtapFds}
 
-    exec -a "microvm-${microvmConfig.hostName}" ${command}
+    exec ${execArg} ${command}
   '';
 
   shutdownScriptBin = pkgs.buildPackages.writeScriptBin "microvm-shutdown" ''

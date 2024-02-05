@@ -250,7 +250,7 @@ in {
             (microvmConfig.cpu == null && system != "x86_64-linux")
           ) ",romfile="
         }${
-          lib.optionalString tapMultiQueue ",mq=on,vectors=${toString (2 * vcpu + 2)}"
+          lib.optionalString (tapMultiQueue && requirePci) ",mq=on,vectors=${toString (2 * vcpu + 2)}"
         }"
       ]) interfaces
     )

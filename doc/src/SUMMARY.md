@@ -14,6 +14,7 @@
   - [Advanced network setup](./advanced-network.md)
   - [Host systemd services](./host-systemd.md)
 - [Declarative MicroVMs](./declarative.md)
+  - [Deploy via SSH](./ssh-deploy.md)
 - [Imperative MicroVM management](./microvm-command.md)
 - [Conventions](./conventions.md)
 - [Frequently Asked Questions](./faq.md)

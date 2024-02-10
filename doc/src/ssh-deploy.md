@@ -47,7 +47,7 @@ Just like [the microvm command](microvm-command.md), it then installs
 the MicroVM under `/var/lib/microvms/$NAME` so that the systemd
 services of the `host` module can pick it up.
 
-It is irrelevant whether you create a new MicrVOM or update an
+It is irrelevant whether you create a new MicroVM or update an
 existing one.
 
 ## microvm.deploy.sshSwitch

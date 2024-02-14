@@ -100,6 +100,16 @@ let
         boot.initrd.systemd.enable = true;
       } ];
     } ]
+    # hardened profile
+    [ {
+      # no
+      id = null;
+    } {
+      id = "hardened";
+      modules = [ ({ modulesPath, ... }: {
+        imports = [ "${modulesPath}/profiles/hardened.nix" ];
+      }) ];
+    } ]
   ];
 
   allVariants =

@@ -24,7 +24,11 @@ in
   options.microvm = with lib; {
     storeDiskType = mkOption {
       type = types.enum [ "squashfs" "erofs" ];
-      default = "erofs";
+      # nixos/modules/profiles/hardened.nix forbids erofs
+      default =
+        if builtins.elem "erofs" config.boot.blacklistedKernelModules
+        then "squashfs"
+        else "erofs";
       description = ''
         Boot disk file system type: squashfs is smaller, erofs is supposed to be faster.
       '';

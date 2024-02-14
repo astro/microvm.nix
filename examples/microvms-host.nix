@@ -1,3 +1,4 @@
+# `nix run microvm#vm`
 { self, nixpkgs, system }:
 
 nixpkgs.lib.nixosSystem {
@@ -11,44 +12,64 @@ nixpkgs.lib.nixosSystem {
 
     ({ config, lib, pkgs, ... }: {
       networking.hostName = "microvms-host";
-      users.users.root.password = "";
-      nix = {
-        extraOptions = "experimental-features = nix-command flakes";
-        registry = {
-          nixpkgs.flake = nixpkgs;
-          microvm.flake = self;
-        };
-      };
-      # won't build stratovirt else. TODO: why?
-      environment.noXlibs = lib.mkForce false;
-      environment.systemPackages = [
-        pkgs.git
-      ];
       system.stateVersion = config.system.nixos.version;
-      services = let
-        service = if lib.versionAtLeast (lib.versions.majorMinor lib.version) "20.09" then "getty" else "mingetty";
-      in {
-        ${service}.helpLine = ''
-          Log in as "root" with an empty password.
-          Type Ctrl-a c to switch to the qemu console
-          and `quit` to stop the VM.
-        '';
-      };
-      # Host MicroVM settings
+      users.users.root.password = "";
+      users.motd = ''
+        Once nested MicroVMs have booted you can look up DHCP leases:
+        networkctl status virbr0
+
+        They are configured to allow SSH login with an empty root
+        password.
+      '';
+      services.getty.autologinUser = "root";
+
+      # MicroVM settings
       microvm = {
         mem = 8192;
         vcpu = 4;
+        # Use QEMU because nested virtualization and user networking
+        # are required.
+        hypervisor = "qemu";
+        interfaces = [ {
+          type = "user";
+          id = "qemu";
+          mac = "02:00:00:01:01:01";
+        } ];
       };
 
-      # Nested MicroVMs
-      microvm.vms = builtins.foldl' (vms: hypervisor:
-        vms // {
-          "${system}-${hypervisor}-example-with-tap" = {
-            flake = self;
-            updateFlake = "microvm";
+      # Nested MicroVMs (a *host* option)
+      microvm.vms = builtins.listToAttrs (
+        map (hypervisor: {
+          name = hypervisor;
+          value = {
+            config = {
+              system.stateVersion = config.system.nixos.version;
+              networking.hostName = "${hypervisor}-microvm";
+
+              microvm = {
+                inherit hypervisor;
+                interfaces = [ {
+                  type = "tap";
+                  id = "vm-${builtins.substring 0 12 hypervisor}";
+                  mac =
+                    let
+                      hash = builtins.hashString "sha256" hypervisor;
+                      c = off: builtins.substring off 2 hash;
+                    in
+                      "${builtins.substring 0 1 hash}2:${c 2}:${c 4}:${c 6}:${c 8}:${c 10}";
+                } ];
+              };
+              # Just use 99-ethernet-default-dhcp.network
+              systemd.network.enable = true;
+
+              users.users.root.password = "";
+              services.openssh = {
+                enable = true;
+                settings.PermitRootLogin = "yes";
+              };
+            };
           };
-        }
-      ) {} self.lib.hypervisors;
+        }) self.lib.hypervisors);
 
       systemd.network = {
         enable = true;

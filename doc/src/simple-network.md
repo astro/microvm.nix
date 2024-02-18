@@ -83,6 +83,23 @@ systemd.network.networks."20-lan" = {
 };
 ```
 
+## Docker and systemd-network
+
+If you use the above `systemd.network` bridge config and wish to run
+Docker containers inside your microvms using `virtualisation.docker`,
+you may need to add the following snippet to stop `systemd-networkd` from
+managing the bridged `veth*` interfaces Docker creates for each container.
+Without this, network access inside the containers will be broken.
+
+```nix
+systemd.network.networks."19-docker" = {
+  matchConfig.Name = "veth*";
+  linkConfig = {
+    Unmanaged = true;
+  };
+};
+```
+
 ## Advanced: Improving Performance
 
 If you prioritize network performance over inter-VM communication on

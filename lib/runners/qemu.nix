@@ -81,7 +81,6 @@ let
       "mem-merge=on"
       "pit=off"
       "pic=off"
-      "mem-merge=on"
       "acpi=on"
       "pcie=${if requirePci then "on" else "off"}"
       "usb=${if requireUsb then "on" else "off"}"

@@ -243,6 +243,19 @@ systemd.network.networks.&quot;20-lan&quot; = {
   };
 };
 </code></pre>
+<h2 id="docker-and-systemd-network"><a class="header" href="#docker-and-systemd-network">Docker and systemd-network</a></h2>
+<p>If you use the above <code>systemd.network</code> bridge config and wish to run
+Docker containers inside your microvms using <code>virtualisation.docker</code>,
+you may need to add the following snippet to stop <code>systemd-networkd</code> from
+managing the bridged <code>veth*</code> interfaces Docker creates for each container.
+Without this, network access inside the containers will be broken.</p>
+<pre><code class="language-nix">systemd.network.networks.&quot;19-docker&quot; = {
+  matchConfig.Name = &quot;veth*&quot;;
+  linkConfig = {
+    Unmanaged = true;
+  };
+};
+</code></pre>
 <h2 id="advanced-improving-performance"><a class="header" href="#advanced-improving-performance">Advanced: Improving Performance</a></h2>
 <p>If you prioritize network performance over inter-VM communication on
 the virtual bridge, have a look into these alternatives:</p>

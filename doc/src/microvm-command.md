@@ -55,6 +55,13 @@ for an updatable VM overview.
 microvm -l
 ```
 
+If you want a faster overview of booted and current versions, run
+this instead:
+
+```bash
+ls -l /var/lib/microvms/*/{current,booted}/share/microvm/system
+```
+
 ## Removing MicroVMs
 
 First, stop the MicroVM:

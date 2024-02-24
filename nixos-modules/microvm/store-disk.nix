@@ -24,11 +24,6 @@ in
   options.microvm = with lib; {
     storeDiskType = mkOption {
       type = types.enum [ "squashfs" "erofs" ];
-      # nixos/modules/profiles/hardened.nix forbids erofs
-      default =
-        if builtins.elem "erofs" config.boot.blacklistedKernelModules
-        then "squashfs"
-        else "erofs";
       description = ''
         Boot disk file system type: squashfs is smaller, erofs is supposed to be faster.
       '';
@@ -44,6 +39,16 @@ in
 
   config = lib.mkMerge [
     (lib.mkIf (config.microvm.guest.enable && config.microvm.storeOnDisk) {
+      # nixos/modules/profiles/hardened.nix forbids erofs.
+      # HACK: Other NixOS modules populate
+      # config.boot.blacklistedKernelModules depending on the boot
+      # filesystems, so checking on that directly would result in an
+      # infinite recursion.
+      microvm.storeDiskType = lib.mkDefault (
+        if config.security.virtualisation.flushL1DataCache == "always"
+        then "squashfs"
+        else "erofs"
+      );
       boot.initrd.availableKernelModules = [
         config.microvm.storeDiskType
       ];

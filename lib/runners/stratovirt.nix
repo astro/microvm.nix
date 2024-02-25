@@ -8,7 +8,7 @@ let
 
   inherit (microvmConfig)
     hostName
-    vcpu mem balloonMem interfaces shares socket forwardPorts devices
+    vcpu mem interfaces shares socket forwardPorts devices
     kernel initrdPath
     storeOnDisk storeDisk;
 
@@ -72,7 +72,7 @@ in {
       "${pkgs.stratovirt}/bin/stratovirt"
       "-name" hostName
       "-machine" machine
-      "-m" (toString (mem + balloonMem))
+      "-m" (toString mem)
       "-smp" (toString vcpu)
 
       "-kernel" "${kernel}/bzImage"
@@ -88,16 +88,11 @@ in {
       "-device" "virtio-blk-${devType 2},drive=store,id=blk_store"
     ] ++
     lib.optionals (socket != null) [ "-qmp" "unix:${socket},server,nowait" ] ++
-    # lib.optionals (balloonMem > 0) [ "-device" "virtio-balloon-${devType 3}" ] ++
     builtins.concatMap ({ image, letter, ... }: [
       "-drive" "id=vd${letter},format=raw,file=${image},aio=io_uring"
       "-device" "virtio-blk-${devType 4},drive=vd${letter},id=blk_vd${letter}"
     ]) volumes ++
     lib.optionals (shares != []) (
-      [
-        # "-object" "memory-backend-memfd,id=mem,size=${toString (mem + balloonMem)}M,share=on"
-        # "-numa" "node,memdev=mem"
-      ] ++
       builtins.concatMap ({ proto, index, socket, source, tag, ... }: {
         "virtiofs" = [
           "-chardev" "socket,id=fs${toString index},path=${socket}"
@@ -147,7 +142,6 @@ in {
     }.${bus}) devices
     ++
     lib.optionals (lib.hasPrefix "q35" machine) [
-      # "-drive" "file=${pkgs.qboot}/bios.bin,if=pflash,unit=0,readonly=true"
       "-drive" "file=${pkgs.OVMF.fd}/FV/OVMF_CODE.fd,if=pflash,unit=0,readonly=true"
       "-drive" "file=${pkgs.OVMF.fd}/FV/OVMF_VARS.fd,if=pflash,unit=1,readonly=true"
     ]

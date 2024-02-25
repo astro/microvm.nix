@@ -26,6 +26,8 @@ let
     aarch64-linux = "virt";
   }.${system};
 
+  tapMultiQueue = vcpu > 1;
+
   console = {
     x86_64-linux = "ttyS0";
     aarch64-linux = "ttyAMA0";
@@ -63,6 +65,8 @@ let
     echo '${builtins.toJSON data}' | nc -U "${socket}"
   '';
 in {
+  inherit tapMultiQueue;
+
   command = lib.escapeShellArgs (
     [
       "${pkgs.stratovirt}/bin/stratovirt"
@@ -122,6 +126,9 @@ in {
             ]
             ++ lib.optionals (type == "macvtap") [
               "fd=${toString macvtapFds.${id}}"
+            ]
+            ++ lib.optionals tapMultiQueue [
+              "queues=${toString vcpu}"
             ]
           )
         )

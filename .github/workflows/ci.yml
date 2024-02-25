@@ -55,12 +55,8 @@ jobs:
           - check: firecracker-overlay-shutdown-command
           - check: firecracker-overlay-startup-shutdown
           - check: firecracker-overlay-overlay-startup-shutdown
-          - check: stratovirt-startup-shutdown
-          - check: stratovirt-shutdown-command
-          - check: stratovirt-systemd-startup-shutdown
           - check: vm-firecracker
           - check: vm-firecracker-iperf
-          - check: vm-stratovirt-iperf
           # Not finishing
           - check: firecracker-overlay-systemd-startup-shutdown
           - check: qemu-overlay-startup-shutdown

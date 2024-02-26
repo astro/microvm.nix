@@ -402,6 +402,12 @@ in
       '';
     };
 
+    cloud-hypervisor.extraArgs = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = "Extra arguments to pass to cloud-hypervisor.";
+    };
+
     crosvm.extraArgs = mkOption {
       type = with types; listOf str;
       default = [];

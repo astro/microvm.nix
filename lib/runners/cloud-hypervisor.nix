@@ -6,6 +6,7 @@
 let
   inherit (pkgs) lib;
   inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem graphics storeDisk storeOnDisk kernel initrdPath;
+  inherit (microvmConfig.cloud-hypervisor) extraArgs;
 
   kernelPath = {
     x86_64-linux = "${kernel.dev}/vmlinux";
@@ -168,6 +169,8 @@ in {
         pci = "path=/sys/bus/pci/devices/${path}";
         usb = throw "USB passthrough is not supported on cloud-hypervisor";
       }.${bus}) devices)
+      ++
+      extraArgs
     );
 
   canShutdown = socket != null;

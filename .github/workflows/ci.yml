@@ -10,8 +10,8 @@ jobs:
     outputs:
       matrix: ${{ steps.eval-jobs.outputs.matrix }}
     steps:
-    - uses: actions/checkout@v3
-    - uses: cachix/install-nix-action@v20
+    - uses: actions/checkout@v4
+    - uses: cachix/install-nix-action@v25
     - name: Evaluate hydraJobs
       id: eval-jobs
       run: |
@@ -70,9 +70,9 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v20
-      - uses: DeterminateSystems/magic-nix-cache-action@v2
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - uses: DeterminateSystems/magic-nix-cache-action@v3
       - name: Build ${{ matrix.check }}
         run: |
           nix build \

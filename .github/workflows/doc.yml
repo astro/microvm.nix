@@ -10,8 +10,8 @@ jobs:
     name: build and deploy doc
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v20
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
       - name: Build
         run: nix build .#doc
       - name: Deploy

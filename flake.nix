@@ -128,15 +128,14 @@
               else result
           ) {} (builtins.attrNames self.nixosConfigurations);
 
-        # Takes too much memory in `nix flake show`
-        # checks = import ./checks { inherit self nixpkgs system; };
+        checks = import ./checks { inherit self nixpkgs system; };
 
         # hydraJobs are checks
         hydraJobs = builtins.mapAttrs (_: check:
           (nixpkgs.lib.recursiveUpdate check {
             meta.timeout = 12 * 60 * 60;
           })
-        ) (import ./checks { inherit self nixpkgs system; });
+        ) self.checks.${system};
       }) // {
         lib = import ./lib { nixpkgs-lib = nixpkgs.lib; };
 

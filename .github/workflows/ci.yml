@@ -12,13 +12,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: cachix/install-nix-action@v25
-    - name: Evaluate hydraJobs
+    - name: Evaluate checks
       id: eval-jobs
       run: |
         MATRIX=$(nix eval \
           --accept-flake-config \
           --json \
-          .#hydraJobs.x86_64-linux --apply builtins.attrNames \
+          .#checks.x86_64-linux --apply builtins.attrNames \
         )
         echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
 
@@ -63,7 +63,7 @@ jobs:
           - check: qemu-overlay-systemd-startup-shutdown
     runs-on: ubuntu-latest
     env:
-      NIX_ATTR: 'hydraJobs.x86_64-linux.${{ matrix.check }}'
+      NIX_ATTR: 'checks.x86_64-linux.${{ matrix.check }}'
     steps:
       - name: Enable KVM group perms
         run: |

@@ -11,6 +11,11 @@
   `config.microvm.deploy.rebuild`
 * **qemu** gets rid of the *q35* machine model entirely as the
   *microvm* model supports PCI, USB, and ACPI by now.
+* The NixOS **hardened** profile can be used by falling back to
+  *squashfs*.
+* Runners execute the hypervisor with a process name of
+  `microvm@$NAME`
+* We no longer let `environment.noXlibs` default to `true`
 
 ## 0.4.1 (2023-11-03)
 

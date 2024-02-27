@@ -173,10 +173,7 @@
                     system.stateVersion = config.system.nixos.version;
 
                     networking.hostName = "${hypervisor}-microvm";
-                    users.users.root.password = "";
-                    services.getty.helpLine = ''
-                      Log in as "root" with an empty password.
-                    '';
+                    services.getty.autologinUser = "root";
 
                     microvm.hypervisor = hypervisor;
                     # share the host's /nix/store if the hypervisor can do 9p

@@ -201,7 +201,7 @@ in {
           "-device" "vhost-user-fs-${devType},chardev=fs${toString index},tag=${tag}"
         ];
         "9p" = [
-          "-fsdev" "local,id=fs${toString index},path=${source},security_model=none"
+          "-fsdev" "local,id=fs${toString index},path=${source},security_model=mapped"
           "-device" "virtio-9p-${devType},fsdev=fs${toString index},mount_tag=${tag}"
         ];
       }.${proto}) (enumerate 0 shares)

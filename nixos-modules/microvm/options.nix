@@ -276,6 +276,11 @@ in
             type = nonEmptyStr;
             description = "Path to shared directory tree";
           };
+          securityModel = mkOption {
+            type = nullOr str;
+            default = "none";
+            description = "What security model to use for the shared. Default: none.";
+          };
           mountPoint = mkOption {
             type = path;
             description = "Where to mount the share inside the container";

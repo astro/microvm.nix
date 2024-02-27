@@ -195,13 +195,13 @@ in {
         "-object" "memory-backend-memfd,id=mem,size=${toString (mem + balloonMem)}M,share=on"
         "-numa" "node,memdev=mem"
       ] ++
-      builtins.concatMap ({ proto, index, socket, source, tag, ... }: {
+      builtins.concatMap ({ proto, index, socket, source, tag, securityModel, ... }: {
         "virtiofs" = [
           "-chardev" "socket,id=fs${toString index},path=${socket}"
           "-device" "vhost-user-fs-${devType},chardev=fs${toString index},tag=${tag}"
         ];
         "9p" = [
-          "-fsdev" "local,id=fs${toString index},path=${source},security_model=mapped"
+          "-fsdev" "local,id=fs${toString index},path=${source},security_model=${securityModel}"
           "-device" "virtio-9p-${devType},fsdev=fs${toString index},mount_tag=${tag}"
         ];
       }.${proto}) (enumerate 0 shares)

@@ -277,9 +277,9 @@ in
             description = "Path to shared directory tree";
           };
           securityModel = mkOption {
-            type = nullOr str;
+            type = enum [ "passthrough" "none" "mapped" "mapped-file" ];
             default = "none";
-            description = "What security model to use for the shared. Default: none.";
+            description = "What security model to use for the shared directory";
           };
           mountPoint = mkOption {
             type = path;

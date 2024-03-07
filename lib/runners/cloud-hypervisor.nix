@@ -5,12 +5,7 @@
 
 let
   inherit (pkgs) lib;
-  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem graphics storeDisk storeOnDisk kernel initrdPath;
-
-  kernelPath = {
-    x86_64-linux = "${kernel.dev}/vmlinux";
-    aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
-  }.${pkgs.system};
+  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem graphics storeDisk storeOnDisk kernelPath initrdPath;
 
   # balloon
   useBallooning = balloonMem > 0;
@@ -55,8 +50,8 @@ let
 
   # cloud-hypervisor >= 30.0 < 36.0 temporarily replaced clap with argh
   hasArghSyntax =
-    builtins.compareVersions pkgs.cloud-hypervisor.version "30.0" >= 0 &&
-    builtins.compareVersions pkgs.cloud-hypervisor.version "36.0" < 0;
+    builtins.compareVersions pkgs.buildPackages.cloud-hypervisor.version "30.0" >= 0 &&
+    builtins.compareVersions pkgs.buildPackages.cloud-hypervisor.version "36.0" < 0;
   arg =
     if hasArghSyntax
     then switch: params:
@@ -89,7 +84,7 @@ in {
     ''}
   '' + lib.optionalString graphics.enable ''
     rm -f ${graphics.socket}
-    ${pkgs.crosvm}/bin/crosvm device gpu \
+    ${pkgs.buildPackages.crosvm}/bin/crosvm device gpu \
       --socket ${graphics.socket} \
       --wayland-sock $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY \
       --params '${builtins.toJSON gpuParams}' \
@@ -105,18 +100,21 @@ in {
     else lib.escapeShellArgs (
       [
         (if graphics.enable
-         then "${pkgs.cloud-hypervisor-graphics}/bin/cloud-hypervisor"
-         else "${pkgs.cloud-hypervisor}/bin/cloud-hypervisor"
+         then "${pkgs.buildPackages.cloud-hypervisor-graphics}/bin/cloud-hypervisor"
+         else "${pkgs.buildPackages.cloud-hypervisor}/bin/cloud-hypervisor"
         )
         "--cpus" "boot=${toString vcpu}"
         "--watchdog"
         "--console" "null"
         "--serial" "tty"
         "--kernel" kernelPath
-        "--initramfs" initrdPath
         "--cmdline" "console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
         "--seccomp" "true"
         "--memory" memOps
+      ]
+      ++
+      lib.optionals (initrdPath != null) [
+        "--initramfs" initrdPath
       ]
       ++
       lib.optionals graphics.enable [
@@ -176,22 +174,22 @@ in {
     if socket != null
     then ''
         api() {
-          ${pkgs.curl}/bin/curl -s \
+          ${pkgs.buildPackages.curl}/bin/curl -s \
             --unix-socket ${socket} \
             $@
         }
 
         api -X PUT http://localhost/api/v1/vm.power-button
 
-        ${pkgs.util-linux}/bin/waitpid $MAINPID
+        ${pkgs.buildPackages.util-linux}/bin/waitpid $MAINPID
       ''
     else throw "Cannot shutdown without socket";
 
   getConsoleScript =
     if socket != null
     then ''
-      PTY=$(${pkgs.cloud-hypervisor}/bin/ch-remote --api-socket ${socket} info | \
-        ${pkgs.jq}/bin/jq -r .config.serial.file \
+      PTY=$(${pkgs.buildPackages.cloud-hypervisor}/bin/ch-remote --api-socket ${socket} info | \
+        ${pkgs.buildPackages.jq}/bin/jq -r .config.serial.file \
       )
     ''
     else null;
@@ -199,7 +197,7 @@ in {
   setBalloonScript =
     if socket != null
     then ''
-      ${pkgs.cloud-hypervisor}/bin/ch-remote --api-socket ${socket} resize --balloon $SIZE"M"
+      ${pkgs.buildPackages.cloud-hypervisor}/bin/ch-remote --api-socket ${socket} resize --balloon $SIZE"M"
     ''
     else null;
 

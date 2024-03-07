@@ -35,10 +35,14 @@ let
     ++ lib.optional microvmConfig.optimize.enable minimizeQemuClosureSize
   );
 
-  qemu = overrideQemu (if microvmConfig.cpu == null then
-    pkgs.qemu_kvm else pkgs.buildPackages.qemu_full);
+  qemu = (overrideQemu (if microvmConfig.cpu == null then
+    builtins.trace "buildPlatform: ${pkgs.buildPackages.system}" pkgs.buildPackages.qemu_kvm else pkgs.buildPackages.qemu_full))
+    .override {
+      pipewireSupport = false;
+      sdlSupport = false;
+    };
 
-  inherit (microvmConfig) hostName cpu vcpu mem balloonMem user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
+  inherit (microvmConfig) hostName cpu vcpu mem balloonMem user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernelPath initrdPath storeDisk;
   inherit (microvmConfig.qemu) extraArgs serialConsole;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
@@ -74,7 +78,7 @@ let
     shares != [] ||
     pciInDevices;
 
-  machine = {
+  machine = rec {
     x86_64-linux = builtins.concatStringsSep "," [
       "microvm"
       accel
@@ -85,6 +89,7 @@ let
       "pcie=${if requirePci then "on" else "off"}"
       "usb=${if requireUsb then "on" else "off"}"
     ];
+    x86_64-freebsd = x86_64-linux;
     aarch64-linux = "virt,gic-version=max,${accel}";
   }.${system};
 
@@ -92,8 +97,6 @@ let
     if requirePci
     then "pci"
     else "device";
-
-  kernelPath = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
 
   enumerate = n: xs:
     if xs == []
@@ -114,7 +117,7 @@ let
     host = "hostfwd=${proto}:${host.address}:${toString host.port}-" +
            "${guest.address}:${toString guest.port},";
     guest = "guestfwd=${proto}:${guest.address}:${toString guest.port}-" +
-            "cmd:${pkgs.netcat}/bin/nc ${host.address} ${toString host.port},";
+            "cmd:${pkgs.buildPackages.netcat}/bin/nc ${host.address} ${toString host.port},";
   }.${from}) forwardPorts;
 
   writeQmp = data: ''
@@ -146,10 +149,12 @@ in {
       "-no-reboot"
 
       "-kernel" "${kernelPath}"
-      "-initrd" initrdPath
 
       "-chardev" "stdio,id=stdio,signal=off"
       "-device" "virtio-rng-${devType}"
+    ] ++
+    lib.optionals (initrdPath != null) [
+      "-initrd" initrdPath
     ] ++
     lib.optionals serialConsole [
       "-serial" "chardev:stdio"
@@ -161,7 +166,7 @@ in {
     lib.optionals (system == "x86_64-linux") [
       "-device" "i8042"
 
-      "-append" "${kernelConsole} reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+      "-append" "hw.use_xsave=0" #"${kernelConsole} reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
     ] ++
     lib.optionals (system == "aarch64-linux") [
       "-append" "${kernelConsole} reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
@@ -318,7 +323,7 @@ in {
            # wait for exit
           cat
         ) | \
-        ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none
+        ${pkgs.buildPackages.socat}/bin/socat STDIO UNIX:${socket},shut-none
     ''
     else throw "Cannot shutdown without socket";
 
@@ -330,7 +335,7 @@ in {
         ${writeQmp { execute = "qmp_capabilities"; }}
         ${writeQmp { execute = "balloon"; arguments.value = 987; }}
       ) | sed -e s/987/$VALUE/ | \
-        ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none | \
+        ${pkgs.buildPackages.socat}/bin/socat STDIO UNIX:${socket},shut-none | \
         tail -n 1 | \
         ${pkgs.jq}/bin/jq -r .data.actual \
       )

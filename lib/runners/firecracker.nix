@@ -9,13 +9,8 @@ let
     hostName user socket preStart
     vcpu mem
     interfaces volumes shares devices
-    kernel initrdPath
+    kernelPath initrdPath
     storeDisk;
-
-  kernelPath = {
-    x86_64-linux = "${kernel.dev}/vmlinux";
-    aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
-  }.${system};
 
   # Firecracker config, as JSON in `configFile`
   config = {
@@ -69,7 +64,7 @@ in {
     else if devices != []
     then throw "devices passthrough not implemented for Firecracker"
     else lib.escapeShellArgs [
-      "${pkgs.firecracker}/bin/firecracker"
+      "${pkgs.buildPackages.firecracker}/bin/firecracker"
       "--config-file" configFile
       "--api-sock" (
         if socket != null
@@ -91,13 +86,13 @@ in {
   shutdownCommand =
     if socket != null
     then ''
-      ${pkgs.curl}/bin/curl -s \
+      ${pkgs.buildPackages.curl}/bin/curl -s \
         --unix-socket ${socket} \
         -X PUT http://localhost/actions \
         -d '{ "action_type": "SendCtrlAltDel" }'
 
       # wait for exit
-      ${pkgs.socat}/bin/socat STDOUT UNIX:${socket},shut-none
+      ${pkgs.buildPackages.socat}/bin/socat STDOUT UNIX:${socket},shut-none
     ''
     else throw "Cannot shutdown without socket";
 }

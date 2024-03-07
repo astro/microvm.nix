@@ -1,4 +1,4 @@
-{ config, options, lib, ... }:
+{ config, options, lib, pkgs, ... }:
 let
   self-lib = import ../../lib {
     nixpkgs-lib = lib;
@@ -57,17 +57,28 @@ in
     };
 
     kernel = mkOption {
+      internal = true;
       description = "Kernel package to use for MicroVM runners";
       default = config.boot.kernelPackages.kernel;
       defaultText = literalExpression ''"''${config.boot.kernelPackages.kernel}"'';
       type = types.package;
     };
 
-    initrdPath = mkOption {
-      description = "Path to the initrd file in the initrd package";
-      default = "${config.system.build.initialRamdisk}/${config.system.boot.loader.initrdFile}";
-      defaultText = literalExpression ''"''${config.system.build.initialRamdisk}/''${config.system.boot.loader.initrdFile}"'';
+    kernelPath = mkOption {
+      internal = true;
       type = types.path;
+      default = "${config.microvm.kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
+    };
+
+    initrdPath = mkOption {
+      internal = true;
+      description = "Path to the initrd file in the initrd package";
+      default =
+        if config.system.build ? initialRamdisk
+        then "${config.system.build.initialRamdisk}/${config.system.boot.loader.initrdFile}"
+        else null;
+      defaultText = literalExpression ''"''${config.system.build.initialRamdisk}/''${config.system.boot.loader.initrdFile}"'';
+      type = with types; nullOr path;
     };
 
     vcpu = mkOption {

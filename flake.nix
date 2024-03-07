@@ -7,7 +7,12 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:astro/nixpkgs/freebsd-staging";
+    nixbsd = {
+      url = "github:nixos-bsd/nixbsd";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     flake-utils.url = "github:numtide/flake-utils";
     spectrum = {
       url = "git+https://spectrum-os.org/git/spectrum";
@@ -15,7 +20,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, spectrum }:
+  outputs = { self, nixpkgs, nixbsd, flake-utils, spectrum }:
     let
       systems = [
         "x86_64-linux"
@@ -42,12 +47,13 @@
             nixosToApp = configFile: {
               type = "app";
               program = "${(import configFile {
-                inherit self nixpkgs system;
+                inherit self nixpkgs nixbsd system;
               }).config.microvm.declaredRunner}/bin/microvm-run";
             };
           in {
             vm = nixosToApp ./examples/microvms-host.nix;
             qemu-vnc = nixosToApp ./examples/qemu-vnc.nix;
+            bsd = nixosToApp ./examples/nixbsd.nix;
             graphics = {
               type = "app";
               program = toString (pkgs.writeShellScript "run-graphics" ''
@@ -91,6 +97,9 @@
           let
             pkgs = nixpkgs.legacyPackages.${system};
           in {
+            bsd = (import ./examples/nixbsd.nix {
+              inherit self nixpkgs nixbsd system;
+            }).config.microvm.declaredRunner;
             build-microvm = pkgs.callPackage ./pkgs/build-microvm.nix { inherit self; };
             doc = pkgs.callPackage ./pkgs/doc.nix { inherit nixpkgs; };
             microvm = import ./pkgs/microvm-command.nix {
@@ -147,6 +156,7 @@
 
         nixosModules = {
           microvm = import ./nixos-modules/microvm;
+          nixbsd-microvm = import ./nixos-modules/nixbsd-microvm { inherit nixbsd; };
           host = import ./nixos-modules/host;
         };
 

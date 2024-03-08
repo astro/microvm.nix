@@ -57,7 +57,8 @@ let
       if microvmConfig.cpu != null
       then microvmConfig.cpu
       else if system == "x86_64-linux"
-      then "host,+x2apic"
+      # qemu crashes when sgx is used on microvm machines: https://gitlab.com/qemu-project/qemu/-/issues/2142
+      then "host,+x2apic,-sgx"
       else "host"
     ) ];
 

@@ -184,6 +184,12 @@ configuration is a life-saver. Not so much however on systems that are
 shared by multiple services where maintenance of one affects others.</p>
 <p>Increase stability by partitioning services into virtual NixOS systems
 that can be updated individually.</p>
+<p><strong>microvm.nix</strong> can isolate your /nix/store into exactly what is
+required for the guest's NixOS: the root filesystem is a read-only
+erofs/squashfs file-systems that include only the binaries of your
+configuration. Of course, that holds only true until you mount the
+host's /nix/store as a share for faster build times, or mount the
+store with a writable overlay for Nix builds inside the VM.</p>
 <h2 id="the-case-against-containers"><a class="header" href="#the-case-against-containers">The Case Against Containers</a></h2>
 <p>Linux containers are not a single technology but a plethora of kernel
 features that serve to isolate various system resources so that the
@@ -193,11 +199,9 @@ with a huge attack surface.</p>
 the attack surface to the hypervisor and its device drivers. The
 resource usage however incurs some overhead when compared with
 containers, with memory allocation being especially inflexible.</p>
-<p><strong>microvm.nix</strong> ships an additional security feature: the root
-filesystem is a read-only squashfs that includes only the binaries of
-your configuration. That of course holds only true unless you mount the
-host's /nix/store as a share for faster build times, or mount the
-store with a writable overlay.</p>
+<p><strong>microvm.nix</strong> is a tool that helps you building the guest's OS and
+running ways that are easier than writing a <code>Dockerfile</code>, once you
+know how to put a NixOS config into a <code>flake.nix</code> file.</p>
 <h2 id="just-virtual-machines"><a class="header" href="#just-virtual-machines">Just Virtual Machines?</a></h2>
 <p>Full virtualization has been available for a long time with QEMU and
 VirtualBox. The <em>MicroVM</em> machine type highlights that virtualization

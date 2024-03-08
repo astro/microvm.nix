@@ -14,6 +14,13 @@ shared by multiple services where maintenance of one affects others.
 Increase stability by partitioning services into virtual NixOS systems
 that can be updated individually.
 
+**microvm.nix** can isolate your /nix/store into exactly what is
+required for the guest's NixOS: the root filesystem is a read-only
+erofs/squashfs file-systems that include only the binaries of your
+configuration. Of course, that holds only true until you mount the
+host's /nix/store as a share for faster build times, or mount the
+store with a writable overlay for Nix builds inside the VM.
+
 ## The Case Against Containers
 
 Linux containers are not a single technology but a plethora of kernel
@@ -26,11 +33,9 @@ the attack surface to the hypervisor and its device drivers. The
 resource usage however incurs some overhead when compared with
 containers, with memory allocation being especially inflexible.
 
-**microvm.nix** ships an additional security feature: the root
-filesystem is a read-only squashfs that includes only the binaries of
-your configuration. That of course holds only true unless you mount the
-host's /nix/store as a share for faster build times, or mount the
-store with a writable overlay.
+**microvm.nix** is a tool that helps you building the guest's OS and
+running ways that are easier than writing a `Dockerfile`, once you
+know how to put a NixOS config into a `flake.nix` file.
 
 ## Just Virtual Machines?
 

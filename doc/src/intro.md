@@ -34,8 +34,8 @@ resource usage however incurs some overhead when compared with
 containers, with memory allocation being especially inflexible.
 
 **microvm.nix** is a tool that helps you building the guest's OS and
-running ways that are easier than writing a `Dockerfile`, once you
-know how to put a NixOS config into a `flake.nix` file.
+running it in ways that are easier than writing a `Dockerfile`, once
+you know how to put a NixOS config into a `flake.nix` file.
 
 ## Just Virtual Machines?
 

@@ -23,7 +23,7 @@ let
     ''-a "microvm@${microvmConfig.hostName}"'';
 
   runScriptBin = pkgs.buildPackages.writeScriptBin "microvm-run" ''
-    #! ${pkgs.buildPackages.runtimeShell} -e
+    #! ${pkgs.runtimeShell} -e
 
     ${preStart}
     ${createVolumesScript pkgs.buildPackages microvmConfig.volumes}

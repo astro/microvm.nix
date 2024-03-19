@@ -137,6 +137,8 @@
             meta.timeout = 12 * 60 * 60;
           })
         ) (import ./checks { inherit self nixpkgs system; });
+
+        formatter = nixpkgs.legacyPackages.${system}.nixpkgs-fmt;
       }) // {
         lib = import ./lib { nixpkgs-lib = nixpkgs.lib; };
 

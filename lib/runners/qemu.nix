@@ -39,7 +39,7 @@ let
     pkgs.qemu_kvm else pkgs.buildPackages.qemu_full);
 
   inherit (microvmConfig) hostName cpu vcpu mem balloonMem user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
-  inherit (microvmConfig.qemu) extraArgs serialConsole;
+  inherit (microvmConfig.qemu) machine extraArgs serialConsole;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
 
@@ -75,18 +75,22 @@ let
     shares != [] ||
     pciInDevices;
 
-  machine = {
-    x86_64-linux = builtins.concatStringsSep "," [
-      "microvm"
+  machineConfig = builtins.concatStringsSep "," {
+    x86_64-linux = [
+      machine
       accel
       "mem-merge=on"
+      "acpi=on"
+    ] ++ lib.optionals (machine == "microvm") [
       "pit=off"
       "pic=off"
-      "acpi=on"
       "pcie=${if requirePci then "on" else "off"}"
       "usb=${if requireUsb then "on" else "off"}"
     ];
-    aarch64-linux = "virt,gic-version=max,${accel}";
+    aarch64-linux = [
+      "virt"
+      "gic-version=max,${accel}"
+    ];
   }.${system};
 
   devType =
@@ -139,7 +143,7 @@ in {
     [
       "${qemu}/bin/qemu-system-${arch}"
       "-name" hostName
-      "-M" machine
+      "-M" machineConfig
       "-m" (toString (mem + balloonMem))
       "-smp" (toString vcpu)
       "-nodefaults" "-no-user-config"

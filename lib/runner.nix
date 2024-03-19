@@ -16,6 +16,7 @@ let
   };
 
   inherit (hypervisorConfig) command canShutdown shutdownCommand;
+  supportsNotifySocket = hypervisorConfig.supportsNotifySocket or false;
   preStart = hypervisorConfig.preStart or microvmConfig.preStart;
   tapMultiQueue = hypervisorConfig.tapMultiQueue or false;
 
@@ -56,7 +57,7 @@ pkgs.buildPackages.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConf
   # for `nix run`
   meta.mainProgram = "microvm-run";
   passthru = {
-    inherit canShutdown;
+    inherit canShutdown supportsNotifySocket;
     inherit (microvmConfig) hypervisor;
   };
 } ''

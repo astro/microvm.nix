@@ -224,6 +224,7 @@ in
         # we also have to include a trigger here.
         restartTriggers = [guestConfig.system.build.toplevel];
         overrideStrategy = "asDropin";
+        serviceConfig.Type = lib.mkIf guestConfig.microvm.declaredRunner.supportsNotifySocket "notify";
       };
       "microvm-tap-interfaces@${name}" = {
         serviceConfig.X-RestartIfChanged = [ "" microvmConfig.restartIfChanged ];
@@ -435,6 +436,7 @@ in
           Group = group;
           SyslogIdentifier = "microvm@%i";
           LimitNOFILE = 1048576;
+          NotifyAccess = "all";
           LimitMEMLOCK = "infinity";
         };
       };

@@ -88,6 +88,11 @@ in {
       # stumbling over a preexisting socket
       rm -f '${socket}'
     ''}
+
+    # Start socat to forward systemd notify socket over vsock
+    if [ -n "$NOTIFY_SOCKET" ]; then
+      ${pkgs.socat}/bin/socat UNIX-LISTEN:notify.vsock_8888,fork UNIX-SENDTO:$NOTIFY_SOCKET &
+    fi
   '' + lib.optionalString graphics.enable ''
     rm -f ${graphics.socket}
     ${pkgs.crosvm}/bin/crosvm device gpu \
@@ -99,6 +104,8 @@ in {
       sleep .1
     done
   '';
+
+  supportsNotifySocket = true;
 
   command =
     if user != null
@@ -118,6 +125,8 @@ in {
         "--cmdline" "console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
         "--seccomp" "true"
         "--memory" memOps
+        "--platform" "oem_strings=[io.systemd.credential:vmm.notify_socket=vsock-stream:2:8888]"
+        "--vsock" "cid=3,socket=notify.vsock"
       ]
       ++
       lib.optionals graphics.enable [

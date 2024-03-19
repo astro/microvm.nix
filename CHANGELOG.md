@@ -9,8 +9,9 @@
   Generator** instead of KVM.
 * **SSH deployment scripts** are added as
   `config.microvm.deploy.rebuild`
-* **qemu** gets rid of the *q35* machine model entirely as the
-  *microvm* model supports PCI, USB, and ACPI by now.
+* **qemu** defaults to the *microvm* machine model now as it supports
+  PCI, USB, and ACPI by now. Set `microvm.qemu.machine = "q35"` if
+  this breaks for you.
 * The NixOS **hardened** profile can be used by falling back to
   *squashfs*.
 * Runners execute the hypervisor with a process name of

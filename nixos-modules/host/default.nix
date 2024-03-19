@@ -28,33 +28,44 @@ in
             default = null;
             type = nullOr (lib.mkOptionType {
               name = "Toplevel NixOS config";
-              merge = loc: defs: (import "${toString config.pkgs.path}/nixos/lib/eval-config.nix" {
+              merge = loc: defs: (import "${config.nixpkgs}/nixos/lib/eval-config.nix" {
                 modules =
                   let
-                    extraConfig = {
+                    extraConfig = ({ lib, ... }: {
                       _file = "module at ${__curPos.file}:${toString __curPos.line}";
                       config = {
                         networking.hostName = lib.mkDefault name;
                       };
-                    };
+                    });
                   in [
                     extraConfig
                     ../microvm
                   ] ++ (map (x: x.value) defs);
                 prefix = [ "microvm" "vms" name "config" ];
                 inherit (config) specialArgs pkgs;
-                inherit (config.pkgs) system;
+                system = if config.pkgs != null then config.pkgs.system else pkgs.system;
               });
             });
           };
 
+          nixpkgs = mkOption {
+            type = types.path;
+            default = if config.pkgs != null then config.pkgs.path else pkgs.path;
+            defaultText = literalExpression "pkgs.path";
+            description = lib.mdDoc ''
+              This option is only respected when `config` is specified.
+              The nixpkgs path to use for the MicroVM. Defaults to the host's nixpkgs.
+            '';
+          };
+
           pkgs = mkOption {
-            type = types.unspecified;
+            type = types.nullOr types.unspecified;
             default = pkgs;
             defaultText = literalExpression "pkgs";
             description = lib.mdDoc ''
               This option is only respected when `config` is specified.
               The package set to use for the MicroVM. Must be a nixpkgs package set with the microvm overlay. Determines the system of the MicroVM.
+              If set to null, a new package set will be instantiated.
             '';
           };
 

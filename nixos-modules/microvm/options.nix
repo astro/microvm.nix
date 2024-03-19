@@ -144,18 +144,18 @@ in
             description = "The guest port to be mapped.";
           };
         });
-      default = [];
+      default = [ ];
       example = lib.literalExpression
         ''
-        [ # forward local port 2222 -> 22, to ssh into the VM
-          { from = "host"; host.port = 2222; guest.port = 22; }
+          [ # forward local port 2222 -> 22, to ssh into the VM
+            { from = "host"; host.port = 2222; guest.port = 22; }
 
-          # forward local port 80 -> 10.0.2.10:80 in the VLAN
-          { from = "guest";
-            guest.address = "10.0.2.10"; guest.port = 80;
-            host.address = "127.0.0.1"; host.port = 80;
-          }
-        ]
+            # forward local port 80 -> 10.0.2.10:80 in the VLAN
+            { from = "guest";
+              guest.address = "10.0.2.10"; guest.port = 80;
+              host.address = "127.0.0.1"; host.port = 80;
+            }
+          ]
         '';
       description =
         ''
@@ -173,7 +173,7 @@ in
     };
     volumes = mkOption {
       description = "Disk images";
-      default = [];
+      default = [ ];
       type = with types; listOf (submodule {
         options = {
           image = mkOption {
@@ -209,7 +209,7 @@ in
 
     interfaces = mkOption {
       description = "Network interfaces";
-      default = [];
+      default = [ ];
       type = with types; listOf (submodule {
         options = {
           type = mkOption {
@@ -232,7 +232,7 @@ in
             '';
           };
           macvtap.mode = mkOption {
-            type = nullOr (enum ["private" "vepa" "bridge" "passthru" "source"]);
+            type = nullOr (enum [ "private" "vepa" "bridge" "passthru" "source" ]);
             default = null;
             description = ''
               The MACVLAN mode to use
@@ -257,7 +257,7 @@ in
 
     shares = mkOption {
       description = "Shared directory trees";
-      default = [];
+      default = [ ];
       type = with types; listOf (submodule ({ config, ... }: {
         options = {
           tag = mkOption {
@@ -296,7 +296,7 @@ in
 
     devices = mkOption {
       description = "PCI/USB devices that are passed from the host to the MicroVM";
-      default = [];
+      default = [ ];
       example = literalExpression ''[ {
         bus = "pci";
         path = "0000:01:00.0";
@@ -347,9 +347,11 @@ in
 
     storeOnDisk = mkOption {
       type = types.bool;
-      default = ! lib.any ({ source, ... }:
-        source == "/nix/store"
-      ) config.microvm.shares;
+      default = ! lib.any
+        ({ source, ... }:
+          source == "/nix/store"
+        )
+        config.microvm.shares;
       description = "Whether to boot with the storeDisk, that is, unless the host's /nix/store is a microvm.share.";
     };
 
@@ -395,7 +397,7 @@ in
 
     qemu.extraArgs = mkOption {
       type = with types; listOf str;
-      default = [];
+      default = [ ];
       description = "Extra arguments to pass to qemu.";
     };
 
@@ -409,13 +411,13 @@ in
 
     cloud-hypervisor.extraArgs = mkOption {
       type = with types; listOf str;
-      default = [];
+      default = [ ];
       description = "Extra arguments to pass to cloud-hypervisor.";
     };
 
     crosvm.extraArgs = mkOption {
       type = with types; listOf str;
-      default = [];
+      default = [ ];
       description = "Extra arguments to pass to crosvm.";
     };
 

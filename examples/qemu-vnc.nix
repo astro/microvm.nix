@@ -31,12 +31,16 @@ nixpkgs.lib.nixosSystem {
       system.stateVersion = config.system.nixos.version;
 
       microvm.qemu.extraArgs = [
-        "-vnc" ":0"
-        "-vga" "qxl"
+        "-vnc"
+        ":0"
+        "-vga"
+        "qxl"
         # needed for mounse/keyboard input via vnc
-        "-device" "virtio-keyboard"
+        "-device"
+        "virtio-keyboard"
         "-usb"
-        "-device" "usb-tablet,bus=usb-bus.0"
+        "-device"
+        "usb-tablet,bus=usb-bus.0"
       ];
 
       services.getty.autologinUser = "user";

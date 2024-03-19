@@ -27,9 +27,11 @@ let
     # MicroVM must be reachable through SSH
     config.services.openssh.enable &&
     # Is the /nix/store mounted from the host?
-    builtins.any ({ source, ... }:
-      source == "/nix/store"
-    ) config.microvm.shares;
+    builtins.any
+      ({ source, ... }:
+        source == "/nix/store"
+      )
+      config.microvm.shares;
 
 in
 {

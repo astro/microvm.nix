@@ -7,7 +7,8 @@ let
   kernelPath =
     "${config.microvm.kernel}/${kernelFile}";
 
-in {
+in
+{
   options.microvm = with lib; {
     bootDisk = mkOption {
       type = types.path;
@@ -21,13 +22,14 @@ in {
   };
 
   config = lib.mkIf config.microvm.guest.enable {
-    microvm.bootDisk = pkgs.runCommandLocal "microvm-bootdisk.img" {
-      nativeBuildInputs = with pkgs; [
-        parted
-        libguestfs
-      ];
-      LIBGUESTFS_PATH = pkgs.libguestfs-appliance;
-    } ''
+    microvm.bootDisk = pkgs.runCommandLocal "microvm-bootdisk.img"
+      {
+        nativeBuildInputs = with pkgs; [
+          parted
+          libguestfs
+        ];
+        LIBGUESTFS_PATH = pkgs.libguestfs-appliance;
+      } ''
       # kernel + initrd + slack, in sectors
       EFI_SIZE=$(( ( ( $(stat -c %s ${kernelPath}) + $(stat -c %s ${initrdPath}) + 16 * 4096 ) / ( 2048 * 512 ) + 1 ) * 2048 ))
 

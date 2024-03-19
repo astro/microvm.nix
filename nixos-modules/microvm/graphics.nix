@@ -21,6 +21,8 @@ lib.mkIf config.microvm.graphics.enable {
   boot.kernelModules = [ "drm" "virtio_gpu" ];
 
   environment.systemPackages = with pkgs; [
-    run-sommelier run-wayland-proxy run-waypipe
+    run-sommelier
+    run-wayland-proxy
+    run-waypipe
   ];
 }

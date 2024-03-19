@@ -1,4 +1,6 @@
-{ self, nixpkgs, system
+{ self
+, nixpkgs
+, system
 , packages ? ""
 , tapInterface ? null
 }:
@@ -32,7 +34,7 @@ nixpkgs.lib.nixosSystem {
         isNormalUser = true;
         extraGroups = [ "wheel" "video" ];
       };
-      users.groups.user = {};
+      users.groups.user = { };
       security.sudo = {
         enable = true;
         wheelNeedsPassword = false;
@@ -62,12 +64,16 @@ nixpkgs.lib.nixosSystem {
 
       environment.systemPackages = with pkgs; [
         xdg-utils # Required
-      ] ++ map (package:
-        lib.attrByPath (lib.splitString "." package) (throw "Package ${package} not found in nixpkgs") pkgs
-      ) (
-        builtins.filter (package:
-          package != ""
-        ) (lib.splitString " " packages));
+      ] ++ map
+        (package:
+          lib.attrByPath (lib.splitString "." package) (throw "Package ${package} not found in nixpkgs") pkgs
+        )
+        (
+          builtins.filter
+            (package:
+              package != ""
+            )
+            (lib.splitString " " packages));
 
       hardware.opengl.enable = true;
     })

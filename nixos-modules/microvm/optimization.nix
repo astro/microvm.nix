@@ -8,9 +8,11 @@ let
   canSwitchViaSsh =
     config.services.openssh.enable &&
     # Is the /nix/store mounted from the host?
-    builtins.any ({ source, ... }:
-      source == "/nix/store"
-    ) config.microvm.shares;
+    builtins.any
+      ({ source, ... }:
+        source == "/nix/store"
+      )
+      config.microvm.shares;
 
 in
 {
@@ -45,7 +47,8 @@ in
         "cloud-hypervisor"
         "firecracker"
         "stratovirt"
-      ]);
+      ]
+    );
 
     nixpkgs.overlays = [
       (final: prev: {

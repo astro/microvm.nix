@@ -13,18 +13,21 @@ let
 
   inherit (macvtapFds) nextFreeFd;
   inherit ((
-    builtins.foldl' ({ interfaceFds, nextFreeFd }: { type, id, ... }:
-      if type == "tap"
-      then {
-        interfaceFds = interfaceFds // {
-          ${id} = nextFreeFd;
-        };
-        nextFreeFd = nextFreeFd + 1;
-      }
-      else if type == "macvtap"
-      then { inherit interfaceFds nextFreeFd; }
-      else throw "Interface type not supported for crosvm: ${type}"
-    ) { interfaceFds = macvtapFds; inherit nextFreeFd; } interfaces
+    builtins.foldl'
+      ({ interfaceFds, nextFreeFd }: { type, id, ... }:
+        if type == "tap"
+        then {
+          interfaceFds = interfaceFds // {
+            ${id} = nextFreeFd;
+          };
+          nextFreeFd = nextFreeFd + 1;
+        }
+        else if type == "macvtap"
+        then { inherit interfaceFds nextFreeFd; }
+        else throw "Interface type not supported for crosvm: ${type}"
+      )
+      { interfaceFds = macvtapFds; inherit nextFreeFd; }
+      interfaces
   )) interfaceFds;
 
   kernelPath = {
@@ -38,7 +41,8 @@ let
     vulkan = true;
   };
 
-in {
+in
+{
 
   preStart = ''
     rm -f ${socket}
@@ -61,95 +65,116 @@ in {
   command =
     if user != null
     then throw "crosvm will not change user"
-    else lib.escapeShellArgs (
-      [
-        "${pkgs.crosvm}/bin/crosvm" "run"
-        "-m" (toString (mem + balloonMem))
-        "-c" (toString vcpu)
-        "--serial" "type=stdout,console=true,stdin=true"
-        "-p" "console=ttyS0 reboot=k panic=1 ${toString microvmConfig.kernelParams}"
-      ]
-      ++
-      lib.optionals storeOnDisk [
-        "-r" storeDisk
-      ]
-      ++
-      lib.optionals graphics.enable [
-        "--vhost-user-gpu" graphics.socket
-      ]
-      ++
-      lib.optionals (builtins.compareVersions pkgs.crosvm.version "107.1" < 0) [
-        # workarounds
-        "--seccomp-log-failures"
-      ]
-      ++
-      lib.optionals (pivotRoot != null) [
-        "--pivot-root"
-        pivotRoot
-      ]
-      ++
-      lib.optionals (socket != null) [
-        "-s" socket
-      ]
-      ++
-      builtins.concatMap ({ image, ... }:
-        [ "--rwdisk" image ]
-      ) volumes
-      ++
-      builtins.concatMap ({ proto, tag, source, ... }:
-        let
-          type = {
-            "9p" = "p9";
-            "virtiofs" = "fs";
-          }.${proto};
-        in [
-          "--shared-dir" "${source}:${tag}:type=${type}"
+    else
+      lib.escapeShellArgs (
+        [
+          "${pkgs.crosvm}/bin/crosvm"
+          "run"
+          "-m"
+          (toString (mem + balloonMem))
+          "-c"
+          (toString vcpu)
+          "--serial"
+          "type=stdout,console=true,stdin=true"
+          "-p"
+          "console=ttyS0 reboot=k panic=1 ${toString microvmConfig.kernelParams}"
         ]
-      ) shares
-      ++
-      (builtins.concatMap ({ id, type, mac, ... }: [
-        "--net"
-        (lib.concatStringsSep "," ([
-          ( if type == "tap"
-            then "tap-name=${id}"
-            else if type == "macvtap"
-            then "tap-fd=${toString macvtapFds.${id}}"
-            else throw "Unsupported interface type ${type} for crosvm"
+        ++
+        lib.optionals storeOnDisk [
+          "-r"
+          storeDisk
+        ]
+        ++
+        lib.optionals graphics.enable [
+          "--vhost-user-gpu"
+          graphics.socket
+        ]
+        ++
+        lib.optionals (builtins.compareVersions pkgs.crosvm.version "107.1" < 0) [
+          # workarounds
+          "--seccomp-log-failures"
+        ]
+        ++
+        lib.optionals (pivotRoot != null) [
+          "--pivot-root"
+          pivotRoot
+        ]
+        ++
+        lib.optionals (socket != null) [
+          "-s"
+          socket
+        ]
+        ++
+        builtins.concatMap
+          ({ image, ... }:
+            [ "--rwdisk" image ]
           )
-          "mac=${mac}"
-        # ] ++ lib.optionals (vcpu > 1) [
-        #   "vq-pairs=${toString vcpu}"
-        ]))
-      ]) microvmConfig.interfaces)
-      # ++
-      # lib.optionals (vcpu > 1) [
-      #   "--net-vq-pairs" (toString vcpu)
-      # ]
-      ++
-      builtins.concatMap ({ bus, path }: {
-        pci = [ "--vfio" "/sys/bus/pci/devices/${path},iommu=viommu" ];
-        usb = throw "USB passthrough is not supported on crosvm";
-      }.${bus}) devices
-      ++
-      lib.optionals (vsock.cid != null) [
-        "--vsock" (toString vsock.cid)
-      ]
-      ++
-      [
-        "--initrd" initrdPath
-        kernelPath
-      ]
-      ++
-      extraArgs
-    );
+          volumes
+        ++
+        builtins.concatMap
+          ({ proto, tag, source, ... }:
+            let
+              type = {
+                "9p" = "p9";
+                "virtiofs" = "fs";
+              }.${proto};
+            in
+            [
+              "--shared-dir"
+              "${source}:${tag}:type=${type}"
+            ]
+          )
+          shares
+        ++
+        (builtins.concatMap
+          ({ id, type, mac, ... }: [
+            "--net"
+            (lib.concatStringsSep "," ([
+              (if type == "tap"
+              then "tap-name=${id}"
+              else if type == "macvtap"
+              then "tap-fd=${toString macvtapFds.${id}}"
+              else throw "Unsupported interface type ${type} for crosvm"
+              )
+              "mac=${mac}"
+              # ] ++ lib.optionals (vcpu > 1) [
+              #   "vq-pairs=${toString vcpu}"
+            ]))
+          ])
+          microvmConfig.interfaces)
+        # ++
+        # lib.optionals (vcpu > 1) [
+        #   "--net-vq-pairs" (toString vcpu)
+        # ]
+        ++
+        builtins.concatMap
+          ({ bus, path }: {
+            pci = [ "--vfio" "/sys/bus/pci/devices/${path},iommu=viommu" ];
+            usb = throw "USB passthrough is not supported on crosvm";
+          }.${bus})
+          devices
+        ++
+        lib.optionals (vsock.cid != null) [
+          "--vsock"
+          (toString vsock.cid)
+        ]
+        ++
+        [
+          "--initrd"
+          initrdPath
+          kernelPath
+        ]
+        ++
+        extraArgs
+      );
 
   canShutdown = socket != null;
 
   shutdownCommand =
     if socket != null
     then ''
-        ${pkgs.crosvm}/bin/crosvm powerbtn ${socket}
-      ''
+      ${pkgs.crosvm}/bin/crosvm powerbtn ${socket}
+    ''
     else throw "Cannot shutdown without socket";
 
   setBalloonScript =

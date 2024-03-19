@@ -23,8 +23,10 @@ let
   };
 
 in
-builtins.mapAttrs (_: nixos:
-  pkgs.runCommandLocal "microvm-test-shutdown-command" {
+builtins.mapAttrs
+  (_: nixos:
+  pkgs.runCommandLocal "microvm-test-shutdown-command"
+  {
     nativeBuildInputs = [
       nixos.config.microvm.declaredRunner
       pkgs.p7zip
@@ -39,4 +41,5 @@ builtins.mapAttrs (_: nixos:
     echo Now shutting down
     microvm-shutdown
   ''
-) configs
+  )
+  configs

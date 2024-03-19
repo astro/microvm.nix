@@ -3,10 +3,13 @@
 {
   config = lib.mkIf config.microvm.guest.enable {
     assertions = [
-      {assertion = (config.microvm.writableStoreOverlay != null) -> (!config.nix.optimise.automatic && !config.nix.settings.auto-optimise-store);
-       message = ''
-         `nix.optimise.automatic` and `nix.settings.auto-optimise-store` do not work with `microvm.writableStoreOverlay`.
-       '';}];
+      {
+        assertion = (config.microvm.writableStoreOverlay != null) -> (!config.nix.optimise.automatic && !config.nix.settings.auto-optimise-store);
+        message = ''
+          `nix.optimise.automatic` and `nix.settings.auto-optimise-store` do not work with `microvm.writableStoreOverlay`.
+        '';
+      }
+    ];
 
 
     boot.loader.grub.enable = false;
@@ -18,10 +21,11 @@
       "9pnet_virtio"
       "9p"
       "virtiofs"
-    ] ++ lib.optionals (
-      pkgs.targetPlatform.system == "x86_64-linux" &&
-      config.microvm.hypervisor == "firecracker"
-    ) [
+    ] ++ lib.optionals
+      (
+        pkgs.targetPlatform.system == "x86_64-linux" &&
+          config.microvm.hypervisor == "firecracker"
+      ) [
       # Keyboard controller that can receive CtrlAltDel
       "i8042"
     ] ++ lib.optionals (config.microvm.writableStoreOverlay != null) [
@@ -34,14 +38,16 @@
 
     # modules that consume boot time but have rare use-cases
     boot.blacklistedKernelModules = [
-      "rfkill" "intel_pstate"
+      "rfkill"
+      "intel_pstate"
     ] ++ lib.optional (!config.microvm.graphics.enable) "drm";
 
     systemd =
       let
         # nix-daemon works only with a writable /nix/store
         enableNixDaemon = config.microvm.writableStoreOverlay != null;
-      in {
+      in
+      {
         services.nix-daemon.enable = lib.mkDefault enableNixDaemon;
         sockets.nix-daemon.enable = lib.mkDefault enableNixDaemon;
 

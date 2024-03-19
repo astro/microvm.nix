@@ -31,28 +31,32 @@ let
       # Enabling simultaneous multithreading is not supported on aarch64
       smt = system != "aarch64-linux";
     };
-    drives = [ {
+    drives = [{
       drive_id = "store";
       path_on_host = storeDisk;
       is_root_device = false;
       is_read_only = true;
       io_engine = "Async";
-    } ] ++ map ({ image, ... }: {
-      drive_id = image;
-      path_on_host = image;
-      is_root_device = false;
-      is_read_only = false;
-      io_engine = "Async";
-    }) volumes;
-    network-interfaces = map ({ type, id, mac, ... }:
-      if type == "tap"
-      then {
-        iface_id = id;
-        host_dev_name = id;
-        guest_mac = mac;
-      }
-      else throw "Network interface type ${type} not implemented for Firecracker"
-    ) interfaces;
+    }] ++ map
+      ({ image, ... }: {
+        drive_id = image;
+        path_on_host = image;
+        is_root_device = false;
+        is_read_only = false;
+        io_engine = "Async";
+      })
+      volumes;
+    network-interfaces = map
+      ({ type, id, mac, ... }:
+        if type == "tap"
+        then {
+          iface_id = id;
+          host_dev_name = id;
+          guest_mac = mac;
+        }
+        else throw "Network interface type ${type} not implemented for Firecracker"
+      )
+      interfaces;
     vsock = null;
   };
 
@@ -60,23 +64,27 @@ let
     builtins.toJSON config
   );
 
-in {
+in
+{
   command =
     if user != null
     then throw "firecracker will not change user"
-    else if shares != []
+    else if shares != [ ]
     then throw "9p/virtiofs shares not implemented for Firecracker"
-    else if devices != []
+    else if devices != [ ]
     then throw "devices passthrough not implemented for Firecracker"
-    else lib.escapeShellArgs [
-      "${pkgs.firecracker}/bin/firecracker"
-      "--config-file" configFile
-      "--api-sock" (
-        if socket != null
-        then socket
-        else throw "Firecracker must be configured with an API socket (option microvm.socket)!"
-      )
-    ];
+    else
+      lib.escapeShellArgs [
+        "${pkgs.firecracker}/bin/firecracker"
+        "--config-file"
+        configFile
+        "--api-sock"
+        (
+          if socket != null
+          then socket
+          else throw "Firecracker must be configured with an API socket (option microvm.socket)!"
+        )
+      ];
 
   preStart = ''
     ${preStart}

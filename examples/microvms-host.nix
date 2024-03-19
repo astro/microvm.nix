@@ -30,46 +30,48 @@ nixpkgs.lib.nixosSystem {
         # Use QEMU because nested virtualization and user networking
         # are required.
         hypervisor = "qemu";
-        interfaces = [ {
+        interfaces = [{
           type = "user";
           id = "qemu";
           mac = "02:00:00:01:01:01";
-        } ];
+        }];
       };
 
       # Nested MicroVMs (a *host* option)
       microvm.vms = builtins.listToAttrs (
-        map (hypervisor: {
-          name = hypervisor;
-          value = {
-            config = {
-              system.stateVersion = config.system.nixos.version;
-              networking.hostName = "${hypervisor}-microvm";
+        map
+          (hypervisor: {
+            name = hypervisor;
+            value = {
+              config = {
+                system.stateVersion = config.system.nixos.version;
+                networking.hostName = "${hypervisor}-microvm";
 
-              microvm = {
-                inherit hypervisor;
-                interfaces = [ {
-                  type = "tap";
-                  id = "vm-${builtins.substring 0 12 hypervisor}";
-                  mac =
-                    let
-                      hash = builtins.hashString "sha256" hypervisor;
-                      c = off: builtins.substring off 2 hash;
-                    in
+                microvm = {
+                  inherit hypervisor;
+                  interfaces = [{
+                    type = "tap";
+                    id = "vm-${builtins.substring 0 12 hypervisor}";
+                    mac =
+                      let
+                        hash = builtins.hashString "sha256" hypervisor;
+                        c = off: builtins.substring off 2 hash;
+                      in
                       "${builtins.substring 0 1 hash}2:${c 2}:${c 4}:${c 6}:${c 8}:${c 10}";
-                } ];
-              };
-              # Just use 99-ethernet-default-dhcp.network
-              systemd.network.enable = true;
+                  }];
+                };
+                # Just use 99-ethernet-default-dhcp.network
+                systemd.network.enable = true;
 
-              users.users.root.password = "";
-              services.openssh = {
-                enable = true;
-                settings.PermitRootLogin = "yes";
+                users.users.root.password = "";
+                services.openssh = {
+                  enable = true;
+                  settings.PermitRootLogin = "yes";
+                };
               };
             };
-          };
-        }) self.lib.hypervisors);
+          })
+          self.lib.hypervisors);
 
       systemd.network = {
         enable = true;
@@ -85,14 +87,15 @@ nixpkgs.lib.nixosSystem {
             DHCPServer = true;
             IPv6SendRA = true;
           };
-          addresses = [ {
+          addresses = [{
             addressConfig.Address = "10.0.0.1/24";
-          } {
-            addressConfig.Address = "fd12:3456:789a::1/64";
-          } ];
-          ipv6Prefixes = [ {
+          }
+            {
+              addressConfig.Address = "fd12:3456:789a::1/64";
+            }];
+          ipv6Prefixes = [{
             ipv6PrefixConfig.Prefix = "fd12:3456:789a::/64";
-          } ];
+          }];
         };
         networks.microvm-eth0 = {
           matchConfig.Name = "vm-*";

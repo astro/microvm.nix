@@ -65,20 +65,21 @@ let
       builtins.concatMap (param: [ switch param ]) params
     else switch: params:
       # `` or `--switch param0 param1 ...`
-      lib.optionals (params != []) (
+      lib.optionals (params != [ ]) (
         [ switch ] ++ params
       );
 
   gpuParams = {
     context-types = "virgl:virgl2:cross-domain";
-    displays = [ {
+    displays = [{
       hidden = true;
-    } ];
+    }];
     egl = true;
     vulkan = true;
   };
 
-in {
+in
+{
   inherit tapMultiQueue;
 
   preStart = ''
@@ -103,91 +104,116 @@ in {
   command =
     if user != null
     then throw "cloud-hypervisor will not change user"
-    else lib.escapeShellArgs (
-      [
-        (if graphics.enable
-         then "${pkgs.cloud-hypervisor-graphics}/bin/cloud-hypervisor"
-         else "${pkgs.cloud-hypervisor}/bin/cloud-hypervisor"
-        )
-        "--cpus" "boot=${toString vcpu}"
-        "--watchdog"
-        "--console" "null"
-        "--serial" "tty"
-        "--kernel" kernelPath
-        "--initramfs" initrdPath
-        "--cmdline" "console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
-        "--seccomp" "true"
-        "--memory" memOps
-      ]
-      ++
-      lib.optionals graphics.enable [
-        "--gpu" "socket=${graphics.socket}"
-      ]
-      ++
-      lib.optionals useBallooning [ "--balloon" balloonOps ]
-      ++
-      arg "--disk" (
-        lib.optional storeOnDisk (opsMapped ({
-          path = toString storeDisk;
-          readonly = "on";
-        } // mqOps))
+    else
+      lib.escapeShellArgs (
+        [
+          (if graphics.enable
+          then "${pkgs.cloud-hypervisor-graphics}/bin/cloud-hypervisor"
+          else "${pkgs.cloud-hypervisor}/bin/cloud-hypervisor"
+          )
+          "--cpus"
+          "boot=${toString vcpu}"
+          "--watchdog"
+          "--console"
+          "null"
+          "--serial"
+          "tty"
+          "--kernel"
+          kernelPath
+          "--initramfs"
+          initrdPath
+          "--cmdline"
+          "console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+          "--seccomp"
+          "true"
+          "--memory"
+          memOps
+        ]
         ++
-        map ({ image, ... }: (opsMapped ({
-          path = toString image;
-        } // mqOps))) volumes
-      )
-      ++
-      arg "--fs" (map ({ proto, socket, tag, ... }:
-        if proto == "virtiofs"
-        then opsMapped {
-          inherit tag socket;
-        }
-        else throw "cloud-hypervisor supports only shares that are virtiofs"
-      ) shares)
-      ++
-      lib.optionals (socket != null) [ "--api-socket" socket ]
-      ++
-      arg "--net" (map ({ type, id, mac, ... }:
-        if type == "tap"
-        then opsMapped ({
-          tap = id;
-          inherit mac;
-        } // lib.optionalAttrs tapMultiQueue {
-          num_queues = toString (2 * vcpu);
-        })
-        else if type == "macvtap"
-        then opsMapped ({
-          fd = "[${lib.concatMapStringsSep "," toString macvtapFds.${id}}]";
-          inherit mac;
-        } // lib.optionalAttrs tapMultiQueue {
-          num_queues = toString (2 * vcpu);
-        })
-        else throw "Unsupported interface type ${type} for Cloud-Hypervisor"
-      ) interfaces)
-      ++
-      arg "--device" (map ({ bus, path }: {
-        pci = "path=/sys/bus/pci/devices/${path}";
-        usb = throw "USB passthrough is not supported on cloud-hypervisor";
-      }.${bus}) devices)
-      ++
-      extraArgs
-    );
+        lib.optionals graphics.enable [
+          "--gpu"
+          "socket=${graphics.socket}"
+        ]
+        ++
+        lib.optionals useBallooning [ "--balloon" balloonOps ]
+        ++
+        arg "--disk" (
+          lib.optional storeOnDisk
+            (opsMapped ({
+              path = toString storeDisk;
+              readonly = "on";
+            } // mqOps))
+          ++
+          map
+            ({ image, ... }: (opsMapped ({
+              path = toString image;
+            } // mqOps)))
+            volumes
+        )
+        ++
+        arg "--fs" (map
+          ({ proto, socket, tag, ... }:
+            if proto == "virtiofs"
+            then
+              opsMapped
+                {
+                  inherit tag socket;
+                }
+            else throw "cloud-hypervisor supports only shares that are virtiofs"
+          )
+          shares)
+        ++
+        lib.optionals (socket != null) [ "--api-socket" socket ]
+        ++
+        arg "--net" (map
+          ({ type, id, mac, ... }:
+            if type == "tap"
+            then
+              opsMapped
+                ({
+                  tap = id;
+                  inherit mac;
+                } // lib.optionalAttrs tapMultiQueue {
+                  num_queues = toString (2 * vcpu);
+                })
+            else if type == "macvtap"
+            then
+              opsMapped
+                ({
+                  fd = "[${lib.concatMapStringsSep "," toString macvtapFds.${id}}]";
+                  inherit mac;
+                } // lib.optionalAttrs tapMultiQueue {
+                  num_queues = toString (2 * vcpu);
+                })
+            else throw "Unsupported interface type ${type} for Cloud-Hypervisor"
+          )
+          interfaces)
+        ++
+        arg "--device" (map
+          ({ bus, path }: {
+            pci = "path=/sys/bus/pci/devices/${path}";
+            usb = throw "USB passthrough is not supported on cloud-hypervisor";
+          }.${bus})
+          devices)
+        ++
+        extraArgs
+      );
 
   canShutdown = socket != null;
 
   shutdownCommand =
     if socket != null
     then ''
-        api() {
-          ${pkgs.curl}/bin/curl -s \
-            --unix-socket ${socket} \
-            $@
-        }
+      api() {
+        ${pkgs.curl}/bin/curl -s \
+          --unix-socket ${socket} \
+          $@
+      }
 
-        api -X PUT http://localhost/api/v1/vm.power-button
+      api -X PUT http://localhost/api/v1/vm.power-button
 
-        ${pkgs.util-linux}/bin/waitpid $MAINPID
-      ''
+      ${pkgs.util-linux}/bin/waitpid $MAINPID
+    ''
     else throw "Cannot shutdown without socket";
 
   getConsoleScript =

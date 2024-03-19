@@ -53,15 +53,18 @@ in
         config.microvm.storeDiskType
       ];
 
-      microvm.storeDisk = pkgs.runCommandLocal "microvm-store-disk.${config.microvm.storeDiskType}" {
-        nativeBuildInputs = with pkgs.buildPackages; [ {
-          squashfs = [ squashfs-tools-ng ];
-          erofs = [ erofs-utils ];
-        }.${config.microvm.storeDiskType} ];
-        passthru = {
-          inherit regInfo;
-        };
-      } ''
+      microvm.storeDisk = pkgs.runCommandLocal "microvm-store-disk.${config.microvm.storeDiskType}"
+        {
+          nativeBuildInputs = with pkgs.buildPackages; [
+            {
+              squashfs = [ squashfs-tools-ng ];
+              erofs = [ erofs-utils ];
+            }.${config.microvm.storeDiskType}
+          ];
+          passthru = {
+            inherit regInfo;
+          };
+        } ''
         echo Copying a /nix/store
         mkdir store
         for d in $(sort -u ${

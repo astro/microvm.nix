@@ -11,7 +11,8 @@ let
   };
 
 in
-runCommand "microvm.nix-doc" {
+runCommand "microvm.nix-doc"
+{
   nativeBuildInputs = [ mdbook ];
 } ''
   cp -r ${../doc} doc

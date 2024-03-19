@@ -34,7 +34,8 @@
           };
         });
     in
-      flake-utils.lib.eachSystem systems (system: {
+    flake-utils.lib.eachSystem systems
+      (system: {
 
         apps =
           let
@@ -45,7 +46,8 @@
                 inherit self nixpkgs system;
               }).config.microvm.declaredRunner}/bin/microvm-run";
             };
-          in {
+          in
+          {
             vm = nixosToApp ./examples/microvms-host.nix;
             qemu-vnc = nixosToApp ./examples/qemu-vnc.nix;
             graphics = {
@@ -90,7 +92,8 @@
         packages =
           let
             pkgs = nixpkgs.legacyPackages.${system};
-          in {
+          in
+          {
             build-microvm = pkgs.callPackage ./pkgs/build-microvm.nix { inherit self; };
             doc = pkgs.callPackage ./pkgs/doc.nix { inherit nixpkgs; };
             microvm = import ./pkgs/microvm-command.nix {
@@ -115,102 +118,109 @@
             waypipe = overrideWaypipe pkgs;
           } //
           # wrap self.nixosConfigurations in executable packages
-          builtins.foldl' (result: systemName:
-            let
-              nixos = self.nixosConfigurations.${systemName};
-              name = builtins.replaceStrings [ "${system}-" ] [ "" ] systemName;
-              inherit (nixos.config.microvm) hypervisor;
-            in
+          builtins.foldl'
+            (result: systemName:
+              let
+                nixos = self.nixosConfigurations.${systemName};
+                name = builtins.replaceStrings [ "${system}-" ] [ "" ] systemName;
+                inherit (nixos.config.microvm) hypervisor;
+              in
               if nixos.pkgs.system == system
               then result // {
                 "${name}" = nixos.config.microvm.runner.${hypervisor};
               }
               else result
-          ) {} (builtins.attrNames self.nixosConfigurations);
+            )
+            { }
+            (builtins.attrNames self.nixosConfigurations);
 
         # Takes too much memory in `nix flake show`
         # checks = import ./checks { inherit self nixpkgs system; };
 
         # hydraJobs are checks
-        hydraJobs = builtins.mapAttrs (_: check:
-          (nixpkgs.lib.recursiveUpdate check {
-            meta.timeout = 12 * 60 * 60;
-          })
-        ) (import ./checks { inherit self nixpkgs system; });
+        hydraJobs = builtins.mapAttrs
+          (_: check:
+            (nixpkgs.lib.recursiveUpdate check {
+              meta.timeout = 12 * 60 * 60;
+            })
+          )
+          (import ./checks { inherit self nixpkgs system; });
 
         formatter = nixpkgs.legacyPackages.${system}.nixpkgs-fmt;
       }) // {
-        lib = import ./lib { nixpkgs-lib = nixpkgs.lib; };
+      lib = import ./lib { nixpkgs-lib = nixpkgs.lib; };
 
-        overlay = final: prev: {
-          cloud-hypervisor-graphics = prev.callPackage (spectrum + "/pkgs/cloud-hypervisor") {};
-          waypipe = overrideWaypipe prev;
-        };
+      overlay = final: prev: {
+        cloud-hypervisor-graphics = prev.callPackage (spectrum + "/pkgs/cloud-hypervisor") { };
+        waypipe = overrideWaypipe prev;
+      };
 
-        nixosModules = {
-          microvm = import ./nixos-modules/microvm;
-          host = import ./nixos-modules/host;
-        };
+      nixosModules = {
+        microvm = import ./nixos-modules/microvm;
+        host = import ./nixos-modules/host;
+      };
 
-        defaultTemplate = self.templates.microvm;
-        templates.microvm = {
-          path = ./flake-template;
-          description = "Flake with MicroVMs";
-        };
+      defaultTemplate = self.templates.microvm;
+      templates.microvm = {
+        path = ./flake-template;
+        description = "Flake with MicroVMs";
+      };
 
-        nixosConfigurations =
-          let
-            hypervisorsWith9p = [
-              "qemu"
-              # currently broken:
-              # "crosvm"
-            ];
-            hypervisorsWithUserNet = [ "qemu" "kvmtool" ];
-            makeExample = { system, hypervisor, config ? {} }:
-              nixpkgs.lib.nixosSystem {
-                inherit system;
-                modules = [
-                  self.nixosModules.microvm
-                  ({ config, lib, ... }: {
-                    system.stateVersion = config.system.nixos.version;
+      nixosConfigurations =
+        let
+          hypervisorsWith9p = [
+            "qemu"
+            # currently broken:
+            # "crosvm"
+          ];
+          hypervisorsWithUserNet = [ "qemu" "kvmtool" ];
+          makeExample = { system, hypervisor, config ? { } }:
+            nixpkgs.lib.nixosSystem {
+              inherit system;
+              modules = [
+                self.nixosModules.microvm
+                ({ config, lib, ... }: {
+                  system.stateVersion = config.system.nixos.version;
 
-                    networking.hostName = "${hypervisor}-microvm";
-                    services.getty.autologinUser = "root";
+                  networking.hostName = "${hypervisor}-microvm";
+                  services.getty.autologinUser = "root";
 
-                    microvm.hypervisor = hypervisor;
-                    # share the host's /nix/store if the hypervisor can do 9p
-                    microvm.shares = lib.optional (builtins.elem hypervisor hypervisorsWith9p) {
-                      tag = "ro-store";
-                      source = "/nix/store";
-                      mountPoint = "/nix/.ro-store";
-                    };
-                    # microvm.writableStoreOverlay = "/nix/.rw-store";
-                    # microvm.volumes = [ {
-                    #   image = "nix-store-overlay.img";
-                    #   mountPoint = config.microvm.writableStoreOverlay;
-                    #   size = 2048;
-                    # } ];
-                    microvm.interfaces = lib.optional (builtins.elem hypervisor hypervisorsWithUserNet) {
-                      type = "user";
-                      id = "qemu";
-                      mac = "02:00:00:01:01:01";
-                    };
-                    microvm.forwardPorts = lib.optional (hypervisor == "qemu") {
-                      host.port = 2222;
-                      guest.port = 22;
-                    };
-                    networking.firewall.allowedTCPPorts = lib.optional (hypervisor == "qemu") 22;
-                    services.openssh = lib.optionalAttrs (hypervisor == "qemu") {
-                      enable = true;
-                      settings.PermitRootLogin = "yes";
-                    };
-                  })
-                  config
-                ];
-              };
-          in
-            (builtins.foldl' (results: system:
-              builtins.foldl' ({ result, n }: hypervisor: {
+                  microvm.hypervisor = hypervisor;
+                  # share the host's /nix/store if the hypervisor can do 9p
+                  microvm.shares = lib.optional (builtins.elem hypervisor hypervisorsWith9p) {
+                    tag = "ro-store";
+                    source = "/nix/store";
+                    mountPoint = "/nix/.ro-store";
+                  };
+                  # microvm.writableStoreOverlay = "/nix/.rw-store";
+                  # microvm.volumes = [ {
+                  #   image = "nix-store-overlay.img";
+                  #   mountPoint = config.microvm.writableStoreOverlay;
+                  #   size = 2048;
+                  # } ];
+                  microvm.interfaces = lib.optional (builtins.elem hypervisor hypervisorsWithUserNet) {
+                    type = "user";
+                    id = "qemu";
+                    mac = "02:00:00:01:01:01";
+                  };
+                  microvm.forwardPorts = lib.optional (hypervisor == "qemu") {
+                    host.port = 2222;
+                    guest.port = 22;
+                  };
+                  networking.firewall.allowedTCPPorts = lib.optional (hypervisor == "qemu") 22;
+                  services.openssh = lib.optionalAttrs (hypervisor == "qemu") {
+                    enable = true;
+                    settings.PermitRootLogin = "yes";
+                  };
+                })
+                config
+              ];
+            };
+        in
+        (builtins.foldl'
+          (results: system:
+            builtins.foldl'
+              ({ result, n }: hypervisor: {
                 result = result // {
                   "${system}-${hypervisor}-example" = makeExample {
                     inherit system hypervisor;
@@ -219,12 +229,12 @@
                 nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetwork) {
                   "${system}-${hypervisor}-example-with-tap" = makeExample {
                     inherit system hypervisor;
-                    config = { lib, ...}: {
-                      microvm.interfaces = [ {
+                    config = { lib, ... }: {
+                      microvm.interfaces = [{
                         type = "tap";
                         id = "vm-${builtins.substring 0 4 hypervisor}";
                         mac = "02:00:00:01:01:0${toString n}";
-                      } ];
+                      }];
                       networking.interfaces.eth0.useDHCP = true;
                       networking.firewall.allowedTCPPorts = [ 22 ];
                       services.openssh = {
@@ -235,7 +245,11 @@
                   };
                 };
                 n = n + 1;
-              }) results self.lib.hypervisors
-            ) { result = {}; n = 1; } systems).result;
-      };
+              })
+              results
+              self.lib.hypervisors
+          )
+          { result = { }; n = 1; }
+          systems).result;
+    };
 }

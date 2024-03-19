@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import <nixpkgs> { } }:
 
 let
   hypervisor = "cloud-hypervisor";
@@ -25,11 +25,11 @@ let
         mountPoint = "/nix/.ro-store";
       };
       writableStoreOverlay = "/nix/.rw-store";
-      volumes = [ {
+      volumes = [{
         image = "nix-store-overlay.img";
         mountPoint = config.microvm.writableStoreOverlay;
         size = 2048;
-      } ];
+      }];
       interfaces = lib.optional (builtins.elem hypervisor hypervisorsWithUserNet) {
         type = "user";
         id = "qemu";

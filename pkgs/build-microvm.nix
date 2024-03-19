@@ -1,9 +1,13 @@
 # Builds a MicroVM from a flake but takes the hypervisor from the
 # local pkgs not from the target flake.
 { self
-, lib, targetPlatform
-, writeScriptBin, runtimeShell
-, coreutils, git, nix
+, lib
+, targetPlatform
+, writeScriptBin
+, runtimeShell
+, coreutils
+, git
+, nix
 }:
 
 writeScriptBin "build-microvm" ''

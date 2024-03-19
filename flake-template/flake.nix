@@ -7,7 +7,8 @@
   outputs = { self, nixpkgs, microvm }:
     let
       system = "x86_64-linux";
-    in {
+    in
+    {
       packages.${system}.default = self.packages.${system}.my-microvm;
 
       packages.${system} = {
@@ -23,12 +24,12 @@
               networking.hostName = "my-microvm";
               users.users.root.password = "";
               microvm = {
-                volumes = [ {
+                volumes = [{
                   mountPoint = "/var";
                   image = "var.img";
                   size = 256;
-                } ];
-                shares = [ {
+                }];
+                shares = [{
                   # use "virtiofs" for MicroVMs that are started by systemd
                   proto = "9p";
                   tag = "ro-store";
@@ -36,7 +37,7 @@
                   # squashfs/erofs will be built for it.
                   source = "/nix/store";
                   mountPoint = "/nix/.ro-store";
-                } ];
+                }];
 
                 hypervisor = "qemu";
                 socket = "control.socket";

@@ -47,6 +47,7 @@
             };
           in {
             vm = nixosToApp ./examples/microvms-host.nix;
+            host-static-guest = nixosToApp ./examples/host-static-guest.nix;
             qemu-vnc = nixosToApp ./examples/qemu-vnc.nix;
             graphics = {
               type = "app";

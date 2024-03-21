@@ -8,9 +8,8 @@
     let
       system = "x86_64-linux";
     in {
-      packages.${system}.default = self.packages.${system}.my-microvm;
-
       packages.${system} = {
+        default = self.packages.${system}.my-microvm;
         my-microvm = self.nixosConfigurations.my-microvm.config.microvm.declaredRunner;
       };
 

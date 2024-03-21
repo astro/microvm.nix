@@ -17,6 +17,17 @@ in
       '';
     };
 
+    host.useNotifySockets = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Enable if all your MicroVMs run with a Hypervisor that sends readiness notification over a VSOCK.
+
+        If one of your MicroVMs doesn't do this, its systemd service
+        will not start up successfully.
+      '';
+    };
+
     vms = mkOption {
       type = with types; attrsOf (submodule ({ config, name, ... }: {
         options = {
@@ -235,7 +246,10 @@ in
         # we also have to include a trigger here.
         restartTriggers = [guestConfig.system.build.toplevel];
         overrideStrategy = "asDropin";
-        serviceConfig.Type = lib.mkIf guestConfig.microvm.declaredRunner.supportsNotifySocket "notify";
+        serviceConfig.Type =
+          if guestConfig.microvm.declaredRunner.supportsNotifySocket
+          then "notify"
+          else "simple";
       };
       "microvm-tap-interfaces@${name}" = {
         serviceConfig.X-RestartIfChanged = [ "" microvmConfig.restartIfChanged ];
@@ -436,7 +450,10 @@ in
           rm booted
         '';
         serviceConfig = {
-          Type = "simple";
+          Type =
+            if config.microvm.host.useNotifySockets
+            then "notify"
+            else "simple";
           WorkingDirectory = "${stateDir}/%i";
           ExecStart = "${stateDir}/%i/current/bin/microvm-run";
           ExecStop = "${stateDir}/%i/booted/bin/microvm-shutdown";

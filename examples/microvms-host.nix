@@ -82,24 +82,26 @@ nixpkgs.lib.nixosSystem {
           };
           networks.virbr0 = {
             matchConfig.Name = "virbr0";
+
+            addresses = [ {
+              addressConfig.Address = "10.0.0.1/24";
+            } {
+              addressConfig.Address = "fd12:3456:789a::1/64";
+            } ];
             # Hand out IP addresses to MicroVMs.
             # Use `networkctl status virbr0` to see leases.
             networkConfig = {
               DHCPServer = true;
               IPv6SendRA = true;
             };
-            dhcpServerStaticLeases = [ {
-              # Let DHCP assign a statically known address to the qemu vm
+            # Let DHCP assign a statically known address to the VMs
+            dhcpServerStaticLeases = lib.imap0 (i: hypervisor: {
               dhcpServerStaticLeaseConfig = {
-                MACAddress = hypervisors-with-mac.qemu;
-                Address = "10.0.13.37";
+                MACAddress = hypervisorMacAddrs.${hypervisor};
+                Address = "10.0.0.${toString (2 + i)}";
               };
-            } ];
-            addresses = [ {
-              addressConfig.Address = "10.0.0.1/24";
-            } {
-              addressConfig.Address = "fd12:3456:789a::1/64";
-            } ];
+            }) (builtins.attrNames hypervisorMacAddrs);
+            # IPv6 SLAAC
             ipv6Prefixes = [ {
               ipv6PrefixConfig.Prefix = "fd12:3456:789a::/64";
             } ];

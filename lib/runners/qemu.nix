@@ -64,8 +64,8 @@ let
 
   accel =
     if microvmConfig.cpu == null
-    then "accel=kvm:tcg"
-    else "accel=tcg";
+    then "kvm:tcg"
+    else "tcg";
 
   # PCI required by vfio-pci for PCI passthrough
   pciInDevices = lib.any ({ bus, ... }: bus == "pci") devices;
@@ -75,23 +75,32 @@ let
     shares != [] ||
     pciInDevices;
 
-  machineConfig = builtins.concatStringsSep "," {
-    x86_64-linux = [
-      machine
-      accel
-      "mem-merge=on"
-      "acpi=on"
-    ] ++ lib.optionals (machine == "microvm") [
-      "pit=off"
-      "pic=off"
-      "pcie=${if requirePci then "on" else "off"}"
-      "usb=${if requireUsb then "on" else "off"}"
-    ];
-    aarch64-linux = [
-      "virt"
-      "gic-version=max,${accel}"
-    ];
-  }.${system};
+  machineOpts =
+    if microvmConfig.qemu.machineOpts != null
+    then microvmConfig.qemu.machineOpts
+    else {
+      x86_64-linux = {
+        inherit accel;
+        mem-merge = "on";
+        acpi = "on";
+      } // lib.optionalAttrs (machine == "microvm") {
+        pit = "off";
+        pic = "off";
+        pcie = if requirePci then "on" else "off";
+        usb = if requireUsb then "on" else "off";
+      };
+      aarch64-linux = {
+        inherit accel;
+        gic-version = "max";
+      };
+    }.${system};
+
+  machineConfig = builtins.concatStringsSep "," (
+    [ machine ] ++
+    map (name:
+      "${name}=${machineOpts.${name}}"
+    ) (builtins.attrNames machineOpts)
+  );
 
   devType =
     if requirePci

@@ -406,6 +406,12 @@ in
       '';
     };
 
+    qemu.machineOpts = mkOption {
+      type = with types; nullOr (attrsOf str);
+      default = null;
+      description = "Overwrite the default machine model options.";
+    };
+
     qemu.extraArgs = mkOption {
       type = with types; listOf str;
       default = [];

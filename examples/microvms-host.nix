@@ -12,6 +12,8 @@ nixpkgs.lib.nixosSystem {
 
     ({ config, lib, pkgs, ... }:
       let
+        inherit (self.lib) hypervisors;
+
         hypervisorMacAddrs = builtins.listToAttrs (
           map (hypervisor:
             let
@@ -21,7 +23,16 @@ nixpkgs.lib.nixosSystem {
             in {
               name = hypervisor;
               value = mac;
-            }) self.lib.hypervisors);
+            }) hypervisors
+        );
+
+        hypervisorIPv4Addrs = builtins.listToAttrs (
+          lib.imap0 (i: hypervisor: {
+            name = hypervisor;
+            value = "10.0.0.${toString (2 + i)}";
+          }) hypervisors
+        );
+
       in {
         networking.hostName = "microvms-host";
         system.stateVersion = config.system.nixos.version;
@@ -98,9 +109,9 @@ nixpkgs.lib.nixosSystem {
             dhcpServerStaticLeases = lib.imap0 (i: hypervisor: {
               dhcpServerStaticLeaseConfig = {
                 MACAddress = hypervisorMacAddrs.${hypervisor};
-                Address = "10.0.0.${toString (2 + i)}";
+                Address = hypervisorIPv4Addrs.${hypervisor};
               };
-            }) (builtins.attrNames hypervisorMacAddrs);
+            }) hypervisors;
             # IPv6 SLAAC
             ipv6Prefixes = [ {
               ipv6PrefixConfig.Prefix = "fd12:3456:789a::/64";
@@ -119,6 +130,10 @@ nixpkgs.lib.nixosSystem {
           enableIPv6 = true;
           internalInterfaces = [ "virbr0" ];
         };
+
+        networking.extraHosts = lib.concatMapStrings (hypervisor: ''
+          ${hypervisorIPv4Addrs.${hypervisor}} ${hypervisor}
+        '') hypervisors;
       })
   ];
 }

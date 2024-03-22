@@ -89,6 +89,10 @@ in {
       rm -f '${socket}'
     ''}
 
+
+    # Ensure notify sockets are removed if cloud-hypervisor didn't exit cleanly the last time
+    rm -f notify.vsock notify.vsock_8888
+
     # Start socat to forward systemd notify socket over vsock
     if [ -n "$NOTIFY_SOCKET" ]; then
       ${pkgs.socat}/bin/socat UNIX-LISTEN:notify.vsock_8888,fork UNIX-SENDTO:$NOTIFY_SOCKET &

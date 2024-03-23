@@ -22,15 +22,19 @@
         "aarch64-linux"
       ];
 
+      # https://github.com/NixOS/nixpkgs/pull/296538
+      # TODO: remove entirely after NixOS 24.05
       overrideWaypipe = pkgs:
-        pkgs.waypipe.overrideAttrs (attrs: {
-          version = "unstable-2023-10-02";
+        if builtins.compareVersions pkgs.waypipe.version "0.9" >= 0
+        then pkgs.waypipe
+        else pkgs.waypipe.overrideAttrs (attrs: rec {
+          version = "0.9.0";
           src = pkgs.fetchFromGitLab {
             domain = "gitlab.freedesktop.org";
             owner = "mstoeckl";
             repo = "waypipe";
-            rev = "ca4809435e781dfc6bd3006fde605860c8dcf179";
-            hash = "sha256-tSLPlf7fVq8vwbr7fHotqM/sBSXYMDM1V5yth5bhi38=";
+            rev = "v${version}";
+            hash = "sha256-zk5IzZiFff9EeJn24/QmE1ybcBkxpaz6Owp77CfCwV0=";
           };
         });
     in

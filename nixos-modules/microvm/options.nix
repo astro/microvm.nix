@@ -1,4 +1,4 @@
-{ config, options, lib, ... }:
+{ config, options, lib, pkgs, ... }:
 let
   self-lib = import ../../lib {
     nixpkgs-lib = lib;
@@ -391,6 +391,25 @@ in
       description = ''
         Path of vhost-user socket
       '';
+    };
+
+    qemu.machine = mkOption {
+      type = types.str;
+      default = {
+        x86_64-linux = "microvm";
+        aarch64-linux = "virt";
+      }.${pkgs.system};
+      description = ''
+        QEMU machine model, eg. `microvm`, or `q35`
+
+        Get a full list with `qemu-system-x86_64 -M help`
+      '';
+    };
+
+    qemu.machineOpts = mkOption {
+      type = with types; nullOr (attrsOf str);
+      default = null;
+      description = "Overwrite the default machine model options.";
     };
 
     qemu.extraArgs = mkOption {

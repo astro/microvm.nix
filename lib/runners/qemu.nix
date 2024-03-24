@@ -39,7 +39,7 @@ let
     pkgs.qemu_kvm else pkgs.buildPackages.qemu_full);
 
   inherit (microvmConfig) hostName cpu vcpu mem balloonMem user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
-  inherit (microvmConfig.qemu) extraArgs serialConsole;
+  inherit (microvmConfig.qemu) machine extraArgs serialConsole;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
 
@@ -64,8 +64,8 @@ let
 
   accel =
     if microvmConfig.cpu == null
-    then "accel=kvm:tcg"
-    else "accel=tcg";
+    then "kvm:tcg"
+    else "tcg";
 
   # PCI required by vfio-pci for PCI passthrough
   pciInDevices = lib.any ({ bus, ... }: bus == "pci") devices;
@@ -75,19 +75,32 @@ let
     shares != [] ||
     pciInDevices;
 
-  machine = {
-    x86_64-linux = builtins.concatStringsSep "," [
-      "microvm"
-      accel
-      "mem-merge=on"
-      "pit=off"
-      "pic=off"
-      "acpi=on"
-      "pcie=${if requirePci then "on" else "off"}"
-      "usb=${if requireUsb then "on" else "off"}"
-    ];
-    aarch64-linux = "virt,gic-version=max,${accel}";
-  }.${system};
+  machineOpts =
+    if microvmConfig.qemu.machineOpts != null
+    then microvmConfig.qemu.machineOpts
+    else {
+      x86_64-linux = {
+        inherit accel;
+        mem-merge = "on";
+        acpi = "on";
+      } // lib.optionalAttrs (machine == "microvm") {
+        pit = "off";
+        pic = "off";
+        pcie = if requirePci then "on" else "off";
+        usb = if requireUsb then "on" else "off";
+      };
+      aarch64-linux = {
+        inherit accel;
+        gic-version = "max";
+      };
+    }.${system};
+
+  machineConfig = builtins.concatStringsSep "," (
+    [ machine ] ++
+    map (name:
+      "${name}=${machineOpts.${name}}"
+    ) (builtins.attrNames machineOpts)
+  );
 
   devType =
     if requirePci
@@ -139,7 +152,7 @@ in {
     [
       "${qemu}/bin/qemu-system-${arch}"
       "-name" hostName
-      "-M" machine
+      "-M" machineConfig
       "-m" (toString (mem + balloonMem))
       "-smp" (toString vcpu)
       "-nodefaults" "-no-user-config"

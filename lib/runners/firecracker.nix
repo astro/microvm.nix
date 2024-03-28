@@ -30,6 +30,8 @@ let
       # Without this, starting of firecracker fails with an error message:
       # Enabling simultaneous multithreading is not supported on aarch64
       smt = system != "aarch64-linux";
+      # Run even on old CPUs
+      cpu_template = null;
     };
     drives = [ {
       drive_id = "store";

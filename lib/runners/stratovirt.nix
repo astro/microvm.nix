@@ -67,8 +67,12 @@ let
 in {
   inherit tapMultiQueue;
 
-  command = lib.escapeShellArgs (
-    [
+  # `-serial stdio' panics if not running in a tty, so fake one with
+  # `script'.
+  command = lib.escapeShellArgs [
+    "${pkgs.util-linux}/bin/script" "-qfec"
+
+    (lib.escapeShellArgs ([
       "${pkgs.stratovirt}/bin/stratovirt"
       "-name" hostName
       "-machine" machine
@@ -153,8 +157,8 @@ in {
     lib.optionals (lib.hasPrefix "q35" machine) [
       "-drive" "file=${pkgs.OVMF.fd}/FV/OVMF_CODE.fd,if=pflash,unit=0,readonly=true"
       "-drive" "file=${pkgs.OVMF.fd}/FV/OVMF_VARS.fd,if=pflash,unit=1,readonly=true"
-    ]
-  );
+    ]))
+  ];
 
   # Not supported for the `microvm` machine model
   canShutdown = false;

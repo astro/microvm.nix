@@ -122,3 +122,16 @@ nix.nixPath = [
   "nixpkgs=${builtins.storePath <nixpkgs>}"
 ];
 ```
+
+# How do I let the `microvm` user access block devices?
+
+You can re-add the following line to your host's NixOS configuration
+which was removed from microvm.nix:
+
+```nix
+users.users.microvm.extraGroups = [ "disk" ];
+```
+
+The more secure solution would be writing custom
+`services.udev.extraRules` that assign ownership/permissions to the
+individually used block devices.

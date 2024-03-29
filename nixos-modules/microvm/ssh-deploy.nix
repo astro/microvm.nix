@@ -114,6 +114,7 @@ in
       set -eou pipefail
 
       echo "Initializing MicroVM ${hostName} if necessary"
+      mkdir -p /nix/var/nix/gcroots/microvm
       mkdir -p /var/lib/microvms/${hostName}
       cd /var/lib/microvms/${hostName}
       chown microvm:kvm .

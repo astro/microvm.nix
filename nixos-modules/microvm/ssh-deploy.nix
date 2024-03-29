@@ -137,7 +137,9 @@ in
       if [[ $(realpath ./current) != $(realpath ./new) ]]; then
         echo "Installing MicroVM ${hostName}"
         rm -f old
-        mv current old
+        if [ -e current ]; then
+          mv current old
+        fi
         mv new current
 
         echo "Success. Diff:"

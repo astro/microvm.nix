@@ -16,6 +16,9 @@
 * Runners execute the hypervisor with a process name of
   `microvm@$NAME`
 * We no longer let `environment.noXlibs` default to `true`
+* **Breaking:** the `microvm` user is no longer in the `disk` group
+  for security reasons. Add `users.users.microvm.extraGroups = [
+  "disk" ]` to your config to restore the old behavior.
 
 ## 0.4.1 (2023-11-03)
 

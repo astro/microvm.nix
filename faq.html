@@ -276,6 +276,14 @@ does.</p>
   &quot;nixpkgs=${builtins.storePath &lt;nixpkgs&gt;}&quot;
 ];
 </code></pre>
+<h1 id="how-do-i-let-the-microvm-user-access-block-devices"><a class="header" href="#how-do-i-let-the-microvm-user-access-block-devices">How do I let the <code>microvm</code> user access block devices?</a></h1>
+<p>You can re-add the following line to your host's NixOS configuration
+which was removed from microvm.nix:</p>
+<pre><code class="language-nix">users.users.microvm.extraGroups = [ &quot;disk&quot; ];
+</code></pre>
+<p>The more secure solution would be writing custom
+<code>services.udev.extraRules</code> that assign ownership/permissions to the
+individually used block devices.</p>
 
                     </main>
 

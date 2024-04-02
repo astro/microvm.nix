@@ -60,7 +60,7 @@ in
       description = "Kernel package to use for MicroVM runners";
       default = config.boot.kernelPackages.kernel;
       defaultText = literalExpression ''"''${config.boot.kernelPackages.kernel}"'';
-      type = types.package;
+      type = with types; either package path;
     };
 
     initrdPath = mkOption {
@@ -222,6 +222,13 @@ in
             type = str;
             description = ''
               Interface name on the host
+            '';
+          };
+          guestId = mkOption {
+            type = nullOr str;
+            default = null;
+            description = ''
+              Interface name on the guest
             '';
           };
           macvtap.link = mkOption {

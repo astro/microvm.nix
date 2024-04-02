@@ -7,6 +7,7 @@ rec {
     "crosvm"
     "kvmtool"
     "stratovirt"
+    "solo5-spt"
   ];
 
   hypervisorsWithNetwork = hypervisors;

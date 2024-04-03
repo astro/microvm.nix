@@ -152,6 +152,8 @@
         nixosModules = {
           microvm = import ./nixos-modules/microvm;
           host = import ./nixos-modules/host;
+          # Just the generic microvm options
+          microvm-options = import ./nixos-modules/microvm/options.nix;
         };
 
         defaultTemplate = self.templates.microvm;

@@ -72,6 +72,7 @@ let
 
   requirePci =
     graphics.enable ||
+    machine == "q35" ||
     shares != [] ||
     pciInDevices;
 

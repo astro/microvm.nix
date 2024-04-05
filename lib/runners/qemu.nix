@@ -72,7 +72,7 @@ let
 
   requirePci =
     graphics.enable ||
-    machine == "q35" ||
+    (! lib.hasPrefix "microvm" machine) ||
     shares != [] ||
     pciInDevices;
 

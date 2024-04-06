@@ -1,6 +1,6 @@
 # Major Changes in microvm.nix
 
-## 0.5.0 (To be released)
+## 0.5.0 (2024-04-06)
 
 * **tap interfaces** are now **multi-queue** when running with more
   than one VCPU. Update your host!

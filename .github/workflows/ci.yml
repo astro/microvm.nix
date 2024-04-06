@@ -47,6 +47,22 @@ jobs:
           - check: qemu-tcg-startup-shutdown
           - check: qemu-tcg-systemd-shutdown-command
           - check: qemu-tcg-systemd-startup-shutdown
+          - check: qemu-tcg-9pstore-overlay-hardened-startup-shutdown
+          - check: qemu-tcg-9pstore-hardened-shutdown-command
+          - check: qemu-tcg-9pstore-hardened-startup-shutdown
+          - check: qemu-tcg-9pstore-systemd-hardened-shutdown-command
+          - check: qemu-tcg-9pstore-overlay-systemd-hardened-shutdown-command
+          - check: qemu-tcg-9pstore-overlay-hardened-shutdown-command
+          - check: qemu-tcg-9pstore-overlay-systemd-hardened-startup-shutdown
+          - check: qemu-tcg-overlay-hardened-startup-shutdown
+          - check: qemu-tcg-9pstore-systemd-hardened-startup-shutdown
+          - check: qemu-tcg-hardened-shutdown-command
+          - check: qemu-tcg-overlay-systemd-hardened-shutdown-command
+          - check: qemu-tcg-hardened-startup-shutdown
+          - check: qemu-tcg-overlay-hardened-shutdown-command
+          - check: qemu-tcg-systemd-hardened-shutdown-command
+          - check: qemu-tcg-overlay-systemd-hardened-startup-shutdown
+          - check: qemu-tcg-systemd-hardened-startup-shutdown
           # Known broken
           - check: cloud-hypervisor-overlay-startup-shutdown
           - check: cloud-hypervisor-overlay-shutdown-command

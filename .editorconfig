@@ -1,0 +1,12 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+max_line_length = 80
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{json,md,nix,toml,yml}]
+indent_style = space
+indent_size = 2

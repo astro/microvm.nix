@@ -60,7 +60,7 @@ in
     # we cannot use systemd-networkd-wait-online.
     systemd.network.wait-online.enable = lib.mkDefault false;
 
-    # Exclude switch-to-confguration.pl from toplevel.
+    # Exclude switch-to-configuration.pl from toplevel.
     system = lib.optionalAttrs (options.system ? switch && !canSwitchViaSsh) {
       switch.enable = lib.mkDefault false;
     };

@@ -1,0 +1,11 @@
+# Configuration for https://github.com/crate-ci/typos
+
+[files]
+extend-exclude = [
+]
+
+[default.extend-words]
+
+
+[default.extend-identifiers]
+

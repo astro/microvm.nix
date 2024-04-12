@@ -6,12 +6,11 @@ on:
 
 jobs:
   eval:
-    runs-on: ubuntu-latest
+    runs-on: nix
     outputs:
       matrix: ${{ steps.eval-jobs.outputs.matrix }}
     steps:
     - uses: actions/checkout@v4
-    - uses: cachix/install-nix-action@v25
     - name: Evaluate checks
       id: eval-jobs
       run: |
@@ -77,7 +76,7 @@ jobs:
           - check: firecracker-overlay-systemd-startup-shutdown
           - check: qemu-overlay-startup-shutdown
           - check: qemu-overlay-systemd-startup-shutdown
-    runs-on: ubuntu-latest
+    runs-on: nix
     env:
       NIX_ATTR: 'checks.x86_64-linux.${{ matrix.check }}'
     steps:
@@ -87,8 +86,6 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v25
-      - uses: DeterminateSystems/magic-nix-cache-action@v3
       - name: Build ${{ matrix.check }}
         run: |
           nix build \

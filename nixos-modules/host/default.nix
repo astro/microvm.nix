@@ -455,7 +455,7 @@ in
           WorkingDirectory = "${stateDir}/%i";
           ExecStart = "${stateDir}/%i/current/bin/microvm-run";
           ExecStop = "${stateDir}/%i/booted/bin/microvm-shutdown";
-          TimeoutStopSec = 90;
+          TimeoutStopSec = 150;
           Restart = "always";
           RestartSec = "5s";
           User = user;

@@ -55,7 +55,7 @@ rec {
         touch '${image}'
         # Mark NOCOW
         chattr +C '${image}' || true
-        fallocate -l${toString size}MiB '${image}'
+        truncate -s ${toString size}M '${image}'
         mkfs.${fsType} ${labelArgument} '${image}'
       fi
     '')));

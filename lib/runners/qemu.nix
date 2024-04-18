@@ -270,8 +270,7 @@ in {
     )
     ++
     lib.optionals requireUsb [
-      "-usb"
-      "-device" "usb-ehci"
+      "-device" "qemu-xhci"
     ]
     ++
     builtins.concatMap ({ bus, path, ... }: {

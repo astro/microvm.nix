@@ -5,7 +5,15 @@ let
     inherit ((lib.evalModules {
       modules = [
         ../nixos-modules/microvm/options.nix
-        { _module.args.pkgs = pkgs; }
+        ({ lib, ... }: {
+          # Provide `pkgs` arg to all modules
+          config._module.args.pkgs = pkgs;
+          # Hide NixOS `_module.args` from nixosOptionsDoc to remain
+          # specific to microvm.nix
+          options._module.args = lib.mkOption {
+            internal = true;
+          };
+        })
       ];
     })) options;
   };

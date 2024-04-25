@@ -137,5 +137,20 @@
         This includes declarative `config.microvm.vms` as well as MicroVMs that are managed through the `microvm` command.
       '';
     };
+
+    virtiofsd.inodeFileHandles = mkOption {
+      type = with types; nullOr (enum [
+        "never" "prefer" "mandatory"
+      ]);
+      default = null;
+      description = ''
+        When to use file handles to reference inodes instead of O_PATH file descriptors
+        (never, prefer, mandatory)
+
+        Allows you to overwrite default behavior in case you hit "too
+        many open files" on eg. ZFS.
+        <https://gitlab.com/virtio-fs/virtiofsd/-/issues/121>
+      '';
+    };
   };
 }

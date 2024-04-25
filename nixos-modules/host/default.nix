@@ -283,6 +283,9 @@ in
               --rlimit-nofile ${toString serviceConfig.LimitNOFILE} \
               --thread-pool-size `nproc` \
               --posix-acl --xattr \
+              ${lib.optionalString (config.microvm.virtiofsd.inodeFileHandles != null)
+                "--inode-file-handles=${config.microvm.virtiofsd.inodeFileHandles}"
+              } \
               &
             # detach from shell, but remain in systemd cgroup
             disown

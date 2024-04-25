@@ -1,10 +1,10 @@
 { nixpkgs, lib, pkgs, runCommand, mdbook, nixosOptionsDoc }:
 
 let
-  microvmDoc = nixosOptionsDoc {
+  makeOptionsDoc = module: nixosOptionsDoc {
     inherit ((lib.evalModules {
       modules = [
-        ../nixos-modules/microvm/options.nix
+        module
         ({ lib, ... }: {
           # Provide `pkgs` arg to all modules
           config._module.args.pkgs = pkgs;
@@ -18,6 +18,10 @@ let
     })) options;
   };
 
+  microvmDoc = makeOptionsDoc ../nixos-modules/microvm/options.nix;
+
+  hostDoc = makeOptionsDoc ../nixos-modules/host/options.nix;
+
 in
 runCommand "microvm.nix-doc" {
   nativeBuildInputs = [ mdbook ];
@@ -25,5 +29,6 @@ runCommand "microvm.nix-doc" {
   cp -r ${../doc} doc
   chmod u+w doc/src
   cp ${microvmDoc.optionsCommonMark} doc/src/microvm-options.md
+  cp ${hostDoc.optionsCommonMark} doc/src/host-options.md
   ${mdbook}/bin/mdbook build -d $out doc
 ''

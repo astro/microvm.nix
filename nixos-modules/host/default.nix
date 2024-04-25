@@ -37,20 +37,17 @@ in
       inherit group;
     };
 
-    security.pam.loginLimits = [
-      {
-        domain = "${user}";
-        item = "memlock";
-        type = "hard";
-        value = "infinity";
-      }
-      {
-        domain = "${user}";
-        item = "memlock";
-        type = "soft";
-        value = "infinity";
-      }
-    ];
+    security.pam.loginLimits = [ {
+      domain = user;
+      item = "memlock";
+      type = "hard";
+      value = "infinity";
+    } {
+      domain = user;
+      item = "memlock";
+      type = "soft";
+      value = "infinity";
+    } ];
 
     systemd.services = builtins.foldl' (result: name: result // (
       let

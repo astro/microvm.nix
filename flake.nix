@@ -69,16 +69,14 @@
                   TAP_INTERFACE=null
                 fi
 
-                RUNNER=$(${pkgs.nix}/bin/nix build \
+                ${pkgs.nix}/bin/nix run \
                   -f ${./examples/graphics.nix} \
                   config.microvm.declaredRunner \
                   --arg self 'builtins.getFlake "${self}"' \
                   --arg system '"${system}"' \
                   --arg nixpkgs 'builtins.getFlake "${nixpkgs}"' \
                   --arg packages "\"$*\"" \
-                  --arg tapInterface "$TAP_INTERFACE" \
-                  --no-link --print-out-paths)
-                exec $RUNNER/bin/microvm-run
+                  --arg tapInterface "$TAP_INTERFACE"
               '');
             };
             # Run this on your host to accept Wayland connections

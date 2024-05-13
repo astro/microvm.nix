@@ -31,7 +31,7 @@ configuration is necessary inside the MicroVM.
 Use a virtual tuntap Ethernet interface. Its name is the value of
 `id`.
 
-Some Hypervisors may be able to automatically create these interfaces
+Some VMMs may be able to automatically create these interfaces
 when running as root, which we advise against. Instead, create the
 interfaces before starting a MicroVM:
 

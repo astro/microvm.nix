@@ -45,6 +45,6 @@ overhead has been reduced a lot by replacing emulated devices with
 *virtio* interfaces that have been optimized for this environment.
 
 This Flake offers you to run your MicroVMs not only on QEMU but with
-other Hypervisors that have been explicitly authored for
+other VMMs that have been explicitly authored for
 *virtio*. Some of them are written in Rust, a programming language
 that is renowned for being safer than C.

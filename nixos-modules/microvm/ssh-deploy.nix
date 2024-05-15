@@ -142,10 +142,14 @@ in
         fi
         mv new current
 
-        echo "Success. Diff:"
-        nix --extra-experimental-features nix-command \
-          store diff-closures ./old ./current \
-          || true
+        if [ -e old ]; then
+          echo "Success. Diff:"
+          nix --extra-experimental-features nix-command \
+            store diff-closures ./old ./current \
+            || true
+        else
+          echo "Success."
+        fi
       else
         echo "MicroVM ${hostName} is already installed"
       fi

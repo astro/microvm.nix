@@ -286,6 +286,7 @@ in
               ${lib.optionalString (config.microvm.virtiofsd.inodeFileHandles != null)
                 "--inode-file-handles=${config.microvm.virtiofsd.inodeFileHandles}"
               } \
+              ${lib.concatStringsSep " " config.microvm.virtiofsd.extraArgs} \
               &
             # detach from shell, but remain in systemd cgroup
             disown

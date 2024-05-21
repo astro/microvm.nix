@@ -152,5 +152,13 @@
         <https://gitlab.com/virtio-fs/virtiofsd/-/issues/121>
       '';
     };
+
+    virtiofsd.extraArgs = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = ''
+        Extra command-line switch to pass to virtiofsd.
+      '';
+    };
   };
 }

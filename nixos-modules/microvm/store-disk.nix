@@ -8,7 +8,7 @@ let
   kernelAtLeast = lib.versionAtLeast config.boot.kernelPackages.kernel.version;
 
   erofsFlags = builtins.concatStringsSep " " (
-    [ "-zlz4hc" ]
+    [ "-zlz4hc" "--force-uid=0" "--force-gid=0" ]
     # ++
     # lib.optional (kernelAtLeast "5.13") "-C1048576"
     ++

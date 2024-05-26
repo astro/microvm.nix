@@ -198,10 +198,15 @@ in
             default = true;
             description = "Created image on host automatically before start?";
           };
+          mkfsExtraArgs = mkOption {
+            type = listOf str;
+            default = [];
+            description = "Set extra Filesystem creation parameters";
+          };
           fsType = mkOption {
             type = str;
             default = "ext4";
-            description = "File system for automatic creation and mounting";
+            description = "Filesystem for automatic creation and mounting";
           };
         };
       });

@@ -37,6 +37,9 @@ systemd.network = {
     } ];
   };
 };
+
+# Allow inbound traffic for the DHCP server
+networking.firewall.allowedUDPPorts = [ 67 ];
 ```
 
 This configuration will hand out IP addresses to clients on the

@@ -206,6 +206,9 @@ create a bridge instead:</p>
     } ];
   };
 };
+
+# Allow inbound traffic for the DHCP server
+networking.firewall.allowedUDPPorts = [ 67 ];
 </code></pre>
 <p>This configuration will hand out IP addresses to clients on the
 bridge. In practise, better leave out the DHCP server and its state by

@@ -135,3 +135,12 @@ users.users.microvm.extraGroups = [ "disk" ];
 The more secure solution would be writing custom
 `services.udev.extraRules` that assign ownership/permissions to the
 individually used block devices.
+
+# My virtiofs-shared sops-nix /run/secrets disappears when the host is updated!
+
+A workaround may be setting `sops.keepGenerations = 0;`, effectively
+stopping sops-nix from ever removing old generations in
+`/run/secrets.d/`.
+
+That means that you still must reboot all MicroVMs to adapt any
+updated secrets.

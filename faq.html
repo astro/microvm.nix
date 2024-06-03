@@ -269,14 +269,14 @@ does.</p>
   ''
 ) ];
 </code></pre>
-<h1 id="can-i-include-my-hosts-nixpkgs-channel-when-building-the-vm"><a class="header" href="#can-i-include-my-hosts-nixpkgs-channel-when-building-the-vm">Can I include my host's <code>&lt;nixpkgs&gt;</code> channel when building the VM?</a></h1>
+<h2 id="can-i-include-my-hosts-nixpkgs-channel-when-building-the-vm"><a class="header" href="#can-i-include-my-hosts-nixpkgs-channel-when-building-the-vm">Can I include my host's <code>&lt;nixpkgs&gt;</code> channel when building the VM?</a></h2>
 <p>Use the following configuration if you build your MicroVM with
 <code>--impure</code> from channels, not Flakes:</p>
 <pre><code class="language-nix">nix.nixPath = [
   &quot;nixpkgs=${builtins.storePath &lt;nixpkgs&gt;}&quot;
 ];
 </code></pre>
-<h1 id="how-do-i-let-the-microvm-user-access-block-devices"><a class="header" href="#how-do-i-let-the-microvm-user-access-block-devices">How do I let the <code>microvm</code> user access block devices?</a></h1>
+<h2 id="how-do-i-let-the-microvm-user-access-block-devices"><a class="header" href="#how-do-i-let-the-microvm-user-access-block-devices">How do I let the <code>microvm</code> user access block devices?</a></h2>
 <p>You can re-add the following line to your host's NixOS configuration
 which was removed from microvm.nix:</p>
 <pre><code class="language-nix">users.users.microvm.extraGroups = [ &quot;disk&quot; ];
@@ -284,6 +284,12 @@ which was removed from microvm.nix:</p>
 <p>The more secure solution would be writing custom
 <code>services.udev.extraRules</code> that assign ownership/permissions to the
 individually used block devices.</p>
+<h2 id="my-virtiofs-shared-sops-nix-runsecrets-disappears-when-the-host-is-updated"><a class="header" href="#my-virtiofs-shared-sops-nix-runsecrets-disappears-when-the-host-is-updated">My virtiofs-shared sops-nix /run/secrets disappears when the host is updated!</a></h2>
+<p>A workaround may be setting <code>sops.keepGenerations = 0;</code>, effectively
+stopping sops-nix from ever removing old generations in
+<code>/run/secrets.d/</code>.</p>
+<p>That means that you still must reboot all MicroVMs to adapt any
+updated secrets.</p>
 
                     </main>
 

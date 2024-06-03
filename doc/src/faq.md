@@ -112,7 +112,7 @@ environment.systemPackages = [ (
 ) ];
 ```
 
-# Can I include my host's `<nixpkgs>` channel when building the VM?
+## Can I include my host's `<nixpkgs>` channel when building the VM?
 
 Use the following configuration if you build your MicroVM with
 `--impure` from channels, not Flakes:
@@ -123,7 +123,7 @@ nix.nixPath = [
 ];
 ```
 
-# How do I let the `microvm` user access block devices?
+## How do I let the `microvm` user access block devices?
 
 You can re-add the following line to your host's NixOS configuration
 which was removed from microvm.nix:
@@ -136,7 +136,7 @@ The more secure solution would be writing custom
 `services.udev.extraRules` that assign ownership/permissions to the
 individually used block devices.
 
-# My virtiofs-shared sops-nix /run/secrets disappears when the host is updated!
+## My virtiofs-shared sops-nix /run/secrets disappears when the host is updated!
 
 A workaround may be setting `sops.keepGenerations = 0;`, effectively
 stopping sops-nix from ever removing old generations in

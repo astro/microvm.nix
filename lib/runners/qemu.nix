@@ -339,7 +339,7 @@ in {
   setBalloonScript =
     if socket != null
     then ''
-      VALUE=$(( $SIZE * 1024 * 1024 ))
+      VALUE=$(( (${toString (mem + balloonMem)} - $SIZE) * 1024 * 1024 ))
       SIZE=$( (
         ${writeQmp { execute = "qmp_capabilities"; }}
         ${writeQmp { execute = "balloon"; arguments.value = 987; }}
@@ -348,7 +348,7 @@ in {
         tail -n 1 | \
         ${pkgs.jq}/bin/jq -r .data.actual \
       )
-      echo $(( $SIZE / 1024 / 1024 ))
+      echo $(( ${toString (mem + balloonMem)} - $SIZE / 1024 / 1024 ))
     ''
     else null;
 

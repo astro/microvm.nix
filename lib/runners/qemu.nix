@@ -342,11 +342,13 @@ in {
       VALUE=$(( (${toString (mem + balloonMem)} - $SIZE) * 1024 * 1024 ))
       SIZE=$( (
         ${writeQmp { execute = "qmp_capabilities"; }}
-        ${writeQmp { execute = "balloon"; arguments.value = 987; }}
-      ) | sed -e s/987/$VALUE/ | \
+        (${writeQmp { execute = "balloon"; arguments.value = 987; }}) | sed -e s/987/$VALUE/
+        ${pkgs.coreutils}/bin/sleep 2
+        ${writeQmp { execute = "query-balloon"; }}
+      ) | \
         ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none | \
         tail -n 1 | \
-        ${pkgs.jq}/bin/jq -r .data.actual \
+        ${pkgs.jq}/bin/jq -r .return.actual \
       )
       echo $(( ${toString (mem + balloonMem)} - $SIZE / 1024 / 1024 ))
     ''

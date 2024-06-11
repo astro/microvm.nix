@@ -216,6 +216,7 @@ in {
     if socket != null
     then ''
       ${pkgs.cloud-hypervisor}/bin/ch-remote --api-socket ${socket} resize --balloon $SIZE"M"
+      ${pkgs.cloud-hypervisor}/bin/ch-remote --api-socket ${socket} info | ${pkgs.jq}/bin/jq '.config.balloon.size / 1024 / 1024 | round'
     ''
     else null;
 

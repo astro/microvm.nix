@@ -38,7 +38,7 @@ let
   qemu = overrideQemu (if microvmConfig.cpu == null then
     pkgs.qemu_kvm else pkgs.buildPackages.qemu_full);
 
-  inherit (microvmConfig) hostName cpu vcpu mem balloonMem user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
+  inherit (microvmConfig) hostName cpu vcpu mem balloonMem balloonDelay user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
   inherit (microvmConfig.qemu) machine extraArgs serialConsole;
 
   inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
@@ -343,7 +343,7 @@ in {
       SIZE=$( (
         ${writeQmp { execute = "qmp_capabilities"; }}
         (${writeQmp { execute = "balloon"; arguments.value = 987; }}) | sed -e s/987/$VALUE/
-        ${pkgs.coreutils}/bin/sleep 2
+        ${pkgs.coreutils}/bin/sleep ${toString balloonDelay}
         ${writeQmp { execute = "query-balloon"; }}
       ) | \
         ${pkgs.socat}/bin/socat STDIO UNIX:${socket},shut-none | \

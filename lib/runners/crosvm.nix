@@ -157,6 +157,7 @@ in {
     then ''
       VALUE=$(( $SIZE * 1024 * 1024 ))
       ${pkgs.crosvm}/bin/crosvm balloon $VALUE ${socket}
+      ${pkgs.coreutils}/bin/sleep ${toString microvmConfig.balloonDelay}
       SIZE=$( ${pkgs.crosvm}/bin/crosvm balloon_stats ${socket} | \
         ${pkgs.jq}/bin/jq -r .BalloonStats.balloon_actual \
       )

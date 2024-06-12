@@ -4,7 +4,7 @@
 }:
 
 let
-  inherit (pkgs) lib;
+  inherit (pkgs) lib system;
   inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem graphics storeDisk storeOnDisk kernel initrdPath;
   inherit (microvmConfig.cloud-hypervisor) extraArgs;
 
@@ -12,6 +12,13 @@ let
     x86_64-linux = "${kernel.dev}/vmlinux";
     aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
   }.${pkgs.system};
+
+  kernelConsole =
+    if system == "x86_64-linux"
+    then "earlyprintk=ttyS0 console=ttyS0"
+    else if system == "aarch64-linux"
+    then "console=ttyAMA0"
+    else "";
 
   # balloon
   useBallooning = balloonMem > 0;

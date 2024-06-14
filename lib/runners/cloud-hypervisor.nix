@@ -133,7 +133,7 @@ in {
         "--serial" "tty"
         "--kernel" kernelPath
         "--initramfs" initrdPath
-        "--cmdline" "console=ttyS0 reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+        "--cmdline" "${kernelConsole} reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
         "--seccomp" "true"
         "--memory" memOps
         "--platform" "oem_strings=[io.systemd.credential:vmm.notify_socket=vsock-stream:2:8888]"

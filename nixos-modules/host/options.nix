@@ -138,6 +138,14 @@
       '';
     };
 
+    configureTapInterfaces = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+         Automaticly create required tap interfaces.
+      '';
+    };
+
     virtiofsd.inodeFileHandles = mkOption {
       type = with types; nullOr (enum [
         "never" "prefer" "mandatory"

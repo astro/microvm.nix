@@ -64,10 +64,9 @@ in
         description = "Install MicroVM '${name}'";
         before = [
           "microvm@${name}.service"
-          "microvm-tap-interfaces@${name}.service"
           "microvm-pci-devices@${name}.service"
           "microvm-virtiofsd@${name}.service"
-        ];
+        ] ++ (lib.optional config.microvm.configureTapInterfaces "microvm-tap-interfaces@${name}.service");
         partOf = [ "microvm@${name}.service" ];
         wantedBy = [ "microvms.target" ];
         # Only run this if the MicroVM is fully-declarative
@@ -110,7 +109,7 @@ in
           then "notify"
           else "simple";
       };
-      "microvm-tap-interfaces@${name}" = {
+      "microvm-tap-interfaces@${name}" = lib.mkIf config.microvm.configureTapInterfaces {
         serviceConfig.X-RestartIfChanged = [ "" microvmConfig.restartIfChanged ];
         path = lib.mkForce [];
         overrideStrategy = "asDropin";
@@ -126,7 +125,7 @@ in
         overrideStrategy = "asDropin";
       };
     })) {
-      "microvm-tap-interfaces@" = {
+      "microvm-tap-interfaces@" = lib.mkIf config.microvm.configureTapInterfaces {
         description = "Setup MicroVM '%i' TAP interfaces";
         before = [ "microvm@%i.service" ];
         partOf = [ "microvm@%i.service" ];
@@ -297,11 +296,10 @@ in
       "microvm@" = {
         description = "MicroVM '%i'";
         requires = [
-          "microvm-tap-interfaces@%i.service"
           "microvm-macvtap-interfaces@%i.service"
           "microvm-pci-devices@%i.service"
           "microvm-virtiofsd@%i.service"
-        ];
+        ] ++ (lib.optional config.microvm.configureTapInterfaces "microvm-tap-interfaces@%i.service");
         after = [ "network.target" ];
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/microvm-run";
         restartIfChanged = false;

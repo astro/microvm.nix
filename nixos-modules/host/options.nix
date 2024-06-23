@@ -25,7 +25,7 @@
       type = with types; attrsOf (submodule ({ config, name, ... }: {
         options = {
           config = mkOption {
-            description = lib.mdDoc ''
+            description = ''
               A specification of the desired configuration of this MicroVM,
               as a NixOS module, for building **without** a flake.
             '';
@@ -56,7 +56,7 @@
             type = types.path;
             default = if config.pkgs != null then config.pkgs.path else pkgs.path;
             defaultText = literalExpression "pkgs.path";
-            description = lib.mdDoc ''
+            description = ''
               This option is only respected when `config` is specified.
               The nixpkgs path to use for the MicroVM. Defaults to the host's nixpkgs.
             '';
@@ -66,7 +66,7 @@
             type = types.nullOr types.unspecified;
             default = pkgs;
             defaultText = literalExpression "pkgs";
-            description = lib.mdDoc ''
+            description = ''
               This option is only respected when `config` is specified.
               The package set to use for the MicroVM. Must be a nixpkgs package set with the microvm overlay. Determines the system of the MicroVM.
               If set to null, a new package set will be instantiated.
@@ -76,7 +76,7 @@
           specialArgs = mkOption {
             type = types.attrsOf types.unspecified;
             default = {};
-            description = lib.mdDoc ''
+            description = ''
               This option is only respected when `config` is specified.
               A set of special arguments to be passed to NixOS modules.
               This will be merged into the `specialArgs` used to evaluate

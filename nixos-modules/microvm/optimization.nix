@@ -16,7 +16,7 @@ in
 {
   options.microvm.optimize = {
     enable = lib.mkOption {
-      description = lib.mdDoc ''
+      description = ''
         Enables some optimizations by default to closure size and startup time:
           - defaults documentation to off
           - defaults to using systemd in initrd

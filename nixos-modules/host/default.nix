@@ -160,7 +160,7 @@ in
             fi
 
             ${pkgs.iproute2}/bin/ip tuntap add name $id mode tap user ${user} $TAP_FLAGS
-            ${pkgs.iproute2}/bin/ip link set $id up
+            ${config.microvm.host.tapScript}
           done
         '';
       };
@@ -341,6 +341,10 @@ in
       wantedBy = [ "multi-user.target" ];
       wants = map (name: "microvm@${name}.service") config.microvm.autostart;
     };
+
+    microvm.host.tapScript = lib.mkDefault ''
+      ${pkgs.iproute2}/bin/ip link set $id up
+    '';
 
     # This helper creates tap interfaces and attaches them to a bridge
     # for qemu regardless if it is run as root or not.

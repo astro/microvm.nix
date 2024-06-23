@@ -400,14 +400,13 @@ in
 
     qemu.machine = mkOption {
       type = types.str;
-      default = {
-        x86_64-linux = "microvm";
-        aarch64-linux = "virt";
-      }.${pkgs.system};
       description = ''
         QEMU machine model, eg. `microvm`, or `q35`
 
         Get a full list with `qemu-system-x86_64 -M help`
+
+        This has a default declared with `lib.mkDefault` because it
+        depends on ''${pkgs.system}.
       '';
     };
 
@@ -469,4 +468,16 @@ in
       defaultText = literalExpression ''"config.microvm.runner.''${config.microvm.hypervisor}"'';
     };
   };
+
+  config = lib.mkMerge [ {
+    microvm.qemu.machine =
+      lib.mkIf (pkgs.system == "x86_64-linux") (
+        lib.mkDefault "microvm"
+      );
+  } {
+    microvm.qemu.machine =
+      lib.mkIf (pkgs.system == "aarch64-linux") (
+        lib.mkDefault "virt"
+      );
+  } ];
 }

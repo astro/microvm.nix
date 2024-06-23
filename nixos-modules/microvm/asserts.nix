@@ -1,7 +1,7 @@
 { config, lib, ... }:
 let
-
   inherit (config.networking) hostName;
+
 in
 lib.mkIf config.microvm.guest.enable {
   assertions =

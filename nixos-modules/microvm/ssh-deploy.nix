@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  inherit (config.networking) hostName;
+  hostName = config.networking.hostName or "$HOSTNAME";
   inherit (config.system.build) toplevel;
   inherit (config.microvm) declaredRunner;
   inherit (config) nix;

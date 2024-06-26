@@ -19,6 +19,9 @@ let
       # "-Ededupe"
     ]
   );
+
+  writeClosure = pkgs.writeClosure or pkgs.writeReferencesToFile;
+
 in
 {
   options.microvm = with lib; {
@@ -65,7 +68,7 @@ in
         echo Copying a /nix/store
         mkdir store
         for d in $(sort -u ${
-          lib.concatMapStringsSep " " pkgs.writeReferencesToFile (
+          lib.concatMapStringsSep " " writeClosure (
             lib.optionals config.microvm.storeOnDisk (
               [ config.system.build.toplevel ]
               ++

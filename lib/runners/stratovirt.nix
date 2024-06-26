@@ -69,6 +69,7 @@ in {
 
   command = lib.escapeShellArgs (
     [
+      "${pkgs.expect}/bin/unbuffer"
       "${pkgs.stratovirt}/bin/stratovirt"
       "-name" hostName
       "-machine" machine

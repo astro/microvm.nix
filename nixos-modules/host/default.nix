@@ -281,7 +281,7 @@ in
               --socket-group=${config.users.users.microvm.group} \
               --shared-dir "$SOURCE" \
               --rlimit-nofile ${toString serviceConfig.LimitNOFILE} \
-              --thread-pool-size `nproc` \
+              --thread-pool-size ${toString config.microvm.virtiofsd.threadPoolSize} \
               --posix-acl --xattr \
               ${lib.optionalString (config.microvm.virtiofsd.inodeFileHandles != null)
                 "--inode-file-handles=${config.microvm.virtiofsd.inodeFileHandles}"

@@ -170,6 +170,15 @@
       '';
     };
 
+    virtiofsd.threadPoolSize = mkOption {
+      type = with types; oneOf [ str ints.unsigned ];
+      default = "`nproc`";
+      description = ''
+        The amounts of threads virtiofsd should spawn. This option also takes the special
+        string `\`nproc\`` which spawns as many threads as the host has cores.
+      '';
+    };
+
     virtiofsd.extraArgs = mkOption {
       type = with types; listOf str;
       default = [];

@@ -47,6 +47,8 @@ let
       exit 1
     fi
 
+    # The amount of total memory the guest is requested to release to host, in megabytes.
+    # Expected value between 0 and ${toString microvmConfig.balloonMem}.
     SIZE=$1
     ${hypervisorConfig.setBalloonScript}
   '';

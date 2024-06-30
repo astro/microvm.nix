@@ -103,6 +103,18 @@ in
       type = types.int;
     };
 
+    balloonDelay = mkOption {
+      description = ''
+        Amount of time to wait for balloon to settle in seconds
+
+        Under some VMMs it takes some time for the reported balloon
+        size to be final. Adding some delay between setting and querying
+        allows microvm-balloon to report correct size.
+      '';
+      default = 2;
+      type = types.int;
+    };
+
     forwardPorts = mkOption {
       type = types.listOf
         (types.submodule {

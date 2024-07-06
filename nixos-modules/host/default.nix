@@ -360,6 +360,13 @@ in
       capabilities = "cap_net_admin+ep";
     };
 
+    security.wrappers.cloud-hypervisor = lib.mkIf config.microvm.host.cloud-hypervisor.enable {
+      source = lib.getExe config.microvm.host.cloud-hypervisor.package;
+      owner = "root";
+      group = "root";
+      capabilities = "cap_net_admin+ep";
+    };
+
     # You must define this file with your bridge interfaces if you
     # intend to use qemu-bridge-helper through a `type = "bridge"`
     # interface.

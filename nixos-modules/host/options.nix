@@ -10,6 +10,11 @@
       '';
     };
 
+    host.cloud-hypervisor.enable = lib.mkEnableOption "Install a cloud-hypervisor security wrapper" // {
+      default = true;
+    };
+    host.cloud-hypervisor.package = lib.mkPackageOption pkgs "cloud-hypervisor" { };
+
     host.useNotifySockets = mkOption {
       type = types.bool;
       default = false;

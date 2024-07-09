@@ -33,6 +33,7 @@ let
                 cloud-hypervisor = "poweroff";
                 crosvm = "reboot";
                 kvmtool = "reboot";
+                alioth = "poweroff";
               }.${config.microvm.hypervisor};
             in ''
               ${pkgs.coreutils}/bin/uname > /output/kernel-name

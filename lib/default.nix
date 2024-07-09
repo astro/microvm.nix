@@ -7,6 +7,7 @@ rec {
     "crosvm"
     "kvmtool"
     "stratovirt"
+    "alioth"
   ];
 
   hypervisorsWithNetwork = hypervisors;

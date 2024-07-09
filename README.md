@@ -55,6 +55,7 @@ imperatively with the provided `microvm` command.
 | [crosvm](https://chromium.googlesource.com/chromiumos/platform/crosvm/) | Rust     | 9p shares broken                         |
 | [kvmtool](https://github.com/kvmtool/kvmtool)                           | C        | no virtiofs shares, no control socket    |
 | [stratovirt](https://github.com/openeuler-mirror/stratovirt)            | Rust     | no 9p/virtiofs shares, no control socket |
+| [alioth](https://github.com/google/alioth)                              | Rust     | no virtiofs shares, no control socket    |
 
 
 ## Installation

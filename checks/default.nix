@@ -47,6 +47,11 @@ let
       modules = [ {
         microvm.hypervisor = "kvmtool";
       } ];
+    } {
+      id = "alioth";
+      modules = [ {
+        microvm.hypervisor = "alioth";
+      } ];
     } ]
     # ro-store
     [ {

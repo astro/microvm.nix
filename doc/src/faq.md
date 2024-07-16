@@ -64,9 +64,7 @@ does.
 environment.systemPackages = [ (
   # Provide a manual updating script that fetches the latest
   # updated+built system from Hydra
-  pkgs.writeScriptBin "update-microvm" ''
-    #! ${pkgs.runtimeShell} -e
-
+  pkgs.writeShellScriptBin "update-microvm" ''
     if [ $# -lt 1 ]; then
       NAMES="$(ls -1 /var/lib/microvms)"
     else

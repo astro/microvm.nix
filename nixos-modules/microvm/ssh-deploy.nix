@@ -94,7 +94,7 @@ in
 
   # Implementations
   config.microvm.deploy = {
-    installOnHost = pkgs.writeScriptBin "microvm-install-on-host" ''
+    installOnHost = pkgs.writeShellScriptBin "microvm-install-on-host" ''
       set -eou pipefail
 
       HOST="$1"
@@ -157,7 +157,7 @@ in
     '';
 
     sshSwitch = lib.mkIf canSwitchViaSsh (
-      pkgs.writeScriptBin "microvm-switch" ''
+      pkgs.writeShellScriptBin "microvm-switch" ''
         set -eou pipefail
 
         TARGET="$1"
@@ -186,7 +186,7 @@ in
       ''
     );
 
-    rebuild = with config.microvm.deploy; pkgs.writeScriptBin "microvm-rebuild" ''
+    rebuild = with config.microvm.deploy; pkgs.writeShellScriptBin "microvm-rebuild" ''
       set -eou pipefail
 
       HOST="$1"

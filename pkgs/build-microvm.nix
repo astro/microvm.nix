@@ -2,13 +2,11 @@
 # local pkgs not from the target flake.
 { self
 , lib, targetPlatform
-, writeScriptBin, runtimeShell
+, writeShellScriptBin
 , coreutils, git, nix
 }:
 
-writeScriptBin "build-microvm" ''
-  #! ${runtimeShell} -e
-
+writeShellScriptBin "build-microvm" ''
   PATH=${lib.makeBinPath [ coreutils git nix ]}
 
   if [ $# -lt 1 ]; then

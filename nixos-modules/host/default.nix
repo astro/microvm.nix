@@ -266,10 +266,10 @@ in
           SyslogIdentifier = "microvm-virtiofsd@%i";
           LimitNOFILE = 1048576;
         };
-        path = with pkgs; [ coreutils virtiofsd ];
+        path = with pkgs; [ virtiofsd ];
         script = ''
-          for d in current/share/microvm/virtiofs/*; do
-            SOCKET=$(cat $d/socket)
+          for d in $PWD/current/share/microvm/virtiofs/*; do
+            SOCKET="$(realpath "$(cat $d/socket)")"
             SOURCE="$(cat $d/source)"
             mkdir -p "$SOURCE"
 

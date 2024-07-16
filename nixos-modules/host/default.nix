@@ -250,7 +250,9 @@ in
         '';
       };
 
-      "microvm-virtiofsd@" = rec {
+      "microvm-virtiofsd@" = let
+        inherit (pkgs.python3Packages) supervisor;
+      in rec {
         description = "VirtioFS daemons for MicroVM '%i'";
         before = [ "microvm@%i.service" ];
         after = [ "local-fs.target" ];
@@ -258,22 +260,27 @@ in
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/virtiofs";
         restartIfChanged = false;
         serviceConfig = {
-          Type = "forking";
-          GuessMainPID = "no";
-          WorkingDirectory = "${stateDir}/%i";
+          ExecReload = "${lib.getExe' supervisor "supervisorctl"} reload";
+          KillMode = "process";
+          LimitNOFILE = 1048576;
+          PrivateTmp = "yes";
           Restart = "always";
           RestartSec = "5s";
           SyslogIdentifier = "microvm-virtiofsd@%i";
-          LimitNOFILE = 1048576;
+          WorkingDirectory = "${stateDir}/%i";
         };
         path = with pkgs; [ virtiofsd ];
         script = ''
+          echo "[supervisord]
+          " > /tmp/supervisord.conf
+
           for d in $PWD/current/share/microvm/virtiofs/*; do
             SOCKET="$(realpath "$(cat $d/socket)")"
             SOURCE="$(cat $d/source)"
             mkdir -p "$SOURCE"
 
-            virtiofsd \
+            echo "[program:virtiofsd-$(basename "$d")]
+              command=virtiofsd \
               --socket-path=$SOCKET \
               --socket-group=${config.users.users.microvm.group} \
               --shared-dir "$SOURCE" \
@@ -283,11 +290,12 @@ in
               ${lib.optionalString (config.microvm.virtiofsd.inodeFileHandles != null)
                 "--inode-file-handles=${config.microvm.virtiofsd.inodeFileHandles}"
               } \
-              ${lib.concatStringsSep " " config.microvm.virtiofsd.extraArgs} \
-              &
-            # detach from shell, but remain in systemd cgroup
-            disown
+              ${lib.concatStringsSep " " config.microvm.virtiofsd.extraArgs}
+            " >> /tmp/supervisord.conf
           done
+
+          exec ${lib.getExe' supervisor "supervisord"} --nodaemon --user root \
+            --configuration /tmp/supervisord.conf
         '';
       };
 

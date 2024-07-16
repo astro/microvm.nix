@@ -4,7 +4,7 @@
 }:
 
 let
-  inherit (pkgs) lib writeScriptBin;
+  inherit (pkgs) lib;
 
   inherit (import ./. { nixpkgs-lib = lib; }) createVolumesScript makeMacvtap;
   inherit (makeMacvtap {
@@ -23,9 +23,7 @@ let
   execArg = lib.optionalString microvmConfig.prettyProcnames
     ''-a "microvm@${microvmConfig.hostName}"'';
 
-  runScriptBin = pkgs.buildPackages.writeScriptBin "microvm-run" ''
-    #! ${pkgs.runtimeShell} -e
-
+  runScriptBin = pkgs.buildPackages.writeShellScriptBin "microvm-run" ''
     ${preStart}
     ${createVolumesScript pkgs.buildPackages microvmConfig.volumes}
     ${lib.optionalString (hypervisorConfig.requiresMacvtapAsFds or false) openMacvtapFds}
@@ -33,14 +31,12 @@ let
     exec ${execArg} ${command}
   '';
 
-  shutdownScriptBin = pkgs.buildPackages.writeScriptBin "microvm-shutdown" ''
-    #! ${pkgs.runtimeShell} -e
-
+  shutdownScriptBin = pkgs.buildPackages.writeShellScriptBin "microvm-shutdown" ''
     ${shutdownCommand}
   '';
 
-  balloonScriptBin = pkgs.buildPackages.writeScriptBin "microvm-balloon" ''
-    #! ${pkgs.runtimeShell} -e
+  balloonScriptBin = pkgs.buildPackages.writeShellScriptBin "microvm-balloon" ''
+    set -e
 
     if [ -z "$1" ]; then
       echo "Usage: $0 <balloon-size-mb>"

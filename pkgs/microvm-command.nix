@@ -14,8 +14,7 @@ let
   };
   colored = color: text: "${colors.${color}}${text}${colors.normal}";
 in
-writeScriptBin "microvm" ''
-  #! ${pkgs.runtimeShell}
+writeShellScriptBin "microvm" ''
   set -e
 
   PATH=${lib.makeBinPath [

@@ -137,9 +137,7 @@ in
           RemainAfterExit = true;
           ExecStop =
             let
-              stopScript = pkgs.writeScript "stop-microvm-tap-interfaces" ''
-                #! ${pkgs.runtimeShell} -e
-
+              stopScript = pkgs.writeShellScript "stop-microvm-tap-interfaces" ''
                 cd ${stateDir}/$1
                 for id in $(cat current/share/microvm/tap-interfaces); do
                   ${pkgs.iproute2}/bin/ip tuntap del name $id mode tap
@@ -176,8 +174,7 @@ in
           RemainAfterExit = true;
           ExecStop =
             let
-              stopScript = pkgs.writeScript "stop-microvm-tap-interfaces" ''
-                #! ${pkgs.runtimeShell} -e
+              stopScript = pkgs.writeShellScript "stop-microvm-tap-interfaces" ''
                 cd ${stateDir}/$1
                 cat current/share/microvm/macvtap-interfaces | while read -r line;do
                   opts=( $line )

@@ -222,9 +222,7 @@ does.</p>
 <pre><code class="language-nix">environment.systemPackages = [ (
   # Provide a manual updating script that fetches the latest
   # updated+built system from Hydra
-  pkgs.writeScriptBin &quot;update-microvm&quot; ''
-    #! ${pkgs.runtimeShell} -e
-
+  pkgs.writeShellScriptBin &quot;update-microvm&quot; ''
     if [ $# -lt 1 ]; then
       NAMES=&quot;$(ls -1 /var/lib/microvms)&quot;
     else

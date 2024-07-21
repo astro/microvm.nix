@@ -261,41 +261,55 @@ in
         restartIfChanged = false;
         serviceConfig = {
           ExecReload = "${lib.getExe' supervisor "supervisorctl"} reload";
-          KillMode = "process";
+          ExecStop = "${lib.getExe' supervisor "supervisorctl"} shutdown";
           LimitNOFILE = 1048576;
+          NotifyAccess = "all";
           PrivateTmp = "yes";
           Restart = "always";
           RestartSec = "5s";
           SyslogIdentifier = "microvm-virtiofsd@%i";
+          Type = "notify";
           WorkingDirectory = "${stateDir}/%i";
         };
-        path = with pkgs; [ virtiofsd ];
         script = ''
           echo "[supervisord]
+          nodaemon=true
+          user=root
+
+          [eventlistener:notify]
+          command=${pkgs.writers.writePython3 "supervisord-event-handler" { } (lib.readFile ./supervisord-event-handler.py)}
+          events=PROCESS_STATE
           " > /tmp/supervisord.conf
+
+          virtiofsd_count=0
 
           for d in $PWD/current/share/microvm/virtiofs/*; do
             SOCKET="$(realpath "$(cat $d/socket)")"
             SOURCE="$(cat $d/source)"
             mkdir -p "$SOURCE"
 
+            group_programs+="virtiofsd-$(basename "$d"),"
+            virtiofsd_count=$((virtiofsd_count+1))
+
             echo "[program:virtiofsd-$(basename "$d")]
-              command=virtiofsd \
-              --socket-path=$SOCKET \
-              --socket-group=${config.users.users.microvm.group} \
-              --shared-dir "$SOURCE" \
-              --rlimit-nofile ${toString serviceConfig.LimitNOFILE} \
-              --thread-pool-size ${toString config.microvm.virtiofsd.threadPoolSize} \
-              --posix-acl --xattr \
-              ${lib.optionalString (config.microvm.virtiofsd.inodeFileHandles != null)
-                "--inode-file-handles=${config.microvm.virtiofsd.inodeFileHandles}"
-              } \
-              ${lib.concatStringsSep " " config.microvm.virtiofsd.extraArgs}
-            " >> /tmp/supervisord.conf
+          stderr_syslog=true
+          stdout_syslog=true
+          command=${lib.getExe pkgs.virtiofsd} \
+          --socket-path=$SOCKET \
+          --socket-group=${config.users.users.microvm.group} \
+          --shared-dir "$SOURCE" \
+          --rlimit-nofile ${toString serviceConfig.LimitNOFILE} \
+          --thread-pool-size ${toString config.microvm.virtiofsd.threadPoolSize} \
+          --posix-acl --xattr \
+          ${lib.optionalString (config.microvm.virtiofsd.inodeFileHandles != null)
+          "--inode-file-handles=${config.microvm.virtiofsd.inodeFileHandles}"
+          } \
+          ${lib.concatStringsSep " " config.microvm.virtiofsd.extraArgs}
+          " >> /tmp/supervisord.conf
           done
 
-          exec ${lib.getExe' supervisor "supervisord"} --nodaemon --user root \
-            --configuration /tmp/supervisord.conf
+          echo -n $virtiofsd_count > /tmp/virtiofsd_count
+          exec ${lib.getExe' supervisor "supervisord"} --configuration /tmp/supervisord.conf
         '';
       };
 

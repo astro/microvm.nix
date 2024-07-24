@@ -3,20 +3,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "alioth";
-  version = "0.3.0";
+  version = "0.4.0";
 
   src = fetchFromGitHub {
     owner = "google";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-brlbLjlpOYz+Qzn2IG9y6ty+yF6MohG5IhI+BHu6LuA=";
+    hash = "sha256-Dyev6cZSCzia9PN2+QiiqARCt/OT9NcGnrgF7womvUg=";
   };
 
-  patches = [
-    ./alioth-blk-ro.patch
-  ];
-
-  cargoHash = "sha256-jRyRy1aKLk92bUvw4Q4lE8q7bnTDgJ7pWCMIW4nBo1A=";
+  cargoHash = "sha256-4oN0v77VQHpyS/fXefYQPuslBAkDuTpjNPE1UiQ/Rz0=";
   separateDebugInfo = true;
 
   # TODO: Broken

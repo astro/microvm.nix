@@ -97,7 +97,7 @@ in {
       builtins.concatMap ({ proto, index, socket, source, tag, ... }: {
         "virtiofs" = [
           "-chardev" "socket,id=fs${toString index},path=${socket}"
-          "-device" "vhost-user-fs-${devType (5 + index)},chardev=fs${toString index},tag=${tag}"
+          "-device" "vhost-user-fs-${devType (5 + index)},chardev=fs${toString index},tag=${tag},id=fs${toString index}"
         ];
       }.${proto}) (enumerate 0 shares)
     )

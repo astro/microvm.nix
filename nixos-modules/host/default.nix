@@ -321,7 +321,13 @@ in
           "microvm-pci-devices@%i.service"
           "microvm-virtiofsd@%i.service"
         ];
-        after = [ "network.target" ];
+        after = [
+          "network.target"
+          "microvm-tap-interfaces@%i.service"
+          "microvm-macvtap-interfaces@%i.service"
+          "microvm-pci-devices@%i.service"
+          "microvm-virtiofsd@%i.service"
+        ];
         unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/microvm-run";
         restartIfChanged = false;
         preStart = ''

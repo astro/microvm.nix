@@ -52,6 +52,11 @@ let
       modules = [ {
         microvm.hypervisor = "alioth";
       } ];
+    } {
+      id = "stratovirt";
+      modules = [ {
+        microvm.hypervisor = "stratovirt";
+      } ];
     } ]
     # ro-store
     [ {
@@ -70,7 +75,8 @@ let
           } ];
           testing.enableTest = builtins.elem config.microvm.hypervisor [
             # Hypervisors that support 9p
-            "qemu" "crosvm" "kvmtool"
+            "qemu" "kvmtool"
+            # "crosvm"
           ];
         };
       }) ];
@@ -83,13 +89,19 @@ let
       # overlay volume
       id = "overlay";
       modules = [ ({ config, ... }: {
-        microvm.writableStoreOverlay = "/nix/.rw-store";
-        microvm.volumes = [ {
-          image = "nix-store-overlay.img";
+        microvm = {
+          writableStoreOverlay = "/nix/.rw-store";
+          volumes = [ {
+            image = "nix-store-overlay.img";
           label = "nix-store";
-          mountPoint = config.microvm.writableStoreOverlay;
-          size = 128;
-        } ];
+            mountPoint = config.microvm.writableStoreOverlay;
+            size = 128;
+          } ];
+          testing.enableTest = builtins.elem config.microvm.hypervisor [
+            # Known good
+            "qemu" "cloud-hypervisor" "firecracker"
+          ];
+        };
       }) ];
     } ]
     # boot.systemd
@@ -100,10 +112,16 @@ let
         boot.initrd.systemd.enable = false;
       } ];
     } {
+      # yes
       id = "systemd";
-      modules = [ {
+      modules = [ ({ config, ... }: {
         boot.initrd.systemd.enable = true;
-      } ];
+        microvm.testing.enableTest = ! builtins.elem config.microvm.hypervisor [
+          # Known broken
+          "crosvm"
+          "kvmtool"
+        ];
+      }) ];
     } ]
     # hardened profile
     [ {

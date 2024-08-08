@@ -1,8 +1,16 @@
 # Major Changes in microvm.nix
 
-## Unreleased
+## Unreleased: `main` branch
 
+* `microvm-virtiofsd@.service` now starts the multiple virtiofsd
+  instances through supervisord.
+* The `host` module allows configuration of
+  `microvm.virtiofsd.inodeFileHandles` and
+  `microvm.virtiofsd.threadPoolSize` now.
 * Add the [alioth VMM](https://github.com/google/alioth)
+* Fixes for the stratovirt VMM
+* New volume image files will be created with `truncate` instead of
+  `fallocate`, saving disk space.
 
 ## 0.5.0 (2024-04-06)
 

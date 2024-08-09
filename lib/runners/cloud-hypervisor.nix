@@ -6,7 +6,69 @@
 let
   inherit (pkgs) lib system;
   inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem graphics storeDisk storeOnDisk kernel initrdPath;
-  inherit (microvmConfig.cloud-hypervisor) extraArgs;
+  inherit (microvmConfig.cloud-hypervisor) extraArgs systemExecutable;
+
+  cloud-hypervisor =
+    if graphics.enable then pkgs.cloud-hypervisor-graphics else pkgs.cloud-hypervisor;
+
+  # Removes references to $out from the PATH to see if a security wrapper is
+  # installed
+  cloud-hypervisor-shim =
+    pkgs.runCommand "cloud-hypervisor-shim" { meta.mainProgram = "cloud-hypervisor"; }
+      (
+        ''
+          mkdir -p $out/bin
+          cat << EOF > "$out/bin/cloud-hypervisor"
+          #!${lib.getExe pkgs.bash}
+
+          set -e
+
+          # Inhibit the shim if it's in the PATH
+
+          new_PATH=
+          while IFS=: read -r -d ":" path ; do
+            if [[ "\$path" = *"$out"* ]] ; then
+              continue
+            fi
+            if [[ "\$new_PATH" == "" ]] ; then
+              new_PATH="\$path"
+            else
+              new_PATH="\$new_PATH:\$path"
+            fi
+          done <<< "\$PATH"
+          export PATH="\$new_PATH"
+
+          path="\$(type cloud-hypervisor 2>/dev/null)" \
+            || path=${lib.getExe cloud-hypervisor}
+          path="\''${path#cloud-hypervisor is }"
+
+          if [[ "\$path" == *"$out"* ]] ; then
+            echo "cloud-hypervisor-shim: sanity check failed, couldn't remove the shim from PATH" >&2
+            exit 1
+          fi
+
+        ''
+        + lib.optionalString systemExecutable.versionCheck ''
+          foundVersion="\$("\$path" --version)"
+          foundVersion="\''${foundVersion#cloud-hypervisor }"
+          foundVersion="\''${foundVersion#v}"
+          expectedVersion="${lib.getVersion cloud-hypervisor}"
+          if [[ "\$foundVersion" != "\$expectedVersion"* ]]; then
+            echo "cloud-hypervisor-shim: sanity check failed, system \
+          cloud-hypervisor (\$foundVersion) doesn't match the expected version \
+          (\$expectedVersion). Try disabling \
+          microvm.cloud-hypervisor.systemExecutable.versionCheck or updating the \
+          host system" >&2
+            exit 1
+          fi
+        ''
+        + ''
+
+          exec -a cloud-hypervisor "\$path" "\$@"
+          EOF
+          chmod a+x "$out/bin/cloud-hypervisor"
+        ''
+      );
 
   kernelPath = {
     x86_64-linux = "${kernel.dev}/vmlinux";
@@ -123,10 +185,12 @@ in {
     then throw "cloud-hypervisor will not change user"
     else lib.escapeShellArgs (
       [
-        (if graphics.enable
-         then "${pkgs.cloud-hypervisor-graphics}/bin/cloud-hypervisor"
-         else "${pkgs.cloud-hypervisor}/bin/cloud-hypervisor"
-        )
+        (lib.getExe (
+          if microvmConfig.cloud-hypervisor.systemExecutable.enable then
+            cloud-hypervisor-shim
+          else
+            cloud-hypervisor
+        ))
         "--cpus" "boot=${toString vcpu}"
         "--watchdog"
         "--console" "null"

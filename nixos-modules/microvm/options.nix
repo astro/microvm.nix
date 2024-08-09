@@ -436,6 +436,11 @@ in
       description = "Extra arguments to pass to cloud-hypervisor.";
     };
 
+    cloud-hypervisor.systemExecutable.enable =
+      mkEnableOption "Prefer cloud-hypervisor from PATH (e.g. a security wrapper)";
+    cloud-hypervisor.systemExecutable.versionCheck =
+      mkEnableOption "Ensure the system executable matches up to the minor version";
+
     crosvm.extraArgs = mkOption {
       type = with types; listOf str;
       default = [];

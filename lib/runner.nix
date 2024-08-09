@@ -23,7 +23,7 @@ let
   execArg = lib.optionalString microvmConfig.prettyProcnames
     ''-a "microvm@${microvmConfig.hostName}"'';
 
-  runScriptBin = pkgs.buildPackages.writeShellScriptBin "microvm-run" ''
+  runScriptBin = pkgs.writeShellScriptBin "microvm-run" ''
     ${preStart}
     ${createVolumesScript pkgs.buildPackages microvmConfig.volumes}
     ${lib.optionalString (hypervisorConfig.requiresMacvtapAsFds or false) openMacvtapFds}
@@ -31,11 +31,11 @@ let
     exec ${execArg} ${command}
   '';
 
-  shutdownScriptBin = pkgs.buildPackages.writeShellScriptBin "microvm-shutdown" ''
+  shutdownScriptBin = pkgs.writeShellScriptBin "microvm-shutdown" ''
     ${shutdownCommand}
   '';
 
-  balloonScriptBin = pkgs.buildPackages.writeShellScriptBin "microvm-balloon" ''
+  balloonScriptBin = pkgs.writeShellScriptBin "microvm-balloon" ''
     set -e
 
     if [ -z "$1" ]; then

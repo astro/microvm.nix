@@ -297,7 +297,7 @@ in
           command=${lib.getExe pkgs.virtiofsd} \
           --socket-path=$SOCKET \
           --socket-group=${config.users.users.microvm.group} \
-          --shared-dir "$SOURCE" \
+          --shared-dir=\"$SOURCE\" \
           --rlimit-nofile ${toString serviceConfig.LimitNOFILE} \
           --thread-pool-size ${toString config.microvm.virtiofsd.threadPoolSize} \
           --posix-acl --xattr \

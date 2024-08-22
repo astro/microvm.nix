@@ -56,6 +56,18 @@ in
       type = with types; nullOr str;
     };
 
+    notifySupport = mkOption {
+      description = ''
+        Whether to enable systemd notify support if the hypervisor supports it.
+
+        Presumably when mixing different systemd versions on the host and in the
+        microvm with significant enough changes between them the notify support
+        breaks and the microvm might be stuck in initrd.
+      '';
+      default = true;
+      type = types.bool;
+    };
+
     kernel = mkOption {
       description = "Kernel package to use for MicroVM runners";
       default = config.boot.kernelPackages.kernel;

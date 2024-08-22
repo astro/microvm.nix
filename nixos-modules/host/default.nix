@@ -106,7 +106,8 @@ in
         restartTriggers = [guestConfig.system.build.toplevel];
         overrideStrategy = "asDropin";
         serviceConfig.Type =
-          if guestConfig.microvm.declaredRunner.supportsNotifySocket
+          if guestConfig.microvm.declaredRunner.supportsNotifySocket &&
+            microvmConfig.notifySupport
           then "notify"
           else "simple";
       };

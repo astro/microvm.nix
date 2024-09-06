@@ -1,22 +1,24 @@
-# TODO: upstream to nixpkgs once it no longer requires rust nightly
 { lib, fetchFromGitHub, rustPlatform }:
 
 rustPlatform.buildRustPackage rec {
   pname = "alioth";
-  version = "0.4.0";
+  version = "0.5.0";
 
   src = fetchFromGitHub {
     owner = "google";
-    repo = pname;
-    rev = "v${version}";
-    hash = "sha256-Dyev6cZSCzia9PN2+QiiqARCt/OT9NcGnrgF7womvUg=";
+    repo = "alioth";
+    rev = "refs/tags/v${version}";
+    hash = "sha256-K0Hx6EJYyPJZA+FLIj44BtUuZZOqWW2DUJt1QbeZyu0=";
   };
 
-  cargoHash = "sha256-4oN0v77VQHpyS/fXefYQPuslBAkDuTpjNPE1UiQ/Rz0=";
+  cargoHash = "sha256-J+1SXHQJJxT0qN/ELAvwQFnKCo13ZrQClpbfleM4PkA=";
+
   separateDebugInfo = true;
 
-  # TODO: Broken
-  doCheck = false;
+  checkFlags = [
+    # "test did not panic as expected"
+    "--skip" "test_align_up_panic"
+  ];
 
   meta = with lib; {
     homepage = "https://github.com/google/alioth";

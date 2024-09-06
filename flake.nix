@@ -8,10 +8,6 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    fenix = {
-      url = "github:nix-community/fenix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     flake-utils.url = "github:numtide/flake-utils";
     spectrum = {
       url = "git+https://spectrum-os.org/git/spectrum";
@@ -19,7 +15,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, fenix, flake-utils, spectrum }:
+  outputs = { self, nixpkgs, flake-utils, spectrum }:
     let
       systems = [
         "x86_64-linux"
@@ -98,7 +94,6 @@
             pkgs = import nixpkgs {
               overlays = [ self.overlay ];
             };
-            rustNightly = fenix.packages.${system}.minimal.toolchain;
           in {
             build-microvm = pkgs.callPackage ./pkgs/build-microvm.nix { inherit self; };
             doc = pkgs.callPackage ./pkgs/doc.nix { inherit nixpkgs; };
@@ -123,12 +118,7 @@
               ignoreCollisions = true;
             };
             waypipe = overrideWaypipe pkgs;
-            alioth = pkgs.callPackage ./pkgs/alioth.nix {
-              rustPlatform = pkgs.makeRustPlatform {
-                cargo = rustNightly;
-                rustc = rustNightly;
-              };
-            };
+            alioth = pkgs.callPackage ./pkgs/alioth.nix {};
           } //
           # wrap self.nixosConfigurations in executable packages
           builtins.foldl' (result: systemName:
@@ -159,16 +149,7 @@
         overlay = final: prev: {
           cloud-hypervisor-graphics = prev.callPackage (spectrum + "/pkgs/cloud-hypervisor") {};
           waypipe = overrideWaypipe prev;
-          alioth =
-            let
-              rustNightly = fenix.packages.${final.system}.minimal.toolchain;
-            in
-              prev.callPackage ./pkgs/alioth.nix {
-                rustPlatform = final.makeRustPlatform {
-                  cargo = rustNightly;
-                  rustc = rustNightly;
-                };
-              };
+          alioth = prev.callPackage ./pkgs/alioth.nix {};
         };
         overlays.default = self.overlay;
 

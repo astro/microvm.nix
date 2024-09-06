@@ -86,7 +86,8 @@ let
   };
 
   # systemd>=256 hangs at stage-2 on notifying X_SYSTEMD_HOSTNAME
-  doNotify = builtins.compareVersions pkgs.systemd.version "256" < 0;
+  supportsNotifySocket =
+    builtins.compareVersions pkgs.systemd.version "256" < 0;
 
 in {
   inherit tapMultiQueue;
@@ -99,7 +100,7 @@ in {
       rm -f '${socket}'
     ''}
 
-  '' + lib.optionalString doNotify ''
+  '' + lib.optionalString supportsNotifySocket ''
     # Ensure notify sockets are removed if cloud-hypervisor didn't exit cleanly the last time
     rm -f notify.vsock notify.vsock_8888
 
@@ -119,7 +120,7 @@ in {
     done
   '';
 
-  supportsNotifySocket = true;
+  inherit supportsNotifySocket;
 
   command =
     if user != null
@@ -141,7 +142,7 @@ in {
         "--memory" memOps
       ]
       ++
-      lib.optionals doNotify [
+      lib.optionals supportsNotifySocket [
         "--platform" "oem_strings=[io.systemd.credential:vmm.notify_socket=vsock-stream:2:8888]"
         "--vsock" "cid=3,socket=notify.vsock"
       ]

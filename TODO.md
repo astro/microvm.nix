@@ -65,6 +65,11 @@ Important
 
     * This is important not only for new users, but for anyone trying to debug, or has gaps in knowledge 
 
+- [ ] An extensive page with configuration examples 
+    
+    * this page should contain examples of how people set microvms up
+
+    * I understand the complexity of making such page, but having one will be highly benefitial, as it will clearly demonstrate the full potential of this project
 
 
 

@@ -110,7 +110,7 @@ lib.mkIf config.microvm.guest.enable {
       }) {} (withDriveLetters config.microvm)
   ) (
     # 9p/virtiofs Shares
-    builtins.foldl' (result: { mountPoint, tag, proto, source, ... }: result // {
+    builtins.foldl' (result: { mountPoint, tag, proto, source, ... }: result // lib.optionalAttrs (mountPoint != null) {
       "${mountPoint}" = {
         device = tag;
         fsType = proto;

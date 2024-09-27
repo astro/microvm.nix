@@ -98,7 +98,7 @@
             build-microvm = pkgs.callPackage ./pkgs/build-microvm.nix { inherit self; };
             doc = pkgs.callPackage ./pkgs/doc.nix { inherit nixpkgs; };
             microvm = import ./pkgs/microvm-command.nix {
-              inherit pkgs;
+              pkgs = import nixpkgs { inherit system; };
             };
             # all compilation-heavy packages that shall be prebuilt for a binary cache
             prebuilt = pkgs.buildEnv {

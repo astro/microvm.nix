@@ -4,19 +4,19 @@
 }:
 
 let
-  inherit (pkgs) lib system;
+  inherit (pkgs) lib;
   inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem graphics storeDisk storeOnDisk kernel initrdPath;
   inherit (microvmConfig.cloud-hypervisor) extraArgs;
 
   kernelPath = {
     x86_64-linux = "${kernel.dev}/vmlinux";
     aarch64-linux = "${kernel.out}/${pkgs.stdenv.hostPlatform.linux-kernel.target}";
-  }.${pkgs.system};
+  }.${pkgs.stdenv.system};
 
   kernelConsole =
-    if system == "x86_64-linux"
+    if pkgs.stdenv.system == "x86_64-linux"
     then "earlyprintk=ttyS0 console=ttyS0"
-    else if system == "aarch64-linux"
+    else if pkgs.stdenv.system == "aarch64-linux"
     then "console=ttyAMA0"
     else "";
 

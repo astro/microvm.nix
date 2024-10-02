@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: cachix/install-nix-action@v29
-      - uses: cachix/cachix-action@v14
+      - uses: cachix/cachix-action@v15
         with:
           name: deadnix
       - uses: astro/deadnix-action@main

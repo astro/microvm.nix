@@ -92,6 +92,7 @@
         packages =
           let
             pkgs = import nixpkgs {
+              inherit system;
               overlays = [ self.overlay ];
             };
           in {

@@ -19,5 +19,3 @@
   - [Deploy via SSH](./ssh-deploy.md)
 - [Conventions](./conventions.md)
 - [Frequently Asked Questions](./faq.md)
-
-[⮜ Github: microvm.nix](https://github.com/astro/microvm.nix)

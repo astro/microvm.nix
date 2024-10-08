@@ -111,7 +111,7 @@
                 crosvm-example
                 kvmtool-example
                 stratovirt-example
-                alioth-example
+                # alioth-example
                 virtiofsd
               ];
               pathsToLink = [ "/" ];

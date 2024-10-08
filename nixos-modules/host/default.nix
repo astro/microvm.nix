@@ -367,10 +367,6 @@ in
       wants = map (name: "microvm@${name}.service") config.microvm.autostart;
     };
 
-    microvm.host.tapScript = lib.mkDefault ''
-      ${pkgs.iproute2}/bin/ip link set $id up
-    '';
-
     # This helper creates tap interfaces and attaches them to a bridge
     # for qemu regardless if it is run as root or not.
     security.wrappers.qemu-bridge-helper = lib.mkIf (!config.virtualisation.libvirtd.enable) {

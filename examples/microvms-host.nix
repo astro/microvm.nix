@@ -46,6 +46,9 @@ nixpkgs.lib.nixosSystem {
         '';
         services.getty.autologinUser = "root";
 
+        # Make alioth available
+        nixpkgs.overlays = [ self.overlay ];
+
         # MicroVM settings
         microvm = {
           mem = 8192;

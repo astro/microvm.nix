@@ -16,6 +16,23 @@ let
         })
       ];
     })) options;
+
+    transformOptions = opt: opt // {
+      declarations = map (decl:
+        let
+          root = toString ../.;
+          declStr = toString decl;
+          declPath = lib.removePrefix (toString ../.) decl;
+        in
+          if lib.hasPrefix root declStr
+          # Rewrite links from ../. in the /nix/store to the source on Github
+          then {
+            name = "microvm.nix${declPath}";
+            url = "https://github.com/astro/microvm.nix/tree/main${declPath}";
+          }
+          else decl
+      ) opt.declarations;
+    };
   };
 
   microvmDoc = makeOptionsDoc ../nixos-modules/microvm/options.nix;

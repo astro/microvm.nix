@@ -14,10 +14,11 @@
       type = types.bool;
       default = false;
       description = ''
-        Enable if all your MicroVMs run with a Hypervisor that sends readiness notification over a VSOCK.
+        Enable if all your MicroVMs run with a Hypervisor that sends
+        readiness notification over a VSOCK.
 
-        If one of your MicroVMs doesn't do this, its systemd service
-        will not start up successfully.
+        **Danger!** If one of your MicroVMs doesn't do this, its
+        systemd service will not start up successfully!
       '';
     };
 
@@ -32,8 +33,8 @@
         `systemd.services."microvm-tap-interfaces@%i.service".enable = false`
       '';
       example = ''
-        # Attach tap interface to bridge br0, and set it up
-        ''${pkgs.iproute2}/bin/ip link set $id master br0 up
+        # Attach tap interface to bridge br0, and bring it up
+        ''${pkgs.iproute2}/bin/ip link set "$id" master br0 up
       '';
       type = types.lines;
     };
@@ -74,8 +75,11 @@
             default = if config.pkgs != null then config.pkgs.path else pkgs.path;
             defaultText = literalExpression "pkgs.path";
             description = ''
-              This option is only respected when `config` is specified.
-              The nixpkgs path to use for the MicroVM. Defaults to the host's nixpkgs.
+              This option is only respected when `config` is
+              specified.
+
+              The nixpkgs path to use for the MicroVM. Defaults to the
+              host's nixpkgs.
             '';
           };
 
@@ -85,7 +89,11 @@
             defaultText = literalExpression "pkgs";
             description = ''
               This option is only respected when `config` is specified.
-              The package set to use for the MicroVM. Must be a nixpkgs package set with the microvm overlay. Determines the system of the MicroVM.
+
+              The package set to use for the MicroVM. Must be a
+              nixpkgs package set with the microvm overlay. Determines
+              the system of the MicroVM.
+
               If set to null, a new package set will be instantiated.
             '';
           };
@@ -95,6 +103,7 @@
             default = {};
             description = ''
               This option is only respected when `config` is specified.
+
               A set of special arguments to be passed to NixOS modules.
               This will be merged into the `specialArgs` used to evaluate
               the NixOS configurations.
@@ -105,12 +114,14 @@
             description = "Source flake for declarative build";
             type = nullOr path;
             default = null;
+            defaultText = literalExpression ''flakeInputs.my-infra'';
           };
 
           updateFlake = mkOption {
-            description = "Source flake to store for later imperative update";
+            description = "Source flakeref to store for later imperative update";
             type = nullOr str;
             default = null;
+            defaultText = literalExpression ''"git+file:///home/user/my-infra"'';
           };
 
           autostart = mkOption {

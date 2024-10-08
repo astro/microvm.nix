@@ -5,6 +5,7 @@ let
   };
 
   hostName = config.networking.hostName or "$HOSTNAME";
+
 in
 {
   options.microvm = with lib; {
@@ -57,7 +58,7 @@ in
     };
 
     kernel = mkOption {
-      description = "Kernel package to use for MicroVM runners";
+      description = "Kernel package to use for MicroVM runners. Better set `boot.kernelPackages` instead.";
       default = config.boot.kernelPackages.kernel;
       defaultText = literalExpression ''"''${config.boot.kernelPackages.kernel}"'';
       type = types.package;

@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.4.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.5.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.6.</strong> MicroVM options reference</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html" class="active"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.4.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.5.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.6.</strong> MicroVM options reference 󰒓</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference 󰣖</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html" class="active"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li><li class="chapter-item expanded affix "><a href="https://github.com/astro/microvm.html">⮜ Github: microvm.nix</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -193,7 +193,7 @@ nixos-containers work if you are familiar with those.</p>
     my-microvm = {
       # The package set to use for the microvm. This also determines the microvm's architecture.
       # Defaults to the host system's package set if not given.
-      pkgs = import nixpkgs { system = &quot;x86_64-linux&quot;; };
+      pkgs = import nixpkgs { system = "x86_64-linux"; };
 
       # (Optional) A set of special arguments to be passed to the MicroVM's NixOS modules.
       #specialArgs = {};
@@ -204,10 +204,10 @@ nixos-containers work if you are familiar with those.</p>
         # It is highly recommended to share the host's nix-store
         # with the VMs to prevent building huge images.
         microvm.shares = [{
-          source = &quot;/nix/store&quot;;
-          mountPoint = &quot;/nix/.ro-store&quot;;
-          tag = &quot;ro-store&quot;;
-          proto = &quot;virtiofs&quot;;
+          source = "/nix/store";
+          mountPoint = "/nix/.ro-store";
+          tag = "ro-store";
+          proto = "virtiofs";
         }];
 
         # Any other configuration for your MicroVM
@@ -229,7 +229,7 @@ command</a>.</p>
     # under nixosConfigurations
     flake = self;
     # Specify from where to let `microvm -u` update later on
-    updateFlake = &quot;git+file:///etc/nixos&quot;;
+    updateFlake = "git+file:///etc/nixos";
   };
 };
 </code></pre>

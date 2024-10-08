@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.4.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.5.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.6.</strong> MicroVM options reference</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html" class="active"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.4.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.5.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.6.</strong> MicroVM options reference 󰒓</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html" class="active"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference 󰣖</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li><li class="chapter-item expanded affix "><a href="https://github.com/astro/microvm.html">⮜ Github: microvm.nix</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -186,23 +186,23 @@ is possible to assign individual IP configuration to these individual
 interfaces, let us avoid the additional configuration effort and
 create a bridge instead:</p>
 <pre><code class="language-nix">systemd.network = {
-  netdevs.&quot;10-microvm&quot;.netdevConfig = {
-    Kind = &quot;bridge&quot;;
-    Name = &quot;microvm&quot;;
+  netdevs."10-microvm".netdevConfig = {
+    Kind = "bridge";
+    Name = "microvm";
   };
-  networks.&quot;10-microvm&quot; = {
-    matchConfig.Name = &quot;microvm&quot;;
+  networks."10-microvm" = {
+    matchConfig.Name = "microvm";
     networkConfig = {
       DHCPServer = true;
       IPv6SendRA = true;
     };
     addresses = [ {
-      addressConfig.Address = &quot;10.0.0.1/24&quot;;
+      addressConfig.Address = "10.0.0.1/24";
     } {
-      addressConfig.Address = &quot;fd12:3456:789a::1/64&quot;;
+      addressConfig.Address = "fd12:3456:789a::1/64";
     } ];
     ipv6Prefixes = [ {
-      ipv6PrefixConfig.Prefix = &quot;fd12:3456:789a::/64&quot;;
+      ipv6PrefixConfig.Prefix = "fd12:3456:789a::/64";
     } ];
   };
 };
@@ -217,10 +217,10 @@ opting for declarative, versioned configuration instead.</p>
 bridge. Make sure your <code>matchConfig</code> matches just the interfaces you
 want!</p>
 <pre><code class="language-nix">systemd.network = {
-  networks.&quot;11-microvm&quot; = {
-    matchConfig.Name = &quot;vm-*&quot;;
+  networks."11-microvm" = {
+    matchConfig.Name = "vm-*";
     # Attach to the bridge that was configured above
-    networkConfig.Bridge = &quot;microvm&quot;;
+    networkConfig.Bridge = "microvm";
   };
 };
 </code></pre>
@@ -234,8 +234,8 @@ MicroVMs. NAT works for this address family, too!</p>
   enable = true;
   enableIPv6 = true;
   # Change this to the interface with upstream Internet access
-  externalInterface = &quot;eth0&quot;;
-  internalInterfaces = [ &quot;microvm&quot; ];
+  externalInterface = "eth0";
+  internalInterfaces = [ "microvm" ];
 };
 </code></pre>
 <p>Check out
@@ -252,11 +252,11 @@ other hosts:</p>
 <pre><code class="language-nix">networking.nat = {
   enable = true;
   forwardPorts = [ {
-    proto = &quot;tcp&quot;;
+    proto = "tcp";
     sourcePort = 80;
     destination = my-addresses.http-reverse-proxy.ip4;
   } {
-    proto = &quot;tcp&quot;;
+    proto = "tcp";
     sourcePort = 443;
     destination = my-addresses.https-reverse-proxy.ip4;
   } ];

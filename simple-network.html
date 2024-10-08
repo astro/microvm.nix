@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.4.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.5.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.6.</strong> MicroVM options reference</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html" class="active"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.4.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.5.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.6.</strong> MicroVM options reference 󰒓</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html" class="active"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference 󰣖</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li><li class="chapter-item expanded affix "><a href="https://github.com/astro/microvm.html">⮜ Github: microvm.nix</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -194,29 +194,29 @@ bridge with the <code>vm-*</code> TAP interfaces that you will specify in the Mi
 definition.</p>
 <pre><code class="language-nix">systemd.network.enable = true;
 
-systemd.network.networks.&quot;10-lan&quot; = {
-  matchConfig.Name = [&quot;eno1&quot; &quot;vm-*&quot;];
+systemd.network.networks."10-lan" = {
+  matchConfig.Name = ["eno1" "vm-*"];
   networkConfig = {
-    Bridge = &quot;br0&quot;;
+    Bridge = "br0";
   };
 };
 
-systemd.network.netdevs.&quot;br0&quot; = {
+systemd.network.netdevs."br0" = {
   netdevConfig = {
-    Name = &quot;br0&quot;;
-    Kind = &quot;bridge&quot;;
+    Name = "br0";
+    Kind = "bridge";
   };
 };
 
-systemd.network.networks.&quot;10-lan-bridge&quot; = {
-  matchConfig.Name = &quot;br0&quot;;
+systemd.network.networks."10-lan-bridge" = {
+  matchConfig.Name = "br0";
   networkConfig = {
-    Address = [&quot;192.168.1.2/24&quot; &quot;2001:db8::a/64&quot;];
-    Gateway = &quot;192.168.1.1&quot;;
-    DNS = [&quot;192.168.1.1&quot;];
+    Address = ["192.168.1.2/24" "2001:db8::a/64"];
+    Gateway = "192.168.1.1";
+    DNS = ["192.168.1.1"];
     IPv6AcceptRA = true;
   };
-  linkConfig.RequiredForOnline = &quot;routable&quot;;
+  linkConfig.RequiredForOnline = "routable";
 };
 </code></pre>
 <p>Now that the host is configured, you can define a MicroVM to have a static IP
@@ -225,23 +225,23 @@ address with:</p>
   #...add additional MicroVM configuration here
   interfaces = [
     {
-      type = &quot;tap&quot;;
-      id = &quot;vm-test1&quot;;
-      mac = &quot;02:00:00:00:00:01&quot;;
+      type = "tap";
+      id = "vm-test1";
+      mac = "02:00:00:00:00:01";
     }
   ];
 };
 
 systemd.network.enable = true;
 
-systemd.network.networks.&quot;20-lan&quot; = {
-  matchConfig.Type = &quot;ether&quot;;
+systemd.network.networks."20-lan" = {
+  matchConfig.Type = "ether";
   networkConfig = {
-    Address = [&quot;192.168.1.3/24&quot; &quot;2001:db8::b/64&quot;];
-    Gateway = &quot;192.168.1.1&quot;;
-    DNS = [&quot;192.168.1.1&quot;];
+    Address = ["192.168.1.3/24" "2001:db8::b/64"];
+    Gateway = "192.168.1.1";
+    DNS = ["192.168.1.1"];
     IPv6AcceptRA = true;
-    DHCP = &quot;no&quot;;
+    DHCP = "no";
   };
 };
 </code></pre>
@@ -251,8 +251,8 @@ Docker containers inside your microvms using <code>virtualisation.docker</code>,
 you may need to add the following snippet to stop <code>systemd-networkd</code> from
 managing the bridged <code>veth*</code> interfaces Docker creates for each container.
 Without this, network access inside the containers will be broken.</p>
-<pre><code class="language-nix">systemd.network.networks.&quot;19-docker&quot; = {
-  matchConfig.Name = &quot;veth*&quot;;
+<pre><code class="language-nix">systemd.network.networks."19-docker" = {
+  matchConfig.Name = "veth*";
   linkConfig = {
     Unmanaged = true;
   };
@@ -263,7 +263,7 @@ Without this, network access inside the containers will be broken.</p>
 the virtual bridge, have a look into these alternatives:</p>
 <ul>
 <li>
-<p>Network interfaces with <code>type = &quot;macvtap&quot;</code> are supported in
+<p>Network interfaces with <code>type = "macvtap"</code> are supported in
 microvm.nix. While they're technically tap devices, they attach to
 an external Ethernet port, eliminating the <code>br0</code> bridge.</p>
 </li>

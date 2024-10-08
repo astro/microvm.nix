@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.4.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.5.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.6.</strong> MicroVM options reference</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html" class="active"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.4.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.5.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.6.</strong> MicroVM options reference 󰒓</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference 󰣖</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html" class="active"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li><li class="chapter-item expanded affix "><a href="https://github.com/astro/microvm.html">⮜ Github: microvm.nix</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -182,21 +182,21 @@ making the journals available to the host as a share. Because journald
 identifies hosts by their <code>/etc/machine-id</code>, we propose to use static
 content for that file. Add a NixOS module like the following to your
 MicroVM configuration:</p>
-<pre><code class="language-nix">environment.etc.&quot;machine-id&quot; = {
-  mode = &quot;0644&quot;;
+<pre><code class="language-nix">environment.etc."machine-id" = {
+  mode = "0644";
   text =
     # change this to suit your flake's interface
-    self.lib.addresses.machineId.${config.networking.hostName} + &quot;\n&quot;;
+    self.lib.addresses.machineId.${config.networking.hostName} + "\n";
 };
 
 microvm.shares = [ {
   # On the host
-  source = &quot;/var/lib/microvms/${config.networking.hostName}/journal&quot;;
+  source = "/var/lib/microvms/${config.networking.hostName}/journal";
   # In the MicroVM
-  mountPoint = &quot;/var/log/journal&quot;;
-  tag = &quot;journal&quot;;
-  proto = &quot;virtiofs&quot;;
-  socket = &quot;journal.sock&quot;;
+  mountPoint = "/var/log/journal";
+  tag = "journal";
+  proto = "virtiofs";
+  socket = "journal.sock";
 } ];
 </code></pre>
 <p>Last, make the MicroVM journals available to your host. The
@@ -206,7 +206,7 @@ microvm.shares = [ {
     machineId = self.lib.addresses.machineId.${vmHost};
   in
     # creates a symlink of each MicroVM's journal under the host's /var/log/journal
-    &quot;L+ /var/log/journal/${machineId} - - - - /var/lib/microvms/${vmHost}/journal/${machineId}&quot;
+    "L+ /var/log/journal/${machineId} - - - - /var/lib/microvms/${vmHost}/journal/${machineId}"
 ) (builtins.attrNames self.lib.addresses.machineId);
 </code></pre>
 <p>Once your MicroVM's journal data is visible in the
@@ -222,35 +222,35 @@ does.</p>
 <pre><code class="language-nix">environment.systemPackages = [ (
   # Provide a manual updating script that fetches the latest
   # updated+built system from Hydra
-  pkgs.writeShellScriptBin &quot;update-microvm&quot; ''
+  pkgs.writeShellScriptBin "update-microvm" ''
     if [ $# -lt 1 ]; then
-      NAMES=&quot;$(ls -1 /var/lib/microvms)&quot;
+      NAMES="$(ls -1 /var/lib/microvms)"
     else
-      NAMES=&quot;$@&quot;
+      NAMES="$@"
     fi
 
     for NAME in $NAMES; do
       echo MicroVM $NAME
       cd /var/lib/microvms/$NAME
       # Is this truly the flake that is being built on Hydra?
-      if [ &quot;$(cat flake)&quot; = &quot;git+https://gitea.example.org/org/nix-config?ref=flake-update&quot; ]; then
-        NEW=$(curl -sLH &quot;Accept: application/json&quot; https://hydra.example.org/job/org/nix-config/$NAME/latest | ${pkgs.jq}/bin/jq -er .buildoutputs.out.path)
+      if [ "$(cat flake)" = "git+https://gitea.example.org/org/nix-config?ref=flake-update" ]; then
+        NEW=$(curl -sLH "Accept: application/json" https://hydra.example.org/job/org/nix-config/$NAME/latest | ${pkgs.jq}/bin/jq -er .buildoutputs.out.path)
         nix copy --from https://nix-cache.example.org $NEW
 
         if [ -e booted ]; then
           nix store diff-closures $(readlink booted) $NEW
         elif [ -e current ]; then
-          echo &quot;NOT BOOTED! Diffing to old current:&quot;
+          echo "NOT BOOTED! Diffing to old current:"
           nix store diff-closures $(readlink current) $NEW
         else
-          echo &quot;NOT BOOTED?&quot;
+          echo "NOT BOOTED?"
         fi
 
         CHANGED=no
         if ! [ -e current ]; then
           ln -s $NEW current
           CHANGED=yes
-        elif [ &quot;$(readlink current)&quot; != $NEW ]; then
+        elif [ "$(readlink current)" != $NEW ]; then
           rm -f old
           cp --no-dereference current old
           rm -f current
@@ -259,7 +259,7 @@ does.</p>
         fi
       fi
 
-      if [ &quot;$CHANGED&quot; = &quot;yes&quot; ]; then
+      if [ "$CHANGED" = "yes" ]; then
         systemctl restart microvm@$NAME
       fi
       echo
@@ -271,13 +271,13 @@ does.</p>
 <p>Use the following configuration if you build your MicroVM with
 <code>--impure</code> from channels, not Flakes:</p>
 <pre><code class="language-nix">nix.nixPath = [
-  &quot;nixpkgs=${builtins.storePath &lt;nixpkgs&gt;}&quot;
+  "nixpkgs=${builtins.storePath &lt;nixpkgs&gt;}"
 ];
 </code></pre>
 <h2 id="how-do-i-let-the-microvm-user-access-block-devices"><a class="header" href="#how-do-i-let-the-microvm-user-access-block-devices">How do I let the <code>microvm</code> user access block devices?</a></h2>
 <p>You can re-add the following line to your host's NixOS configuration
 which was removed from microvm.nix:</p>
-<pre><code class="language-nix">users.users.microvm.extraGroups = [ &quot;disk&quot; ];
+<pre><code class="language-nix">users.users.microvm.extraGroups = [ "disk" ];
 </code></pre>
 <p>The more secure solution would be writing custom
 <code>services.udev.extraRules</code> that assign ownership/permissions to the
@@ -297,6 +297,9 @@ updated secrets.</p>
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
+                            <a rel="next prefetch" href="https://github.com/astro/microvm.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -308,6 +311,9 @@ updated secrets.</p>
                         <i class="fa fa-angle-left"></i>
                     </a>
 
+                    <a rel="next prefetch" href="https://github.com/astro/microvm.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>

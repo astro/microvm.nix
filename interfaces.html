@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html" class="active"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.4.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.5.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.6.</strong> MicroVM options reference</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html" class="active"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.4.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.5.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.6.</strong> MicroVM options reference 󰒓</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference 󰣖</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li><li class="chapter-item expanded affix "><a href="https://github.com/astro/microvm.html">⮜ Github: microvm.nix</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -178,24 +178,24 @@
 configuration:</p>
 <pre><code class="language-nix">{
   microvm.interfaces = [ {
-    type = &quot;tap&quot;;
+    type = "tap";
 
     # interface name on the host
-    id = &quot;vm-a1&quot;;
+    id = "vm-a1";
 
     # Ethernet address of the MicroVM's interface, not the host's
     #
     # Locally administered have one of 2/6/A/E in the second nibble.
-    mac = &quot;02:00:00:00:00:01&quot;;
+    mac = "02:00:00:00:00:01";
   } ];
 }
 </code></pre>
-<h2 id="type--user"><a class="header" href="#type--user"><code>type = &quot;user&quot;</code></a></h2>
+<h2 id="type--user"><a class="header" href="#type--user"><code>type = "user"</code></a></h2>
 <p>User-mode networking is only provided by qemu and kvmtool, providing
 outgoing connectivity to your MicroVM without any further setup.</p>
 <p>As kvmtool seems to lack a built-in DHCP server, additional static IP
 configuration is necessary inside the MicroVM.</p>
-<h2 id="type--tap"><a class="header" href="#type--tap"><code>type = &quot;tap&quot;</code></a></h2>
+<h2 id="type--tap"><a class="header" href="#type--tap"><code>type = "tap"</code></a></h2>
 <p>Use a virtual tuntap Ethernet interface. Its name is the value of
 <code>id</code>.</p>
 <p>Some Hypervisors may be able to automatically create these interfaces
@@ -207,7 +207,7 @@ interfaces before starting a MicroVM:</p>
 with more than one CPU core.</p>
 <p>When running MicroVMs through the <code>host</code> module, the tap network
 interfaces are created through a systemd service dependency.</p>
-<h2 id="type--macvtap"><a class="header" href="#type--macvtap"><code>type = &quot;macvtap&quot;</code></a></h2>
+<h2 id="type--macvtap"><a class="header" href="#type--macvtap"><code>type = "macvtap"</code></a></h2>
 <p><em>MACVTAP</em> interfaces attach to a host's physical network interface,
 joining the same Ethernet segment with a separate MAC address.</p>
 <p>Before running a MicroVM interactively from a package, do the
@@ -225,10 +225,10 @@ sudo chown $USER /dev/tap$IFINDEX
 </code></pre>
 <p>When running MicroVMs through the <code>host</code> module, the macvtap network
 interfaces are created through a systemd service dependency. Per
-interface with <code>type = &quot;macvtap&quot;</code>, a <code>link</code> attribute with the parent
+interface with <code>type = "macvtap"</code>, a <code>link</code> attribute with the parent
 interface, and <code>mode</code> attribute for the MACVTAP filtering mode must be
 specified.</p>
-<h2 id="type--bridge"><a class="header" href="#type--bridge"><code>type = &quot;bridge&quot;</code></a></h2>
+<h2 id="type--bridge"><a class="header" href="#type--bridge"><code>type = "bridge"</code></a></h2>
 <p>This mode lets qemu create a tap interface and attach it to a bridge.</p>
 <p>The <code>qemu-bridge-helper</code> binary needs to be setup with the proper
 permissions. See the <code>host</code> module for that. qemu will be run

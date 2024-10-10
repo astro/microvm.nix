@@ -4,7 +4,7 @@ let
   inherit (config.microvm) storeDiskType storeOnDisk writableStoreOverlay;
 
   inherit (import ../../lib {
-    nixpkgs-lib = lib;
+    inherit lib;
   }) defaultFsType withDriveLetters;
 
   hostStore = builtins.head (

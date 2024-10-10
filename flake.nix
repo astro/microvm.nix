@@ -145,7 +145,7 @@
           })
         ) (import ./checks { inherit self nixpkgs system; });
       }) // {
-        lib = import ./lib { nixpkgs-lib = nixpkgs.lib; };
+        lib = import ./lib { inherit (nixpkgs) lib; };
 
         overlay = final: prev: {
           cloud-hypervisor-graphics = prev.callPackage (spectrum + "/pkgs/cloud-hypervisor") {};

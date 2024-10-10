@@ -20,9 +20,8 @@ let
     transformOptions = opt: opt // {
       declarations = map (decl:
         let
-          root = toString ../.;
           declStr = toString decl;
-          declPath = lib.removePrefix (toString ../.) decl;
+          declPath = lib.removePrefix root decl;
         in
           if lib.hasPrefix root declStr
           # Rewrite links from ../. in the /nix/store to the source on Github

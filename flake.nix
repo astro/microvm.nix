@@ -52,6 +52,13 @@
           in {
             vm = nixosToApp ./examples/microvms-host.nix;
             qemu-vnc = nixosToApp ./examples/qemu-vnc.nix;
+            compose = {
+              type = "app";
+              program = toString (import ./examples/compose.nix {
+                inherit self;
+                lib = nixpkgs.lib;
+              }).config.system.build.process-compose;
+            };
             graphics = {
               type = "app";
               program = toString (pkgs.writeShellScript "run-graphics" ''
@@ -145,7 +152,14 @@
           })
         ) (import ./checks { inherit self nixpkgs system; });
       }) // {
-        lib = import ./lib { inherit (nixpkgs) lib; };
+        lib = import ./lib {
+          inherit (nixpkgs) lib;
+        } // {
+          compose = import ./lib/compose {
+            inherit self;
+            inherit (nixpkgs) lib;
+          };
+        };
 
         overlay = final: prev: {
           cloud-hypervisor-graphics = prev.callPackage (spectrum + "/pkgs/cloud-hypervisor") {};

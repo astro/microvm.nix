@@ -146,7 +146,13 @@ let
     else "";
 
 
-in {
+in
+lib.warnIf (mem == 2048) ''
+  QEMU hangs if memory is exactly 2GB
+
+  <https://github.com/astro/microvm.nix/issues/171>
+''
+{
   inherit tapMultiQueue;
 
   command = lib.escapeShellArgs (

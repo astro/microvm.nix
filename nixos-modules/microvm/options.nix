@@ -24,7 +24,9 @@ in
         What CPU to emulate, if any. If different from the host
         architecture, it will have a serious performance hit.
 
+        ::: {.note}
         Only supported with qemu.
+        :::
       '';
     };
 
@@ -163,13 +165,15 @@ in
           When using the SLiRP user networking (default), this option allows to
           forward ports to/from the host/guest.
 
-          <warning><para>
-            If the NixOS firewall on the virtual machine is enabled, you also
-            have to open the guest ports to enable the traffic between host and
-            guest.
-          </para></warning>
+          ::: {.warning}
+          If the NixOS firewall on the virtual machine is enabled, you
+          also have to open the guest ports to enable the traffic
+          between host and guest.
+          :::
 
-          <note><para>Currently QEMU supports only IPv4 forwarding.</para></note>
+          ::: {.note}
+          Currently QEMU supports only IPv4 forwarding.
+          :::
         '';
     };
     volumes = mkOption {
@@ -184,7 +188,7 @@ in
           label = mkOption {
             type = nullOr str;
             default = null;
-            description = "Label of the volume, if any. Only applicable if autoCreate is true; otherwise labeling of the volume must be done manually";
+            description = "Label of the volume, if any. Only applicable if `autoCreate` is true; otherwise labeling of the volume must be done manually";
           };
           mountPoint = mkOption {
             type = nullOr path;

@@ -82,17 +82,21 @@ pkgs.buildPackages.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConf
   ${lib.concatMapStringsSep " " (interface:
     lib.optionalString (
       interface.type == "macvtap" &&
-      interface ? id &&
-      (interface.macvtap.link or null) != null &&
-      (interface.macvtap.mode or null) != null
-    ) ''
-      echo "${builtins.concatStringsSep " " [
-        interface.id
-        interface.mac
-        interface.macvtap.link
-        (builtins.toString interface.macvtap.mode)
-      ]}" >> $out/share/microvm/macvtap-interfaces
-    '') microvmConfig.interfaces}
+      interface ? id
+    ) (
+      if interface.macvtap.link or null == null
+      then throw "microvm.interface's macvtap.link must be specified for id=${interface.id}"
+      else if interface.macvtap.mode or null == null
+      then throw "microvm.interface's macvtap.mode must be specified for id=${interface.id}"
+      else ''
+        echo "${builtins.concatStringsSep " " [
+          interface.id
+          interface.mac
+          interface.macvtap.link
+          (builtins.toString interface.macvtap.mode)
+        ]}" >> $out/share/microvm/macvtap-interfaces
+      ''
+    )) microvmConfig.interfaces}
 
 
   ${lib.concatMapStrings ({ tag, socket, source, proto, ... }:

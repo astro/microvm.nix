@@ -498,7 +498,7 @@ list of string</p>
 <h2 id="microvmcpu"><a class="header" href="#microvmcpu">microvm.cpu</a></h2>
 <p>What CPU to emulate, if any. If different from the host
 architecture, it will have a serious performance hit.</p>
-<p>Only supported with qemu.</p>
+<p><strong>Note:</strong> Only supported with qemu.</p>
 <p><em>Type:</em>
 null or string</p>
 <p><em>Default:</em>
@@ -579,12 +579,10 @@ string</p>
 <h2 id="microvmforwardports"><a class="header" href="#microvmforwardports">microvm.forwardPorts</a></h2>
 <p>When using the SLiRP user networking (default), this option allows to
 forward ports to/from the host/guest.</p>
-<p>&lt;warning&gt;&lt;para&gt;
-If the NixOS firewall on the virtual machine is enabled, you also
-have to open the guest ports to enable the traffic between host and
-guest.
-&lt;/para&gt;&lt;/warning&gt;</p>
-<p>&lt;note&gt;&lt;para&gt;Currently QEMU supports only IPv4 forwarding.&lt;/para&gt;&lt;/note&gt;</p>
+<p><strong>Warning:</strong> If the NixOS firewall on the virtual machine is enabled, you
+also have to open the guest ports to enable the traffic
+between host and guest.</p>
+<p><strong>Note:</strong> Currently QEMU supports only IPv4 forwarding.</p>
 <p><em>Type:</em>
 list of (submodule)</p>
 <p><em>Default:</em>
@@ -1043,7 +1041,7 @@ string</p>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
 </ul>
 <h2 id="microvmvolumeslabel"><a class="header" href="#microvmvolumeslabel">microvm.volumes.*.label</a></h2>
-<p>Label of the volume, if any. Only applicable if autoCreate is true; otherwise labeling of the volume must be done manually</p>
+<p>Label of the volume, if any. Only applicable if <code>autoCreate</code> is true; otherwise labeling of the volume must be done manually</p>
 <p><em>Type:</em>
 null or string</p>
 <p><em>Default:</em>

@@ -20,6 +20,7 @@ let
     transformOptions = opt: opt // {
       declarations = map (decl:
         let
+          root = toString ../.;
           declStr = toString decl;
           declPath = lib.removePrefix root decl;
         in

@@ -3,8 +3,6 @@
 let
   baseConfig = { config, ... }: {
     microvm = {
-      socket = "control-${config.networking.hostName}.socket";
-
       shares = [ {
         proto = "9p";
         tag = "store";
@@ -12,6 +10,11 @@ let
         mountPoint = "/nix/store";
       } ];
     };
+  };
+
+  # Configuration that depends on config at extendModules-time.
+  extensionConfig = { config, ... }: {
+    microvm.socket = "control-${config.networking.hostName}.socket";
   };
 
   # A base system that is fully evaluated once, and reused with extendModules per VM.
@@ -48,7 +51,10 @@ in
   config.system = {
     microvmConfigs = builtins.mapAttrs (name: { config, ... }:
       (baseSystem.extendModules {
-        modules = [ config ];
+        modules = [
+          config
+          extensionConfig
+        ];
       }).config
     ) config.microvm.vms;
 

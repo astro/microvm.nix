@@ -40,6 +40,7 @@
       default = ''
         ${pkgs.iproute2}/bin/ip link set "$id" up
       '';
+      defaultText = "''${pkgs.iproute2}/bin/ip link set \"$id\" up";
     };
 
     vms = mkOption {

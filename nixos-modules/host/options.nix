@@ -32,15 +32,17 @@
         at all, just set
         `systemd.services."microvm-tap-interfaces@%i.service".enable = false`
       '';
-      example = ''
+      example = lib.literalExpression ''
         # Attach tap interface to bridge br0, and bring it up
-        ''${pkgs.iproute2}/bin/ip link set "$id" master br0 up
+        "${pkgs.iproute2}/bin/ip link set \"$id\" master br0 up"
       '';
       type = types.lines;
       default = ''
         ${pkgs.iproute2}/bin/ip link set "$id" up
       '';
-      defaultText = "''${pkgs.iproute2}/bin/ip link set \"$id\" up";
+      defaultText = ''
+        ${pkgs.iproute2}/bin/ip link set "$id" up
+      '';
     };
 
     vms = mkOption {

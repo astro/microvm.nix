@@ -148,8 +148,7 @@ in
           };
         });
       default = [];
-      example = lib.literalExpression
-        ''
+      example = lib.literalExpression /* nix */ ''
         [ # forward local port 2222 -> 22, to ssh into the VM
           { from = "host"; host.port = 2222; guest.port = 22; }
 
@@ -159,7 +158,7 @@ in
             host.address = "127.0.0.1"; host.port = 80;
           }
         ]
-        '';
+      '';
       description =
         ''
           When using the SLiRP user networking (default), this option allows to
@@ -319,17 +318,19 @@ in
     devices = mkOption {
       description = "PCI/USB devices that are passed from the host to the MicroVM";
       default = [];
-      example = literalExpression ''[ {
-        bus = "pci";
-        path = "0000:01:00.0";
-      } {
-        bus = "pci";
-        path = "0000:01:01.0";
-      } {
-        # QEMU only
-        bus = "usb";
-        path = "vendorid=0xabcd,productid=0x0123";
-      } ]'';
+      example = literalExpression /* nix */ ''
+        [ {
+          bus = "pci";
+          path = "0000:01:00.0";
+        } {
+          bus = "pci";
+          path = "0000:01:01.0";
+        } {
+          # QEMU only
+          bus = "usb";
+          path = "vendorid=0xabcd,productid=0x0123";
+        } ]
+      '';
       type = with types; listOf (submodule {
         options = {
           bus = mkOption {

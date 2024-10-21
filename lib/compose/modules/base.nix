@@ -9,6 +9,4 @@ in
     # system.build
     (nixosModulesPath + "/system/build.nix")
   ];
-
-  nixpkgs = nixpkgs;
 }

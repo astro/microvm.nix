@@ -1,13 +1,22 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
   system.build = {
     process-compose-workflow = {
       version = "1.34";
+      is_strict = true;
 
-      processes = builtins.mapAttrs (name: runner: {
-        command = "${runner}/bin/microvm-run";
-      }) config.system.microvmRunners;
+      processes = lib.concatMapAttrs (name: config:
+        let
+          inherit (config.networking) hostName;
+          mainName = "${config.microvm.hypervisor}-${hostName}";
+        in {
+          ${mainName} = {
+            command = "${config.microvm.declaredRunner}/bin/microvm-run";
+            is_tty = true;
+            namespace = hostName;
+          };
+      }) config.system.microvmConfigs;
     };
 
     process-compose-file = pkgs.writers.writeYAML "process-compose.yaml"

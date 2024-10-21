@@ -5,16 +5,12 @@ let
     microvm = {
       shares = [ {
         proto = "9p";
-        tag = "store";
+        tag = "nix-store";
         source = "/nix/store";
         mountPoint = "/nix/store";
       } ];
+      socket = "control-${config.networking.hostName}.socket";
     };
-  };
-
-  # Configuration that depends on config at extendModules-time.
-  extensionConfig = { config, ... }: {
-    microvm.socket = "control-${config.networking.hostName}.socket";
   };
 
   # A base system that is fully evaluated once, and reused with extendModules per VM.
@@ -39,28 +35,14 @@ in
     internal = true;
   };
 
-  options.system.microvmRunners = with lib; mkOption {
-    type = with types; attrsOf package;
-    default = {};
-    description = ''
-      Generated `microvm.declaredRunner`
-    '';
-    internal = true;
-  };
-
   config.system = {
     microvmConfigs = builtins.mapAttrs (name: { config, ... }:
       (baseSystem.extendModules {
         modules = [
+          { networking.hostName = name; }
           config
-          extensionConfig
         ];
       }).config
     ) config.microvm.vms;
-
-    microvmRunners = builtins.mapAttrs (name: config:
-      builtins.trace "runner: ${name}"
-      config.microvm.declaredRunner
-    ) config.system.microvmConfigs;
   };
 }

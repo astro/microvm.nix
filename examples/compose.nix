@@ -5,10 +5,15 @@ let
 
 in
 microvm.lib.compose.evalModules {
-  modules = [ {
-    microvm.vms.foo.config = {
+  modules = builtins.genList (n: {
+    microvm.vms."qemu${toString n}".config = {
+      microvm.hypervisor = "qemu";
     };
-    microvm.vms.bar.config = {
-    };
-  } ];
+    # microvm.vms."chv${toString n}".config = {
+    #   microvm.hypervisor = "cloud-hypervisor";
+    # };
+    # microvm.vms."firecracker${toString n}".config = {
+    #   microvm.hypervisor = "firecracker";
+    # };
+  }) 1;
 }

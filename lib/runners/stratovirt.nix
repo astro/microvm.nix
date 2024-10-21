@@ -14,7 +14,7 @@ let
 
   tapMultiQueue = vcpu > 1;
 
-  inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
+  inherit (import ../. { inherit (pkgs) lib; }) withDriveLetters;
   volumes = withDriveLetters microvmConfig;
 
   # PCI required by vfio-pci for PCI passthrough

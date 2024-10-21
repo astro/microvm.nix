@@ -6,7 +6,7 @@
 let
   inherit (pkgs) lib;
 
-  inherit (import ./. { nixpkgs-lib = lib; }) createVolumesScript makeMacvtap;
+  inherit (import ./. { inherit lib; }) createVolumesScript makeMacvtap;
   inherit (makeMacvtap {
     inherit microvmConfig hypervisorConfig;
   }) openMacvtapFds macvtapFds;

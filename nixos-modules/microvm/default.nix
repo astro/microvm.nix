@@ -2,7 +2,7 @@
 
 let
   microvm-lib = import ../../lib {
-    nixpkgs-lib = lib;
+    inherit lib;
   };
 
 in

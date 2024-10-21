@@ -41,7 +41,7 @@ let
   inherit (microvmConfig) hostName cpu vcpu mem balloonMem user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
   inherit (microvmConfig.qemu) machine extraArgs serialConsole;
 
-  inherit (import ../. { nixpkgs-lib = pkgs.lib; }) withDriveLetters;
+  inherit (import ../. { inherit (pkgs) lib; }) withDriveLetters;
 
   volumes = withDriveLetters microvmConfig;
 
@@ -64,7 +64,7 @@ let
 
   accel =
     if microvmConfig.cpu == null
-    then "kvm:tcg"
+    then "kvm"
     else "tcg";
 
   # PCI required by vfio-pci for PCI passthrough

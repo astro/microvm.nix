@@ -1,4 +1,4 @@
-{ nixpkgs-lib }:
+{ lib }:
 rec {
   hypervisors = [
     "qemu"
@@ -25,8 +25,8 @@ rec {
       fst // {
         letter = snd;
       }
-    ) (nixpkgs-lib.zipLists volumes (
-      nixpkgs-lib.drop offset nixpkgs-lib.strings.lowerChars
+    ) (lib.zipLists volumes (
+      lib.drop offset lib.strings.lowerChars
     ));
 
   createVolumesScript = pkgs: pkgs.lib.concatMapStringsSep "\n" (
@@ -52,9 +52,9 @@ rec {
              else "";
              mkfsExtraArgsString =
               if mkfsExtraArgs != null
-              then nixpkgs-lib.escapeShellArgs mkfsExtraArgs
+              then lib.escapeShellArgs mkfsExtraArgs
               else " ";
-      in (nixpkgs-lib.optionalString autoCreate ''
+      in (lib.optionalString autoCreate ''
       PATH=$PATH:${with pkgs.buildPackages; lib.makeBinPath [ coreutils util-linux e2fsprogs xfsprogs dosfstools btrfs-progs ]}
 
       if [ ! -e '${image}' ]; then
@@ -70,7 +70,6 @@ rec {
 
   makeMacvtap = { microvmConfig, hypervisorConfig }:
     import ./macvtap.nix {
-      inherit microvmConfig hypervisorConfig;
-      lib = nixpkgs-lib;
+      inherit microvmConfig hypervisorConfig lib;
     };
 }

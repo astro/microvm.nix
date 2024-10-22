@@ -1425,11 +1425,8 @@ at all, just set
 <code>systemd.services."microvm-tap-interfaces@%i.service".enable = false</code></p>
 <p><em>Type:</em>
 strings concatenated with “\n”</p>
-<p><em>Default:</em></p>
-<pre><code>''
-  /nix/store/f6n5dhi23iii79004m36p7h5bkh578v3-iproute2-6.10.0/bin/ip link set "$id" up
-''
-</code></pre>
+<p><em>Default:</em>
+<code>"''/nix/store/f6n5dhi23iii79004m36p7h5bkh578v3-iproute2-6.10.0/bin/ip link set \"$id\" up"</code></p>
 <p><em>Example:</em></p>
 <pre><code>''
   # Attach tap interface to bridge br0, and bring it up

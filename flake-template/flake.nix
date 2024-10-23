@@ -1,8 +1,15 @@
 {
   description = "NixOS in MicroVMs";
 
-  inputs.microvm.url = "github:astro/microvm.nix";
-  inputs.microvm.inputs.nixpkgs.follows = "nixpkgs";
+  nixConfig = {
+    extra-substituters = [ "https://microvm.cachix.org" ];
+    extra-trusted-public-keys = [ "microvm.cachix.org-1:oXnBc6hRE3eX5rSYdRyMYXnfzcCxC7yKPTbZXALsqys=" ];
+  };
+
+  inputs.microvm = {
+    url = "github:astro/microvm.nix";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
 
   outputs = { self, nixpkgs, microvm }:
     let

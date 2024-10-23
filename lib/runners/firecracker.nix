@@ -56,9 +56,7 @@ let
     vsock = null;
   };
 
-  configFile = pkgs.writeText "firecracker-${hostName}.json" (
-    builtins.toJSON config
-  );
+  configFile = pkgs.writers.writeJSON "firecracker-${hostName}.json" config;
 
 in {
   command =

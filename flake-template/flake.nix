@@ -35,7 +35,7 @@
                   size = 256;
                 } ];
                 shares = [ {
-                  # use "virtiofs" for MicroVMs that are started by systemd
+                  # use proto = "virtiofs" for MicroVMs that are started by systemd
                   proto = "9p";
                   tag = "ro-store";
                   # a host's /nix/store will be picked up so that no
@@ -44,6 +44,7 @@
                   mountPoint = "/nix/.ro-store";
                 } ];
 
+                # "qemu" has 9p built-in!
                 hypervisor = "qemu";
                 socket = "control.socket";
               };

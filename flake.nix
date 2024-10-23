@@ -111,7 +111,8 @@
                 crosvm-example
                 kvmtool-example
                 stratovirt-example
-                # alioth-example
+                alioth-example
+                openvmm-example
                 virtiofsd
               ];
               pathsToLink = [ "/" ];
@@ -173,6 +174,8 @@
               "qemu"
               # currently broken:
               # "crosvm"
+              # not implemented:
+              # "openvmm"
             ];
             hypervisorsWithUserNet = [ "qemu" "kvmtool" ];
             makeExample = { system, hypervisor, config ? {} }:

@@ -171,37 +171,5 @@
         This includes declarative `config.microvm.vms` as well as MicroVMs that are managed through the `microvm` command.
       '';
     };
-
-    virtiofsd.inodeFileHandles = mkOption {
-      type = with types; nullOr (enum [
-        "never" "prefer" "mandatory"
-      ]);
-      default = null;
-      description = ''
-        When to use file handles to reference inodes instead of O_PATH file descriptors
-        (never, prefer, mandatory)
-
-        Allows you to overwrite default behavior in case you hit "too
-        many open files" on eg. ZFS.
-        <https://gitlab.com/virtio-fs/virtiofsd/-/issues/121>
-      '';
-    };
-
-    virtiofsd.threadPoolSize = mkOption {
-      type = with types; oneOf [ str ints.unsigned ];
-      default = "`nproc`";
-      description = ''
-        The amounts of threads virtiofsd should spawn. This option also takes the special
-        string `\`nproc\`` which spawns as many threads as the host has cores.
-      '';
-    };
-
-    virtiofsd.extraArgs = mkOption {
-      type = with types; listOf str;
-      default = [];
-      description = ''
-        Extra command-line switch to pass to virtiofsd.
-      '';
-    };
   };
 }

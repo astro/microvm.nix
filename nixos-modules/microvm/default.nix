@@ -15,6 +15,7 @@ in
     ./asserts.nix
     ./system.nix
     ./mounts.nix
+    ./virtiofsd
     ./graphics.nix
     ./optimization.nix
     ./ssh-deploy.nix

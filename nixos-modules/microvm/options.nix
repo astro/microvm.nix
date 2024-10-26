@@ -472,6 +472,38 @@ in
       '';
     };
 
+    virtiofsd.inodeFileHandles = mkOption {
+      type = with types; nullOr (enum [
+        "never" "prefer" "mandatory"
+      ]);
+      default = null;
+      description = ''
+        When to use file handles to reference inodes instead of O_PATH file descriptors
+        (never, prefer, mandatory)
+
+        Allows you to overwrite default behavior in case you hit "too
+        many open files" on eg. ZFS.
+        <https://gitlab.com/virtio-fs/virtiofsd/-/issues/121>
+      '';
+    };
+
+    virtiofsd.threadPoolSize = mkOption {
+      type = with types; oneOf [ str ints.unsigned ];
+      default = "`nproc`";
+      description = ''
+        The amounts of threads virtiofsd should spawn. This option also takes the special
+        string `\`nproc\`` which spawns as many threads as the host has cores.
+      '';
+    };
+
+    virtiofsd.extraArgs = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = ''
+        Extra command-line switch to pass to virtiofsd.
+      '';
+    };
+
     runner = mkOption {
       description = "Generated Hypervisor runner for this NixOS";
       type = with types; attrsOf package;
@@ -482,6 +514,26 @@ in
       type = types.package;
       default = config.microvm.runner.${config.microvm.hypervisor};
       defaultText = literalExpression ''"config.microvm.runner.''${config.microvm.hypervisor}"'';
+    };
+
+    virtiofsdScripts = {
+      run = mkOption {
+        description = "Generated script to run required virtiofsd instances";
+        type = with types; nullOr package;
+        default = null;
+      };
+      reload = mkOption {
+        description = ''
+          Generated script to reload the supervisor configuration that runs the virtiofsd instances
+        '';
+        type = with types; nullOr package;
+        default = null;
+      };
+      shutdown = mkOption {
+        description = "Generated script to stop the virtiofsd instances";
+        type = with types; nullOr package;
+        default = null;
+      };
     };
   };
 

@@ -17,7 +17,7 @@ in {
     else builtins.concatStringsSep " " (
       [
         "${pkgs.alioth}/bin/alioth" "run"
-        "--mem-size" "${toString mem}M"
+        "--memory" "size=${toString mem}M,backend=memfd"
         "--num-cpu" (toString vcpu)
         "-k" (lib.escapeShellArg "${kernel}/${pkgs.stdenv.hostPlatform.linux-kernel.target}")
         "-i" initrdPath
@@ -43,7 +43,7 @@ in {
       builtins.concatMap ({ type, id, mac, ... }:
         if type == "tap"
         then [
-          "--net" (lib.escapeShellArg "if_name=${id},mac=${mac},queue_pairs=${toString vcpu}")
+          "--net" (lib.escapeShellArg "if_name=${id},mac=${mac},queue_pairs=${toString vcpu},mtu=1500")
         ]
         else throw "interface type ${type} is not supported by alioth"
       ) interfaces

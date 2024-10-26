@@ -81,29 +81,29 @@ let
         };
       }) ];
     } ]
-    # rw-store
-    [ {
-      # none
-      id = null;
-    } {
-      # overlay volume
-      id = "overlay";
-      modules = [ ({ config, ... }: {
-        microvm = {
-          writableStoreOverlay = "/nix/.rw-store";
-          volumes = [ {
-            image = "nix-store-overlay.img";
-          label = "nix-store";
-            mountPoint = config.microvm.writableStoreOverlay;
-            size = 128;
-          } ];
-          testing.enableTest = builtins.elem config.microvm.hypervisor [
-            # Known good
-            "qemu" "cloud-hypervisor" "firecracker"
-          ];
-        };
-      }) ];
-    } ]
+    # # rw-store
+    # [ {
+    #   # none
+    #   id = null;
+    # } {
+    #   # overlay volume
+    #   id = "overlay";
+    #   modules = [ ({ config, ... }: {
+    #     microvm = {
+    #       writableStoreOverlay = "/nix/.rw-store";
+    #       volumes = [ {
+    #         image = "nix-store-overlay.img";
+    #       label = "nix-store";
+    #         mountPoint = config.microvm.writableStoreOverlay;
+    #         size = 128;
+    #       } ];
+    #       testing.enableTest = builtins.elem config.microvm.hypervisor [
+    #         # Known good
+    #         "qemu" "cloud-hypervisor" "firecracker"
+    #       ];
+    #     };
+    #   }) ];
+    # } ]
     # boot.systemd
     [ {
       # no

@@ -125,9 +125,9 @@ let
     } ]
     # hardened profile
     [ {
-      # no
-      id = null;
-    } {
+    #   # no
+    #   id = null;
+    # } {
       id = "hardened";
       modules = [ ({ modulesPath, ... }: {
         imports = [ "${modulesPath}/profiles/hardened.nix" ];

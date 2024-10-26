@@ -15,8 +15,7 @@ def write_stderr(s):
 
 def main():
     count = 0
-    with open('/tmp/virtiofsd_count') as f:
-        expected_count = int(f.read())
+    expected_count = @virtiofsdCount@
 
     while True:
         write_stdout('READY\n')

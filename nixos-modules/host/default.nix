@@ -250,68 +250,41 @@ in
         '';
       };
 
-      "microvm-virtiofsd@" = let
-        inherit (pkgs.python3Packages) supervisor;
-      in rec {
-        description = "VirtioFS daemons for MicroVM '%i'";
-        before = [ "microvm@%i.service" ];
-        after = [ "local-fs.target" ];
-        partOf = [ "microvm@%i.service" ];
-        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/virtiofs";
-        restartIfChanged = false;
-        serviceConfig = {
-          ExecReload = "${lib.getExe' supervisor "supervisorctl"} reload";
-          ExecStop = "${lib.getExe' supervisor "supervisorctl"} shutdown";
-          LimitNOFILE = 1048576;
-          NotifyAccess = "all";
-          PrivateTmp = "yes";
-          Restart = "always";
-          RestartSec = "5s";
-          SyslogIdentifier = "microvm-virtiofsd@%i";
-          Type = "notify";
-          WorkingDirectory = "${stateDir}/%i";
+      "microvm-virtiofsd@" =
+        let
+          runFromBootedOrCurrent = pkgs.writeShellScript "microvm-runFromBootedOrCurrent" ''
+            NAME="$1"
+            VM="$2"
+            cd "${stateDir}/$VM"
+
+            if [ -e booted ]; then
+              exec booted/bin/$NAME
+            else
+              exec current/bin/$NAME
+            fi
+          '';
+
+        in {
+          description = "VirtioFS daemons for MicroVM '%i'";
+          before = [ "microvm@%i.service" ];
+          after = [ "local-fs.target" ];
+          partOf = [ "microvm@%i.service" ];
+          unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/virtiofsd-run";
+          restartIfChanged = false;
+          serviceConfig = {
+            WorkingDirectory = "${stateDir}/%i";
+            ExecStart = "${stateDir}/%i/current/bin/virtiofsd-run";
+            ExecReload = "${runFromBootedOrCurrent} virtiofsd-reload %i";
+            ExecStop = "${runFromBootedOrCurrent} virtiofsd-shutdown %i";
+            LimitNOFILE = 1048576;
+            NotifyAccess = "all";
+            PrivateTmp = "yes";
+            Restart = "always";
+            RestartSec = "5s";
+            SyslogIdentifier = "microvm-virtiofsd@%i";
+            Type = "notify";
+          };
         };
-        script = ''
-          echo "[supervisord]
-          nodaemon=true
-          user=root
-
-          [eventlistener:notify]
-          command=${pkgs.writers.writePython3 "supervisord-event-handler" { } (lib.readFile ./supervisord-event-handler.py)}
-          events=PROCESS_STATE
-          " > /tmp/supervisord.conf
-
-          virtiofsd_count=0
-
-          for d in $PWD/current/share/microvm/virtiofs/*; do
-            SOCKET="$(realpath "$(cat $d/socket)")"
-            SOURCE="$(cat $d/source)"
-            mkdir -p "$SOURCE"
-
-            group_programs+="virtiofsd-$(basename "$d"),"
-            virtiofsd_count=$((virtiofsd_count+1))
-
-            echo "[program:virtiofsd-$(basename "$d")]
-          stderr_syslog=true
-          stdout_syslog=true
-          command=${lib.getExe pkgs.virtiofsd} \
-          --socket-path=$SOCKET \
-          --socket-group=${config.users.users.microvm.group} \
-          --shared-dir=\"$SOURCE\" \
-          --rlimit-nofile ${toString serviceConfig.LimitNOFILE} \
-          --thread-pool-size ${toString config.microvm.virtiofsd.threadPoolSize} \
-          --posix-acl --xattr \
-          ${lib.optionalString (config.microvm.virtiofsd.inodeFileHandles != null)
-          "--inode-file-handles=${config.microvm.virtiofsd.inodeFileHandles}"
-          } \
-          ${lib.concatStringsSep " " config.microvm.virtiofsd.extraArgs}
-          " >> /tmp/supervisord.conf
-          done
-
-          echo -n $virtiofsd_count > /tmp/virtiofsd_count
-          exec ${lib.getExe' supervisor "supervisord"} --configuration /tmp/supervisord.conf
-        '';
-      };
 
       "microvm@" = {
         description = "MicroVM '%i'";

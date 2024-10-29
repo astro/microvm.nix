@@ -62,6 +62,7 @@ writeShellScriptBin "microvm" ''
   done
   # consume all $@ that were processed by getopts
   shift $((OPTIND -1))
+  NIX_ARGS=("$@")
   DIR=$STATE_DIR/$NAME
 
   build() {
@@ -74,7 +75,7 @@ writeShellScriptBin "microvm" ''
 
     FLAKE=$(cat flake)
 
-    nix build -o current "$FLAKE"#nixosConfigurations."$NAME".config.microvm.declaredRunner >/dev/null
+    nix build "''${NIX_ARGS[@]}" -o current "$FLAKE"#nixosConfigurations."$NAME".config.microvm.declaredRunner >/dev/null
     chmod -R u+rwX .
   }
 
@@ -82,7 +83,7 @@ writeShellScriptBin "microvm" ''
     help)
       echo Help:
       cat << EOF
-  Usage: $0 <action> [flags]
+  Usage: $0 <action> [flags] [-- <nix args>]
 
   Actions:
           -c <name>   Create a MicroVM

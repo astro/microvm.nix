@@ -279,5 +279,32 @@ in
 
     # Enable Kernel Same-Page Merging
     hardware.ksm.enable = lib.mkDefault true;
+
+    # TODO: remove in 2026
+    system.activationScripts.microvm-update-check = ''
+      if [ -d ${stateDir} ]; then
+        _outdated_microvms=""
+
+        for dir in ${stateDir}/*; do
+          if [ -e $dir/current/share/microvm/virtiofs ] &&
+             [ ! -e $dir/bin/virtiofsd-run ]; then
+            _outdated_microvms="$_outdated_microvms $(basename $dir)"
+          elif [ -e $dir/current/share/microvm/tap-interfaces ] &&
+             [ ! -e $dir/bin/tap-up ]; then
+            _outdated_microvms="$_outdated_microvms $(basename $dir)"
+          elif [ -e $dir/current/share/microvm/macvtap-interfaces ] &&
+             [ ! -e $dir/bin/macvtap-up ]; then
+            _outdated_microvms="$_outdated_microvms $(basename $dir)"
+          elif [ -e $dir/current/share/microvm/pci-devices ] &&
+             [ ! -e $dir/bin/pci-setup ]; then
+            _outdated_microvms="$_outdated_microvms $(basename $dir)"
+          fi
+        done
+
+        if [ "$_outdated_microvms" != "" ]; then
+          echo "The following MicroVMs must be updated to follow the new virtiofsd/tap/macvtap/pci setup scheme: $_outdated_microvms"
+        fi
+      fi
+    '';
   };
 }

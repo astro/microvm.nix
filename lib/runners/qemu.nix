@@ -11,7 +11,7 @@ let
       "--enable-libusb"
     ];
     buildInputs = oa.buildInputs ++ (with pkgs; [
-      libusb
+      libusb1
     ]);
   });
 

@@ -26,7 +26,11 @@ let
   useVirtiofs = builtins.any ({ proto, ... }: proto == "virtiofs") shares;
 
   # Transform attrs to parameters in form of `key1=value1,key2=value2,[...]`
-  opsMapped = ops: lib.concatStringsSep "," (lib.mapAttrsToList (k: v: "${k}=${v}") ops);
+  opsMapped = ops: lib.concatStringsSep "," (
+    lib.mapAttrsToList
+      (k: v: "${k}=${v}")
+      (lib.attrsets.filterAttrs (_: v: v != null) ops)
+  );
 
   # Attrs representing CHV mem options
   memOps = opsMapped ({
@@ -159,9 +163,14 @@ in {
           readonly = "on";
         } // mqOps))
         ++
-        map ({ image, ... }: (opsMapped ({
+        map ({ image, serial, direct, ... }: (opsMapped (({
+          inherit serial;
           path = toString image;
-        } // mqOps))) volumes
+          direct =
+            if direct == null then null
+            else if direct then "on"
+            else "off";
+        }) // mqOps))) volumes
       )
       ++
       arg "--fs" (map ({ proto, socket, tag, ... }:

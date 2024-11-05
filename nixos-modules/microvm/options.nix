@@ -185,6 +185,18 @@ in
             type = str;
             description = "Path to disk image on the host";
           };
+          serial = mkOption {
+            type = nullOr str;
+            default = null;
+            description = "User-configured serial number for the disk
+            (Currently only respected if using cloud-hypervisor)";
+          };
+          direct = mkOption {
+            type = nullOr bool;
+            default = null;
+            description = "Whether to set O_DIRECT on the disk.
+            (Currently only respected if using cloud-hypervisor)";
+          };
           label = mkOption {
             type = nullOr str;
             default = null;

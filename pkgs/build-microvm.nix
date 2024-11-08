@@ -1,7 +1,7 @@
 # Builds a MicroVM from a flake but takes the hypervisor from the
 # local pkgs not from the target flake.
 { self
-, lib, targetPlatform
+, lib, stdenv
 , writeShellScriptBin
 , coreutils, git, nix
 }:
@@ -23,7 +23,7 @@ writeShellScriptBin "build-microvm" ''
   # --impure so that we can getFlake /nix/store/...
   exec nix build "''${ARGS[@]}" --impure --expr "let
     self = builtins.getFlake \"${self}\";
-    pkgs = self.inputs.nixpkgs.legacyPackages.${targetPlatform.system};
+    pkgs = self.inputs.nixpkgs.legacyPackages.${stdenv.targetPlatform.system};
     flake = builtins.getFlake \"$FLAKE\";
     # The imported NixOS system
     original = flake.nixosConfigurations.\"$NAME\";

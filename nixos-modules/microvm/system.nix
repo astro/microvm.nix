@@ -19,7 +19,7 @@
       "9p"
       "virtiofs"
     ] ++ lib.optionals (
-      pkgs.targetPlatform.system == "x86_64-linux" &&
+      pkgs.stdenv.targetPlatform.system == "x86_64-linux" &&
       config.microvm.hypervisor == "firecracker"
     ) [
       # Keyboard controller that can receive CtrlAltDel

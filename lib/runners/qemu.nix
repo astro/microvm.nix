@@ -208,8 +208,16 @@ lib.warnIf (mem == 2048) ''
     lib.optionals (user != null) [ "-user" user ] ++
     lib.optionals (socket != null) [ "-qmp" "unix:${socket},server,nowait" ] ++
     lib.optionals (balloonMem > 0) [ "-device" "virtio-balloon" ] ++
-    builtins.concatMap ({ image, letter, ... }:
-      [ "-drive" "id=vd${letter},format=raw,file=${image},if=none,aio=io_uring,discard=unmap" "-device" "virtio-blk-${devType},drive=vd${letter}" ]
+    builtins.concatMap ({ image, letter, serial, direct, ... }:
+      [ "-drive"
+        "id=vd${letter},format=raw,file=${image},if=none,aio=io_uring,discard=unmap${
+          lib.optionalString (direct != null) ",cache=none"
+        }"
+        "-device"
+        "virtio-blk-${devType},drive=vd${letter}${
+          lib.optionalString (serial != null) ",serial=${serial}"
+        }"
+      ]
     ) volumes ++
     lib.optionals (shares != []) (
       [

@@ -27,9 +27,9 @@ let
 
   # Transform attrs to parameters in form of `key1=value1,key2=value2,[...]`
   opsMapped = ops: lib.concatStringsSep "," (
-    lib.mapAttrsToList
-      (k: v: "${k}=${v}")
-      (lib.attrsets.filterAttrs (_: v: v != null) ops)
+    lib.mapAttrsToList (k: v:
+      "${k}=${v}"
+    ) ops
   );
 
   # Attrs representing CHV mem options
@@ -163,14 +163,21 @@ in {
           readonly = "on";
         } // mqOps))
         ++
-        map ({ image, serial, direct, ... }: (opsMapped (({
-          inherit serial;
-          path = toString image;
-          direct =
-            if direct == null then null
-            else if direct then "on"
-            else "off";
-        }) // mqOps))) volumes
+        map ({ image, serial, direct, ... }:
+          opsMapped (
+            {
+              path = toString image;
+              direct =
+                if direct == null then null
+                else if direct then "on"
+                else "off";
+            } //
+            lib.optionalAttrs (serial != null) {
+              inherit serial;
+            } //
+            mqOps
+          )
+        ) volumes
       )
       ++
       arg "--fs" (map ({ proto, socket, tag, ... }:

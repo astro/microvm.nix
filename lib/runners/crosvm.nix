@@ -92,8 +92,14 @@ in {
         "-s" socket
       ]
       ++
-      builtins.concatMap ({ image, ... }:
-        [ "--rwdisk" image ]
+      builtins.concatMap ({ image, direct, serial, ... }:
+        [ "--block"
+          "${image},o_direct=${
+            if direct then "true" else "false"
+          }${
+            lib.optionalString (serial != null) ",id=${serial}"
+          }"
+        ]
       ) volumes
       ++
       builtins.concatMap ({ proto, tag, source, ... }:

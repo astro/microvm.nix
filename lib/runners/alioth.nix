@@ -29,7 +29,13 @@ in {
         "--blk" (lib.escapeShellArg "path=${storeDisk},readonly=true")
       ]
       ++
-      builtins.concatMap ({ image, ... }:
+      builtins.concatMap ({ image, serial, direct, ... }:
+        lib.warnIf (serial != null) ''
+          Volume serial is not supported for alioth
+        ''
+        lib.warnIf direct ''
+          Volume direct IO is not supported for alioth
+        ''
         [ "--blk" (lib.escapeShellArg image) ]
       ) volumes
       ++

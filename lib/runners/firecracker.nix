@@ -37,13 +37,19 @@ let
       is_root_device = false;
       is_read_only = true;
       io_engine = "Async";
-    } ] ++ map ({ image, ... }: {
-      drive_id = image;
-      path_on_host = image;
-      is_root_device = false;
-      is_read_only = false;
-      io_engine = "Async";
-    }) volumes;
+    } ] ++ map ({ image, serial, direct, ... }:
+      lib.warnIf (serial != null) ''
+        Volume serial is not supported for firecracker
+      ''
+      lib.warnIf direct ''
+        Volume direct IO is not supported for firecracker
+      '' {
+        drive_id = image;
+        path_on_host = image;
+        is_root_device = false;
+        is_read_only = false;
+        io_engine = "Async";
+      }) volumes;
     network-interfaces = map ({ type, id, mac, ... }:
       if type == "tap"
       then {

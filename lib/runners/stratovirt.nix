@@ -89,9 +89,11 @@ in {
       "-device" "virtio-blk-${devType 2},drive=store,id=blk_store"
     ] ++
     lib.optionals (socket != null) [ "-qmp" "unix:${socket},server,nowait" ] ++
-    builtins.concatMap ({ image, letter, ... }: [
-      "-drive" "id=vd${letter},format=raw,file=${image},aio=io_uring,direct=false"
-      "-device" "virtio-blk-${devType 4},drive=vd${letter},id=blk_vd${letter}"
+    builtins.concatMap ({ image, letter, serial, direct, ... }: [
+      "-drive" "id=vd${letter},format=raw,file=${image},aio=io_uring,direct=${if direct then "on" else "off"}"
+      "-device" "virtio-blk-${devType 4},drive=vd${letter},id=blk_vd${letter}${
+        lib.optionalString (serial != null) ",serial=${serial}"
+      }"
     ]) volumes ++
     lib.optionals (shares != []) (
       builtins.concatMap ({ proto, index, socket, source, tag, ... }: {

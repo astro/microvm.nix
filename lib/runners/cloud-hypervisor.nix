@@ -89,9 +89,7 @@ let
     vulkan = true;
   };
 
-  # systemd>=256 hangs at stage-2 on notifying X_SYSTEMD_HOSTNAME
-  supportsNotifySocket =
-    builtins.compareVersions pkgs.systemd.version "256" < 0;
+  supportsNotifySocket = true;
 
 in {
   inherit tapMultiQueue;
@@ -110,7 +108,9 @@ in {
 
     # Start socat to forward systemd notify socket over vsock
     if [ -n "$NOTIFY_SOCKET" ]; then
-      ${pkgs.socat}/bin/socat UNIX-LISTEN:notify.vsock_8888,fork UNIX-SENDTO:$NOTIFY_SOCKET &
+      # -T2 is required because cloud-hypervisor does not handle partial
+      # shutdown of the stream, like systemd v256+ does.
+      ${pkgs.socat}/bin/socat -T2 UNIX-LISTEN:notify.vsock_8888,fork UNIX-SENDTO:$NOTIFY_SOCKET &
     fi
   '' + lib.optionalString graphics.enable ''
     rm -f ${graphics.socket}

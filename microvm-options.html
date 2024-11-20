@@ -724,6 +724,17 @@ boolean</p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
 </ul>
+<h2 id="microvmvolumesdirect"><a class="header" href="#microvmvolumesdirect">microvm.volumes.*.direct</a></h2>
+<p>Whether to set O_DIRECT on the disk.
+(Currently only respected if using cloud-hypervisor)</p>
+<p><em>Type:</em>
+null or boolean</p>
+<p><em>Default:</em>
+<code>null</code></p>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
 <h2 id="microvmvolumesfstype"><a class="header" href="#microvmvolumesfstype">microvm.volumes.*.fsType</a></h2>
 <p>Filesystem for automatic creation and mounting</p>
 <p><em>Type:</em>
@@ -766,6 +777,17 @@ list of string</p>
 <p>If and where to mount the volume inside the container</p>
 <p><em>Type:</em>
 null or path</p>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
+<h2 id="microvmvolumesserial"><a class="header" href="#microvmvolumesserial">microvm.volumes.*.serial</a></h2>
+<p>User-configured serial number for the disk
+(Currently only respected if using cloud-hypervisor)</p>
+<p><em>Type:</em>
+null or string</p>
+<p><em>Default:</em>
+<code>null</code></p>
 <p><em>Declared by:</em></p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>

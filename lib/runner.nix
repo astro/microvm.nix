@@ -24,6 +24,7 @@ let
     ''-a "microvm@${microvmConfig.hostName}"'';
 
   runScriptBin = pkgs.writeShellScriptBin "microvm-run" ''
+    set -eou pipefail
     ${preStart}
     ${createVolumesScript pkgs.buildPackages microvmConfig.volumes}
     ${lib.optionalString (hypervisorConfig.requiresMacvtapAsFds or false) openMacvtapFds}

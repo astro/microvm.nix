@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Deploy via SSH - microvm.nix</title>
+        <title>Device pass-through - microvm.nix</title>
 
 
         <!-- Custom HTML head -->
@@ -89,7 +89,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="devices.html"><strong aria-hidden="true">2.4.</strong> Device pass-through</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.5.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.6.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.7.</strong> MicroVM options reference ⚙️</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference ⚙️</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html" class="active"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="devices.html" class="active"><strong aria-hidden="true">2.4.</strong> Device pass-through</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.5.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.6.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.7.</strong> MicroVM options reference ⚙️</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference ⚙️</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -174,75 +174,55 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="deploying-via-ssh"><a class="header" href="#deploying-via-ssh">Deploying via SSH</a></h1>
-<p>By running either from packages or through systemd services
-microvm.nix tries to support a wholesome Nix workflow: develop and
-test on your local laptop, then deploy to staging and later to
-production.</p>
-<p>Let's explore alternative ways before detailing our elaboration:</p>
-<ul>
-<li>You could build
-<code>.#nixosConfiguration.my-microvm.config.microvm.declaredRunner</code>
-locally, then <code>nix copy</code> it to the target host for
-installation. This comes at the expense of your laptop's battery
-time and it can also become quite network-heavy.</li>
-<li>You may transfer each change to the remote host to build entirely
-remote. There you're going to have a repository state that is going
-to confuse fellow operators. Also, your local <code>--override-input</code>
-parameters will become meaningless on the remote filesystem.</li>
-</ul>
-<h2 id="microvmdeployrebuild"><a class="header" href="#microvmdeployrebuild">microvm.deploy.rebuild</a></h2>
-<p>The <em>easy</em> interface that is named after <code>nixos-rebuild</code> combines the
-two scripts that are described below:</p>
-<ul>
-<li>First, we evaluate locally and build remotely with
-<code>microvm.deploy.installOnHost</code></li>
-<li>Depending on whether the host's <code>/nix/store</code> is mounted and SSH is
-running in the MicroVM:
-<ul>
-<li>We either run <code>microvm.deploy.sshSwitch</code> as described below</li>
-<li>Alternatively, we restart the MicroVM's systemd service on the
-host</li>
-</ul>
-</li>
-</ul>
-<p>Because it needs to know about both the host and the MicroVM, these
-ssh addresses must come before the actual <code>switch</code> argument:</p>
-<pre><code>nix run .#nixosConfigurations.my-microvm.config.microvm.deploy.rebuild root@example.com root@my-microvm.example.com switch
+                        <h1 id="device-pass-through"><a class="header" href="#device-pass-through">Device pass-through</a></h1>
+<p>PCI and USB pass-through is supported on some hypervisors. Permission
+setup is automatic for declared <code>"pci'</code> devices, but manual for
+<code>"usb"</code> devices.</p>
+<h2 id="example-pci-pass-through"><a class="header" href="#example-pci-pass-through">Example PCI pass-through</a></h2>
+<p>Guest example:</p>
+<pre><code class="language-nix">microvm.devices = [ {
+  bus = "pci";
+  path = "0000:06:00.1";
+} {
+  bus = "pci";
+  path = "0000:06:10.4";
+} ];
 </code></pre>
-<h2 id="microvmdeployinstallonhost"><a class="header" href="#microvmdeployinstallonhost">microvm.deploy.installOnHost</a></h2>
-<p>This script will evaluate only the system's derivations locally. It
-then transfers these and their dependencies to the remote system so
-the actual build can be performed there.</p>
-<p>Just like <a href="microvm-command.html">the microvm command</a>, it then installs
-the MicroVM under <code>/var/lib/microvms/$NAME</code> so that the systemd
-services of the <code>host</code> module can pick it up.</p>
-<p>It is irrelevant whether you create a new MicroVM or update an
-existing one.</p>
-<h2 id="microvmdeploysshswitch"><a class="header" href="#microvmdeploysshswitch">microvm.deploy.sshSwitch</a></h2>
-<p>Once the host has an updated MicroVM in its <code>/nix/store</code> (see above)
-the new system must be activated. For a proper state, this script does
-a bit more in the MicroVM than just <code>switch-to-configuration</code>:</p>
-<ul>
-<li>First, the <code>config.networking.hostName</code> is compared to the running
-system for safety reasons.</li>
-<li>The Nix database registration will be imported which is important if
-you build packages into a <code>microvm.writableStoreOverlay</code>.</li>
-<li>The new system is installed into <code>/nix/var/nix/profiles/system</code>
-which is optional but expected by some Nix tooling.</li>
-<li>Finally, run <code>switch-to-configuration</code> with the provided parameter
-(eg. <code>switch</code>).</li>
-</ul>
+<p>Permission setup on the host is provided by systemd template unit
+<code>microvm-pci-devices@.service</code>.</p>
+<h2 id="example-usb-pass-through"><a class="header" href="#example-usb-pass-through">Example USB pass-through</a></h2>
+<h3 id="in-the-guest"><a class="header" href="#in-the-guest">In the guest</a></h3>
+<pre><code class="language-nix">microvm.devices = [
+  # RTL2838UHIDIR
+  # Realtek Semiconductor Corp. RTL2838 DVB-T
+  { bus = "usb"; path = "vendorid=0x0bda,productid=0x2838"; }
+  # Sonoff Zigbee 3.0 USB Dongle Plus
+  # Silicon Labs CP210x UART Bridge
+  { bus = "usb"; path = "vendorid=0x10c4,productid=0xea60"; }
+];
+</code></pre>
+<h3 id="on-the-host"><a class="header" href="#on-the-host">On the host</a></h3>
+<p>USB device paths are not directly translatable to udev rules. Setup
+permissions yourself:</p>
+<pre><code class="language-nix">services.udev.extraRules = ''
+  # RTL2838UHIDIR
+  # Realtek Semiconductor Corp. RTL2838 DVB-T
+  SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="2838", GROUP="kvm"
+  # Sonoff Zigbee 3.0 USB Dongle Plus
+  # Silicon Labs CP210x UART Bridge
+  SUBSYSTEM=="usb", ATTR{idVendor}=="10c4", ATTR{idProduct}=="ea60", GROUP="kvm"
+'';
+</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="microvm-command.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="shares.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="conventions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="cpu-emulation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -252,11 +232,11 @@ which is optional but expected by some Nix tooling.</li>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="microvm-command.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="shares.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="conventions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="cpu-emulation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

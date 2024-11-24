@@ -90,7 +90,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.4.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.5.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.6.</strong> MicroVM options reference ⚙️</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference ⚙️</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="devices.html"><strong aria-hidden="true">2.4.</strong> Device pass-through</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.5.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.6.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.7.</strong> MicroVM options reference ⚙️</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference ⚙️</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -380,6 +380,45 @@ reboot, containing only what is needed for the VM's NixOS
 system. Until this has been solved, it is recommended to just delete
 and recreate the overlay after MicroVM shutdown or before startup.
 </div>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="device-pass-through"><a class="header" href="#device-pass-through">Device pass-through</a></h1>
+<p>PCI and USB pass-through is supported on some hypervisors. Permission
+setup is automatic for declared <code>"pci'</code> devices, but manual for
+<code>"usb"</code> devices.</p>
+<h2 id="example-pci-pass-through"><a class="header" href="#example-pci-pass-through">Example PCI pass-through</a></h2>
+<p>Guest example:</p>
+<pre><code class="language-nix">microvm.devices = [ {
+  bus = "pci";
+  path = "0000:06:00.1";
+} {
+  bus = "pci";
+  path = "0000:06:10.4";
+} ];
+</code></pre>
+<p>Permission setup on the host is provided by systemd template unit
+<code>microvm-pci-devices@.service</code>.</p>
+<h2 id="example-usb-pass-through"><a class="header" href="#example-usb-pass-through">Example USB pass-through</a></h2>
+<h3 id="in-the-guest"><a class="header" href="#in-the-guest">In the guest</a></h3>
+<pre><code class="language-nix">microvm.devices = [
+  # RTL2838UHIDIR
+  # Realtek Semiconductor Corp. RTL2838 DVB-T
+  { bus = "usb"; path = "vendorid=0x0bda,productid=0x2838"; }
+  # Sonoff Zigbee 3.0 USB Dongle Plus
+  # Silicon Labs CP210x UART Bridge
+  { bus = "usb"; path = "vendorid=0x10c4,productid=0xea60"; }
+];
+</code></pre>
+<h3 id="on-the-host"><a class="header" href="#on-the-host">On the host</a></h3>
+<p>USB device paths are not directly translatable to udev rules. Setup
+permissions yourself:</p>
+<pre><code class="language-nix">services.udev.extraRules = ''
+  # RTL2838UHIDIR
+  # Realtek Semiconductor Corp. RTL2838 DVB-T
+  SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="2838", GROUP="kvm"
+  # Sonoff Zigbee 3.0 USB Dongle Plus
+  # Silicon Labs CP210x UART Bridge
+  SUBSYSTEM=="usb", ATTR{idVendor}=="10c4", ATTR{idProduct}=="ea60", GROUP="kvm"
+'';
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="cpu-emulation"><a class="header" href="#cpu-emulation">CPU emulation</a></h1>
 <p>It's possible to emulate a CPU if desired. This feature is only
 supported by the qemu hypervisor.</p>
@@ -1826,6 +1865,13 @@ above.</p>
 <p><a href="https://github.com/astro/microvm-solo5-spt">microvm-solo5-spt</a> is an
 example of a Flake that can run on a microvm.nix host.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="frequently-asked-questions"><a class="header" href="#frequently-asked-questions">Frequently Asked Questions</a></h1>
+<h2 id="are-there-elaborate-example-setups"><a class="header" href="#are-there-elaborate-example-setups">Are there elaborate example setups?</a></h2>
+<p>microvm.nix is used in these open-source infrastructure projects:</p>
+<ul>
+<li><a href="https://gitea.c3d2.de/c3d2/nix-config">C3D2 services</a></li>
+<li><a href="https://github.com/dd-ix/nix-config">DD-IX services</a></li>
+</ul>
+<p>Let us know if you know more!</p>
 <h2 id="can-i-support-the-development-and-maintenance-of-this-project"><a class="header" href="#can-i-support-the-development-and-maintenance-of-this-project">Can I support the development and maintenance of this project?</a></h2>
 <p><a href="https://github.com/sponsors/astro">❤ Sponsor</a></p>
 <h2 id="how-to-centralize-logging-with-journald"><a class="header" href="#how-to-centralize-logging-with-journald">How to centralize logging with journald?</a></h2>

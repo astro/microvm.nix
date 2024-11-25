@@ -247,16 +247,17 @@ list of (submodule)</p>
 <code>[ ]</code></p>
 <p><em>Example:</em></p>
 <pre><code>[ {
-        bus = "pci";
-        path = "0000:01:00.0";
-      } {
-        bus = "pci";
-        path = "0000:01:01.0";
-      } {
-        # QEMU only
-        bus = "usb";
-        path = "vendorid=0xabcd,productid=0x0123";
-      } ]
+  bus = "pci";
+  path = "0000:01:00.0";
+} {
+  bus = "pci";
+  path = "0000:01:01.0";
+} {
+  # QEMU only
+  bus = "usb";
+  path = "vendorid=0xabcd,productid=0x0123";
+} ]
+
 </code></pre>
 <p><em>Declared by:</em></p>
 <ul>

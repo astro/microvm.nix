@@ -203,13 +203,15 @@ at all, just set
 <code>systemd.services."microvm-tap-interfaces@%i.service".enable = false</code></p>
 <p><em>Type:</em>
 strings concatenated with “\n”</p>
-<p><em>Default:</em>
-<code>"''/nix/store/p6c92mx3kmnqcr482d16qqz67yqam72p-iproute2-6.10.0/bin/ip link set \"$id\" up"</code></p>
-<p><em>Example:</em></p>
+<p><em>Default:</em></p>
 <pre><code>''
-  # Attach tap interface to bridge br0, and bring it up
-  ''${pkgs.iproute2}/bin/ip link set "$id" master br0 up
+  /nix/store/p6c92mx3kmnqcr482d16qqz67yqam72p-iproute2-6.10.0/bin/ip link set "$id" up
 ''
+</code></pre>
+<p><em>Example:</em></p>
+<pre><code># Attach tap interface to bridge br0, and bring it up
+"/nix/store/p6c92mx3kmnqcr482d16qqz67yqam72p-iproute2-6.10.0/bin/ip link set \"$id\" master br0 up"
+
 </code></pre>
 <p><em>Declared by:</em></p>
 <ul>

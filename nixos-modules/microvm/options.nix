@@ -187,14 +187,12 @@ in
           serial = mkOption {
             type = nullOr str;
             default = null;
-            description = "User-configured serial number for the disk
-            (Currently only respected if using cloud-hypervisor)";
+            description = "User-configured serial number for the disk";
           };
           direct = mkOption {
-            type = nullOr bool;
-            default = null;
-            description = "Whether to set O_DIRECT on the disk.
-            (Currently only respected if using cloud-hypervisor)";
+            type = bool;
+            default = false;
+            description = "Whether to set O_DIRECT on the disk.";
           };
           label = mkOption {
             type = nullOr str;

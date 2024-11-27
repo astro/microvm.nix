@@ -13,8 +13,8 @@ let
 
 in
 {
-  microvm.virtiofsdScripts = lib.mkIf requiresVirtiofsd {
-    run =
+  microvm.binScripts = lib.mkIf requiresVirtiofsd {
+    virtiofsd-run =
       let
         supervisordConfig = pkgs.writeText "${config.networking.hostName}-virtiofsd-supervisord.conf" ''
           [supervisord]
@@ -54,15 +54,15 @@ in
               ''}
           '' ) virtiofsShares}
         '';
-      in pkgs.writeShellScriptBin "run-virtiofsd" ''
+      in ''
         exec ${supervisord} --configuration ${supervisordConfig}
       '';
 
-    reload = pkgs.writeShellScriptBin "reload-virtiofsd" ''
+    virtiofsd-reload = ''
       exec ${supervisorctl} reload
     '';
 
-    shutdown = pkgs.writeShellScriptBin "shutdown-virtiofsd" ''
+    virtiofsd-shutdown = ''
       exec ${supervisorctl} stop
     '';
   };

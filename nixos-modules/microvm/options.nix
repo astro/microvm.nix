@@ -6,19 +6,6 @@ let
 
   hostName = config.networking.hostName or "$HOSTNAME";
 
-  interfaceScriptOptions = type: with lib; {
-    up = mkOption {
-      description = "Generated script to create ${type} interfaces";
-      type = with types; nullOr package;
-      default = null;
-    };
-    down = mkOption {
-      description = "Generated script to delete ${type} interfaces";
-      type = with types; nullOr package;
-      default = null;
-    };
-  };
-
 in
 {
   options.microvm = with lib; {
@@ -527,29 +514,14 @@ in
       defaultText = literalExpression ''"config.microvm.runner.''${config.microvm.hypervisor}"'';
     };
 
-    # TODO: just scripts
-    virtiofsdScripts = {
-      run = mkOption {
-        description = "Generated script to run required virtiofsd instances";
-        type = with types; nullOr package;
-        default = null;
-      };
-      reload = mkOption {
-        description = ''
-          Generated script to reload the supervisor configuration that runs the virtiofsd instances
-        '';
-        type = with types; nullOr package;
-        default = null;
-      };
-      shutdown = mkOption {
-        description = "Generated script to stop the virtiofsd instances";
-        type = with types; nullOr package;
-        default = null;
-      };
+    # TODO: microvm-* as well?
+    binScripts = mkOption {
+      description = ''
+        Script snippets that end up in the runner package's bin/ directory
+      '';
+      default = {};
+      type = with types; attrsOf lines;
     };
-
-    tapScripts = interfaceScriptOptions "tap";
-    macvtapScripts = interfaceScriptOptions "macvtap";
   };
 
   config = lib.mkMerge [ {

@@ -6,7 +6,7 @@
 let
   inherit (pkgs) lib;
 
-  inherit (microvmConfig) virtiofsdScripts;
+  inherit (microvmConfig) virtiofsdScripts tapScripts macvtapScripts;
 
   inherit (import ./. { inherit lib; }) createVolumesScript makeMacvtap;
   inherit (makeMacvtap {
@@ -58,6 +58,7 @@ pkgs.buildPackages.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConf
   passthru = {
     inherit canShutdown supportsNotifySocket tapMultiQueue;
     inherit (microvmConfig) hypervisor;
+    inherit (hypervisorConfig) tapMultiQueue;
   };
 } ''
   mkdir -p $out/bin
@@ -78,6 +79,18 @@ pkgs.buildPackages.runCommand "microvm-${microvmConfig.hypervisor}-${microvmConf
   ''}
   ${lib.optionalString (virtiofsdScripts.shutdown != null) ''
     ln -s ${lib.getExe virtiofsdScripts.shutdown} $out/bin/virtiofsd-shutdown
+  ''}
+  ${lib.optionalString (tapScripts.up != null) ''
+    ln -s ${lib.getExe tapScripts.up} $out/bin/tap-up
+  ''}
+  ${lib.optionalString (tapScripts.down != null) ''
+    ln -s ${lib.getExe tapScripts.down} $out/bin/tap-down
+  ''}
+  ${lib.optionalString (macvtapScripts.up != null) ''
+    ln -s ${lib.getExe macvtapScripts.up} $out/bin/macvtap-up
+  ''}
+  ${lib.optionalString (macvtapScripts.down != null) ''
+    ln -s ${lib.getExe macvtapScripts.down} $out/bin/macvtap-down
   ''}
 
   mkdir -p $out/share/microvm

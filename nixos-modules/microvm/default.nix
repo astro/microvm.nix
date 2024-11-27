@@ -15,6 +15,7 @@ in
     ./asserts.nix
     ./system.nix
     ./mounts.nix
+    ./interfaces.nix
     ./virtiofsd
     ./graphics.nix
     ./optimization.nix

@@ -130,82 +130,30 @@ in
         description = "Setup MicroVM '%i' TAP interfaces";
         before = [ "microvm@%i.service" ];
         partOf = [ "microvm@%i.service" ];
-        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/tap-interfaces";
+        unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/tap-up";
         restartIfChanged = false;
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
-          ExecStop =
-            let
-              stopScript = pkgs.writeShellScript "stop-microvm-tap-interfaces" ''
-                cd ${stateDir}/$1
-                for id in $(cat current/share/microvm/tap-interfaces); do
-                  ${pkgs.iproute2}/bin/ip tuntap del name $id mode tap
-                done
-              '';
-            in "${stopScript} %i";
           SyslogIdentifier = "microvm-tap-interfaces@%i";
+          ExecStart = "${stateDir}/%i/current/bin/tap-up";
+          ExecStop = "${stateDir}/%i/booted/bin/tap-down";
         };
-        # `ExecStart`
-        scriptArgs = "%i";
-        script = ''
-          cd ${stateDir}/$1
-          TAP_FLAGS="$(cat current/share/microvm/tap-flags)"
-
-          for id in $(cat current/share/microvm/tap-interfaces); do
-            if [ -e /sys/class/net/$id ]; then
-              ${pkgs.iproute2}/bin/ip tuntap del name $id mode tap $TAP_FLAGS
-            fi
-
-            ${pkgs.iproute2}/bin/ip tuntap add name $id mode tap user ${user} $TAP_FLAGS
-            ${config.microvm.host.tapScript}
-          done
-        '';
       };
 
       "microvm-macvtap-interfaces@" = {
         description = "Setup MicroVM '%i' MACVTAP interfaces";
         before = [ "microvm@%i.service" ];
         partOf = [ "microvm@%i.service" ];
-        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/macvtap-interfaces";
+        unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/macvtap-up";
         restartIfChanged = false;
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
-          ExecStop =
-            let
-              stopScript = pkgs.writeShellScript "stop-microvm-tap-interfaces" ''
-                cd ${stateDir}/$1
-                cat current/share/microvm/macvtap-interfaces | while read -r line;do
-                  opts=( $line )
-                  id="''${opts[0]}"
-                  ${pkgs.iproute2}/bin/ip link del name $id
-                done
-              '';
-            in "${stopScript} %i";
           SyslogIdentifier = "microvm-macvtap-interfaces@%i";
+          ExecStart = "${stateDir}/%i/current/bin/macvtap-up";
+          ExecStop = "${stateDir}/%i/booted/bin/macvtap-down";
         };
-        # `ExecStart`
-        scriptArgs = "%i";
-        script = ''
-          cd ${stateDir}/$1
-          i=0
-          cat current/share/microvm/macvtap-interfaces | while read -r line;do
-            opts=( $line )
-            id="''${opts[0]}"
-            mac="''${opts[1]}"
-            link="''${opts[2]}"
-            mode="''${opts[3]:+" mode ''${opts[3]}"}"
-            if [ -e /sys/class/net/$id ]; then
-              ${pkgs.iproute2}/bin/ip link del name $id
-            fi
-            ${pkgs.iproute2}/bin/ip link add link $link name $id address $mac type macvtap ''${mode[@]}
-            ${pkgs.iproute2}/bin/ip link set $id allmulticast on
-            echo 1 > /proc/sys/net/ipv6/conf/$id/disable_ipv6
-            ${pkgs.iproute2}/bin/ip link set $id up
-            ${pkgs.coreutils-full}/bin/chown ${user}:${group} /dev/tap$(< /sys/class/net/$id/ifindex)
-          done
-        '';
       };
 
 

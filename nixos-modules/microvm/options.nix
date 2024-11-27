@@ -257,15 +257,13 @@ in
             '';
           };
           macvtap.link = mkOption {
-            type = nullOr str;
-            default = null;
+            type = str;
             description = ''
               Attach network interface to host interface for type = "macvlan"
             '';
           };
           macvtap.mode = mkOption {
-            type = nullOr (enum ["private" "vepa" "bridge" "passthru" "source"]);
-            default = null;
+            type = enum ["private" "vepa" "bridge" "passthru" "source"];
             description = ''
               The MACVLAN mode to use
             '';

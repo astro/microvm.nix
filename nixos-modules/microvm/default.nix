@@ -16,6 +16,7 @@ in
     ./system.nix
     ./mounts.nix
     ./interfaces.nix
+    ./pci-devices.nix
     ./virtiofsd
     ./graphics.nix
     ./optimization.nix

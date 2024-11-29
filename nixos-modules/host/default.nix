@@ -161,41 +161,14 @@ in
         description = "Setup MicroVM '%i' devices for passthrough";
         before = [ "microvm@%i.service" ];
         partOf = [ "microvm@%i.service" ];
-        unitConfig.ConditionPathExists = "${stateDir}/%i/current/share/microvm/pci-devices";
+        unitConfig.ConditionPathExists = "${stateDir}/%i/current/bin/pci-setup";
         restartIfChanged = false;
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
           SyslogIdentifier = "microvm-pci-devices@%i";
+          ExecStart = "${stateDir}/%i/current/bin/pci-setup";
         };
-        # `ExecStart`
-        scriptArgs = "%i";
-        script = ''
-          cd ${stateDir}/$1
-
-          ${pkgs.kmod}/bin/modprobe vfio-pci
-
-          for path in $(cat current/share/microvm/pci-devices); do
-            pushd /sys/bus/pci/devices/$path
-            if [ -e driver ]; then
-              echo $path > driver/unbind
-            fi
-            echo vfio-pci > driver_override
-            echo $path > /sys/bus/pci/drivers_probe
-
-            # In order to access the vfio dev the permissions must be set
-            # for the user/group running the VMM later.
-            #
-            # Insprired by https://www.kernel.org/doc/html/next/driver-api/vfio.html#vfio-usage-example
-            #
-            # assert we could get the IOMMU group number (=: name of VFIO dev)
-            [[ -e iommu_group ]] || exit 1
-            VFIO_DEV=$(basename $(readlink iommu_group))
-            echo "Making VFIO device $VFIO_DEV accessible for user"
-            chown ${user}:${group} /dev/vfio/$VFIO_DEV
-            popd
-          done
-        '';
       };
 
       "microvm-virtiofsd@" =

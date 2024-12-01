@@ -2,9 +2,22 @@
 
 ## Unreleased: `main` branch
 
-* `microvm-virtiofsd@.service` now starts the multiple virtiofsd
-  instances through supervisord.
-* The `host` module allows configuration of
+* Shell scripts to setup virtiofsd, interfaces, and PCI devices for
+  pass-through have moved from systemd units in the host to the `bin/`
+  subdirectory of MicroVM packages. That means you can actually use
+  them from the command-line if you would like to run with virtiofsd.
+
+  A breaking change is the move of the `microvm.virtiosd.*` options
+  from the host to the microvm NixOS module. They were introduced only
+  after 0.5.0.
+
+  New VMs still work on old hosts, but old VMs are missing the
+  scripts. Switching your updated NixOS host will print a warning
+  about which MicroVMs need updating.
+
+* `bin/virtiofsd-run` (`microvm-virtiofsd@.service`) now starts the
+  multiple virtiofsd instances through supervisord.
+* The `microvm` module allows configuration of
   `microvm.virtiofsd.inodeFileHandles` and
   `microvm.virtiofsd.threadPoolSize` now.
 * Add the [alioth VMM](https://github.com/google/alioth)

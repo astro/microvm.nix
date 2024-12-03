@@ -63,7 +63,6 @@ pkgs.buildPackages.runCommand "microvm-${microvmConfig.hypervisor}-${hostName}"
   passthru = {
     inherit canShutdown supportsNotifySocket tapMultiQueue;
     inherit (microvmConfig) hypervisor;
-    inherit (hypervisorConfig) tapMultiQueue;
   };
 } ''
   mkdir -p $out/bin

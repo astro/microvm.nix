@@ -240,41 +240,6 @@ path</p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/host/options.nix">microvm.nix/nixos-modules/host/options.nix</a></li>
 </ul>
-<h2 id="microvmvirtiofsdextraargs"><a class="header" href="#microvmvirtiofsdextraargs">microvm.virtiofsd.extraArgs</a></h2>
-<p>Extra command-line switch to pass to virtiofsd.</p>
-<p><em>Type:</em>
-list of string</p>
-<p><em>Default:</em>
-<code>[ ]</code></p>
-<p><em>Declared by:</em></p>
-<ul>
-<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/host/options.nix">microvm.nix/nixos-modules/host/options.nix</a></li>
-</ul>
-<h2 id="microvmvirtiofsdinodefilehandles"><a class="header" href="#microvmvirtiofsdinodefilehandles">microvm.virtiofsd.inodeFileHandles</a></h2>
-<p>When to use file handles to reference inodes instead of O_PATH file descriptors
-(never, prefer, mandatory)</p>
-<p>Allows you to overwrite default behavior in case you hit “too
-many open files” on eg. ZFS.
-<a href="https://gitlab.com/virtio-fs/virtiofsd/-/issues/121">https://gitlab.com/virtio-fs/virtiofsd/-/issues/121</a></p>
-<p><em>Type:</em>
-null or one of “never”, “prefer”, “mandatory”</p>
-<p><em>Default:</em>
-<code>null</code></p>
-<p><em>Declared by:</em></p>
-<ul>
-<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/host/options.nix">microvm.nix/nixos-modules/host/options.nix</a></li>
-</ul>
-<h2 id="microvmvirtiofsdthreadpoolsize"><a class="header" href="#microvmvirtiofsdthreadpoolsize">microvm.virtiofsd.threadPoolSize</a></h2>
-<p>The amounts of threads virtiofsd should spawn. This option also takes the special
-string <code>\</code>nproc`` which spawns as many threads as the host has cores.</p>
-<p><em>Type:</em>
-string or (unsigned integer, meaning &gt;=0)</p>
-<p><em>Default:</em>
-<code>"`nproc`"</code></p>
-<p><em>Declared by:</em></p>
-<ul>
-<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/host/options.nix">microvm.nix/nixos-modules/host/options.nix</a></li>
-</ul>
 <h2 id="microvmvms"><a class="header" href="#microvmvms">microvm.vms</a></h2>
 <p>The MicroVMs that shall be built declaratively with the host NixOS.</p>
 <p><em>Type:</em>

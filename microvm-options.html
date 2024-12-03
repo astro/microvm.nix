@@ -187,6 +187,16 @@ signed integer</p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
 </ul>
+<h2 id="microvmbinscripts"><a class="header" href="#microvmbinscripts">microvm.binScripts</a></h2>
+<p>Script snippets that end up in the runner package’s bin/ directory</p>
+<p><em>Type:</em>
+attribute set of strings concatenated with “\n”</p>
+<p><em>Default:</em>
+<code>{ }</code></p>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
 <h2 id="microvmcloud-hypervisorextraargs"><a class="header" href="#microvmcloud-hypervisorextraargs">microvm.cloud-hypervisor.extraArgs</a></h2>
 <p>Extra arguments to pass to cloud-hypervisor.</p>
 <p><em>Type:</em>
@@ -479,9 +489,7 @@ string</p>
 <h2 id="microvminterfacesmacvtaplink"><a class="header" href="#microvminterfacesmacvtaplink">microvm.interfaces.*.macvtap.link</a></h2>
 <p>Attach network interface to host interface for type = “macvlan”</p>
 <p><em>Type:</em>
-null or string</p>
-<p><em>Default:</em>
-<code>null</code></p>
+string</p>
 <p><em>Declared by:</em></p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
@@ -489,9 +497,7 @@ null or string</p>
 <h2 id="microvminterfacesmacvtapmode"><a class="header" href="#microvminterfacesmacvtapmode">microvm.interfaces.*.macvtap.mode</a></h2>
 <p>The MACVLAN mode to use</p>
 <p><em>Type:</em>
-null or one of “private”, “vepa”, “bridge”, “passthru”, “source”</p>
-<p><em>Default:</em>
-<code>null</code></p>
+one of “private”, “vepa”, “bridge”, “passthru”, “source”</p>
 <p><em>Declared by:</em></p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
@@ -701,6 +707,41 @@ null or string</p>
 signed integer</p>
 <p><em>Default:</em>
 <code>1</code></p>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
+<h2 id="microvmvirtiofsdextraargs"><a class="header" href="#microvmvirtiofsdextraargs">microvm.virtiofsd.extraArgs</a></h2>
+<p>Extra command-line switch to pass to virtiofsd.</p>
+<p><em>Type:</em>
+list of string</p>
+<p><em>Default:</em>
+<code>[ ]</code></p>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
+<h2 id="microvmvirtiofsdinodefilehandles"><a class="header" href="#microvmvirtiofsdinodefilehandles">microvm.virtiofsd.inodeFileHandles</a></h2>
+<p>When to use file handles to reference inodes instead of O_PATH file descriptors
+(never, prefer, mandatory)</p>
+<p>Allows you to overwrite default behavior in case you hit “too
+many open files” on eg. ZFS.
+<a href="https://gitlab.com/virtio-fs/virtiofsd/-/issues/121">https://gitlab.com/virtio-fs/virtiofsd/-/issues/121</a></p>
+<p><em>Type:</em>
+null or one of “never”, “prefer”, “mandatory”</p>
+<p><em>Default:</em>
+<code>null</code></p>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
+<h2 id="microvmvirtiofsdthreadpoolsize"><a class="header" href="#microvmvirtiofsdthreadpoolsize">microvm.virtiofsd.threadPoolSize</a></h2>
+<p>The amounts of threads virtiofsd should spawn. This option also takes the special
+string <code>\</code>nproc`` which spawns as many threads as the host has cores.</p>
+<p><em>Type:</em>
+string or (unsigned integer, meaning &gt;=0)</p>
+<p><em>Default:</em>
+<code>"`nproc`"</code></p>
 <p><em>Declared by:</em></p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>

@@ -53,11 +53,11 @@ in
         ${pkgs.coreutils-full}/bin/chown '${user}:${group}' /dev/tap$(< "/sys/class/net/${id}/ifindex")
       '') macvtapInterfaces;
 
-      macvap-down = pkgs.writeShellScriptBin "microvm-${hostName}-macvtap-down" (''
+      macvtap-down = ''
         set -ou pipefail
-      '' + lib.concatMapStrings ({ id, mac, ... }: ''
+      '' + lib.concatMapStrings ({ id, ... }: ''
         ${pkgs.iproute2}/bin/ip link del name '${id}'
-      '') macvtapInterfaces);
+      '') macvtapInterfaces;
     }
   ) ];
 }

@@ -46,7 +46,7 @@ in
         if [ -e /sys/class/net/${id} ]; then
           ${pkgs.iproute2}/bin/ip link delete '${id}'
         fi
-        ${pkgs.iproute2}/bin/ip link add link '${macvtap.link}' name '${id}' address '${mac}' type macvtap '${macvtap.mode}'
+        ${pkgs.iproute2}/bin/ip link add link '${macvtap.link}' name '${id}' address '${mac}' type macvtap mode '${macvtap.mode}'
         ${pkgs.iproute2}/bin/ip link set '${id}' allmulticast on
         echo 1 > "/proc/sys/net/ipv6/conf/${id}/disable_ipv6"
         ${pkgs.iproute2}/bin/ip link set '${id}' up

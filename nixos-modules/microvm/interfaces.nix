@@ -26,7 +26,7 @@ in
         set -eou pipefail
       '' + lib.concatMapStrings ({ id, mac, ... }: ''
         if [ -e /sys/class/net/${id} ]; then
-          ${pkgs.iproute2}/bin/ip tuntap del name '${id}' mode tap ${tapFlags}
+          ${pkgs.iproute2}/bin/ip link delete '${id}'
         fi
 
         ${pkgs.iproute2}/bin/ip tuntap add name '${id}' mode tap user '${user}' ${tapFlags}
@@ -35,7 +35,7 @@ in
       tap-down = ''
         set -ou pipefail
       '' + lib.concatMapStrings ({ id, mac, ... }: ''
-        ${pkgs.iproute2}/bin/ip tuntap del name '${id}' mode tap ${tapFlags}
+        ${pkgs.iproute2}/bin/ip link delete '${id}'
       '') tapInterfaces;
     }
   ) (
@@ -44,7 +44,7 @@ in
         set -eou pipefail
       '' + lib.concatMapStrings ({ id, mac, macvtap, ... }: ''
         if [ -e /sys/class/net/${id} ]; then
-          ${pkgs.iproute2}/bin/ip link del name '${id}'
+          ${pkgs.iproute2}/bin/ip link delete '${id}'
         fi
         ${pkgs.iproute2}/bin/ip link add link '${macvtap.link}' name '${id}' address '${mac}' type macvtap '${macvtap.mode}'
         ${pkgs.iproute2}/bin/ip link set '${id}' allmulticast on
@@ -56,7 +56,7 @@ in
       macvtap-down = ''
         set -ou pipefail
       '' + lib.concatMapStrings ({ id, ... }: ''
-        ${pkgs.iproute2}/bin/ip link del name '${id}'
+        ${pkgs.iproute2}/bin/ip link delete '${id}'
       '') macvtapInterfaces;
     }
   ) ];

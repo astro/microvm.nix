@@ -175,6 +175,11 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="shares"><a class="header" href="#shares">Shares</a></h1>
+<p>Persistent file-systems are provided by both volumes and
+shares. Volumes are block devices inside the virtual machine, yielding
+fast performance but mounted file-systems require exclusive
+access. Shares allow mounting an arbitrary directory tree from the
+host.</p>
 <p>In <code>microvm.shares</code> elements the <code>proto</code> field allows either of two
 values:</p>
 <ul>
@@ -183,12 +188,23 @@ values:</p>
 quickly share a directory tree</p>
 </li>
 <li>
-<p><code>virtiofs</code> requires a separate virtiofsd service which is only
-started as a prerequisite when you start MicroVMs through a systemd
-service that comes with the <code>microvm.nixosModules.host</code> module.</p>
+<p><code>virtiofs</code> requires a separate virtiofsd service which is started as
+a prerequisite when you start MicroVMs through a systemd service
+that comes with the <code>microvm.nixosModules.host</code> module.</p>
+<p>If you want to run from the command-line, start <code>bin/virtiofsd-run</code>
+separately.</p>
 <p>Expect <code>virtiofs</code> to yield better performance over <code>9p</code>.</p>
 </li>
 </ul>
+<pre><code class="language-nix">microvm.shares = [ {
+  proto = "virtiofs";
+  tag = "home";
+  # Source path can be absolute or relative
+  # to /var/lib/microvms/$hostName
+  source = "home";
+  mountPoint = "/home";
+} ];
+</code></pre>
 <div class="warning">
 When sharing a path that is on ZFS with virtiofs, the dataset must
 have options

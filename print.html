@@ -1176,6 +1176,16 @@ null or path</p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
 </ul>
+<h2 id="microvmvolumesreadonly"><a class="header" href="#microvmvolumesreadonly">microvm.volumes.*.readOnly</a></h2>
+<p>Turn off write access</p>
+<p><em>Type:</em>
+boolean</p>
+<p><em>Default:</em>
+<code>false</code></p>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
 <h2 id="microvmvolumesserial"><a class="header" href="#microvmvolumesserial">microvm.volumes.*.serial</a></h2>
 <p>User-configured serial number for the disk</p>
 <p><em>Type:</em>
@@ -1545,12 +1555,12 @@ at all, just set
 strings concatenated with “\n”</p>
 <p><em>Default:</em></p>
 <pre><code>''
-  /nix/store/p6c92mx3kmnqcr482d16qqz67yqam72p-iproute2-6.10.0/bin/ip link set "$id" up
+  /nix/store/30yhi8slm1993fabx0052whmsv86x3zm-iproute2-6.11.0/bin/ip link set "$id" up
 ''
 </code></pre>
 <p><em>Example:</em></p>
 <pre><code># Attach tap interface to bridge br0, and bring it up
-"/nix/store/p6c92mx3kmnqcr482d16qqz67yqam72p-iproute2-6.10.0/bin/ip link set \"$id\" master br0 up"
+"/nix/store/30yhi8slm1993fabx0052whmsv86x3zm-iproute2-6.11.0/bin/ip link set \"$id\" master br0 up"
 
 </code></pre>
 <p><em>Declared by:</em></p>

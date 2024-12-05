@@ -92,7 +92,7 @@ in {
       "-device" "virtio-blk-${devType 2},drive=store,id=blk_store"
     ] ++
     lib.optionals (socket != null) [ "-qmp" "unix:${socket},server,nowait" ] ++
-    builtins.concatMap ({ index, image, letter, serial, direct, ... }: [
+    builtins.concatMap ({ index, image, letter, serial, direct, readOnly, ... }: [
       "-drive"
       "id=vd${
         letter
@@ -100,6 +100,8 @@ in {
         image
       },direct=${
         if direct then "on" else "off"
+      },readonly=${
+        if readOnly then "on" else "off"
       }"
       "-device"
       "virtio-blk-${

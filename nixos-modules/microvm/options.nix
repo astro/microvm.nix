@@ -194,6 +194,11 @@ in
             default = false;
             description = "Whether to set O_DIRECT on the disk.";
           };
+          readOnly = mkOption {
+            type = bool;
+            default = false;
+            description = "Turn off write access";
+          };
           label = mkOption {
             type = nullOr str;
             default = null;

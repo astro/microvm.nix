@@ -163,13 +163,17 @@ in {
           readonly = "on";
         } // mqOps))
         ++
-        map ({ image, serial, direct, ... }:
+        map ({ image, serial, direct, readOnly, ... }:
           opsMapped (
             {
               path = toString image;
               direct =
-                if direct == null then null
-                else if direct then "on"
+                if direct
+                then "on"
+                else "off";
+              readonly =
+                if readOnly
+                then "on"
                 else "off";
             } //
             lib.optionalAttrs (serial != null) {

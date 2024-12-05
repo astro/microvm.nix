@@ -37,7 +37,7 @@ let
       is_root_device = false;
       is_read_only = true;
       io_engine = "Async";
-    } ] ++ map ({ image, serial, direct, ... }:
+    } ] ++ map ({ image, serial, direct, readOnly, ... }:
       lib.warnIf (serial != null) ''
         Volume serial is not supported for firecracker
       ''
@@ -47,7 +47,7 @@ let
         drive_id = image;
         path_on_host = image;
         is_root_device = false;
-        is_read_only = false;
+        is_read_only = readOnly;
         io_engine = "Async";
       }) volumes;
     network-interfaces = map ({ type, id, mac, ... }:

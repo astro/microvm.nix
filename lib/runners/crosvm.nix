@@ -92,10 +92,12 @@ in {
         "-s" socket
       ]
       ++
-      builtins.concatMap ({ image, direct, serial, ... }:
+      builtins.concatMap ({ image, direct, serial, readOnly, ... }:
         [ "--block"
           "${image},o_direct=${
-            if direct then "true" else "false"
+            lib.boolToString direct
+          },ro=${
+            lib.boolToString readOnly
           }${
             lib.optionalString (serial != null) ",id=${serial}"
           }"

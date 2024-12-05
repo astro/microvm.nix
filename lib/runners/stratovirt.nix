@@ -48,6 +48,9 @@ let
       (builtins.head xs // { index = n; })
     ] ++ (enumerate (n + 1) (builtins.tail xs));
 
+  virtioblkOffset = 4;
+  virtiofsOffset = virtioblkOffset + builtins.length microvmConfig.volumes;
+
   forwardPortsOptions =
       let
         forwardingOptions = lib.flip lib.concatMapStrings forwardPorts
@@ -89,17 +92,33 @@ in {
       "-device" "virtio-blk-${devType 2},drive=store,id=blk_store"
     ] ++
     lib.optionals (socket != null) [ "-qmp" "unix:${socket},server,nowait" ] ++
-    builtins.concatMap ({ image, letter, serial, direct, ... }: [
-      "-drive" "id=vd${letter},format=raw,file=${image},aio=io_uring,direct=${if direct then "on" else "off"}"
-      "-device" "virtio-blk-${devType 4},drive=vd${letter},id=blk_vd${letter}${
+    builtins.concatMap ({ index, image, letter, serial, direct, ... }: [
+      "-drive"
+      "id=vd${
+        letter
+      },format=raw,if=none,aio=io_uring,file=${
+        image
+      },direct=${
+        if direct then "on" else "off"
+      }"
+      "-device"
+      "virtio-blk-${
+        devType (virtioblkOffset + index)
+      },drive=vd${
+        letter
+      },id=blk_vd${
+        letter
+      }${
         lib.optionalString (serial != null) ",serial=${serial}"
       }"
-    ]) volumes ++
+    ]) (enumerate 0 volumes) ++
     lib.optionals (shares != []) (
       builtins.concatMap ({ proto, index, socket, source, tag, ... }: {
         "virtiofs" = [
-          "-chardev" "socket,id=fs${toString index},path=${socket}"
-          "-device" "vhost-user-fs-${devType (5 + index)},chardev=fs${toString index},tag=${tag},id=fs${toString index}"
+          "-chardev"
+          "socket,id=fs${toString index},path=${socket}"
+          "-device"
+          "vhost-user-fs-${devType (virtiofsOffset + index)},chardev=fs${toString index},tag=${tag},id=fs${toString index}"
         ];
       }.${proto}) (enumerate 0 shares)
     )

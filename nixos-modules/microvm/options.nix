@@ -531,12 +531,12 @@ in
 
   config = lib.mkMerge [ {
     microvm.qemu.machine =
-      lib.mkIf (pkgs.system == "x86_64-linux") (
+      lib.mkIf (pkgs.stdenv.system == "x86_64-linux") (
         lib.mkDefault "microvm"
       );
   } {
     microvm.qemu.machine =
-      lib.mkIf (pkgs.system == "aarch64-linux") (
+      lib.mkIf (pkgs.stdenv.system == "aarch64-linux") (
         lib.mkDefault "virt"
       );
   } ];

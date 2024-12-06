@@ -4,7 +4,8 @@
 }:
 
 let
-  inherit (pkgs) lib system;
+  inherit (pkgs) lib;
+  inherit (pkgs.stdenv) system;
 
   enableLibusb = pkg: pkg.overrideAttrs (oa: {
     configureFlags = oa.configureFlags ++ [

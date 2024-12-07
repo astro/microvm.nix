@@ -26,16 +26,16 @@ in
         set -eou pipefail
       '' + lib.concatMapStrings ({ id, mac, ... }: ''
         if [ -e /sys/class/net/${id} ]; then
-          ${pkgs.iproute2}/bin/ip link delete '${id}'
+          ${lib.getExe' pkgs.iproute2 "ip"} link delete '${id}'
         fi
 
-        ${pkgs.iproute2}/bin/ip tuntap add name '${id}' mode tap user '${user}' ${tapFlags}
+        ${lib.getExe' pkgs.iproute2 "ip"} tuntap add name '${id}' mode tap user '${user}' ${tapFlags}
       '') tapInterfaces;
 
       tap-down = ''
         set -ou pipefail
       '' + lib.concatMapStrings ({ id, mac, ... }: ''
-        ${pkgs.iproute2}/bin/ip link delete '${id}'
+        ${lib.getExe' pkgs.iproute2 "ip"} link delete '${id}'
       '') tapInterfaces;
     }
   ) (
@@ -44,21 +44,21 @@ in
         set -eou pipefail
       '' + lib.concatMapStrings ({ id, mac, macvtap, ... }: ''
         if [ -e /sys/class/net/${id} ]; then
-          ${pkgs.iproute2}/bin/ip link delete '${id}'
+          ${lib.getExe' pkgs.iproute2 "ip"} link delete '${id}'
         fi
-        ${pkgs.iproute2}/bin/ip link add link '${macvtap.link}' name '${id}' address '${mac}' type macvtap mode '${macvtap.mode}'
-        ${pkgs.iproute2}/bin/ip link set '${id}' allmulticast on
+        ${lib.getExe' pkgs.iproute2 "ip"} link add link '${macvtap.link}' name '${id}' address '${mac}' type macvtap mode '${macvtap.mode}'
+        ${lib.getExe' pkgs.iproute2 "ip"} link set '${id}' allmulticast on
         if [ -f "/proc/sys/net/ipv6/conf/${id}/disable_ipv6" ]; then
           echo 1 > "/proc/sys/net/ipv6/conf/${id}/disable_ipv6"
         fi
-        ${pkgs.iproute2}/bin/ip link set '${id}' up
+        ${lib.getExe' pkgs.iproute2 "ip"} link set '${id}' up
         ${pkgs.coreutils-full}/bin/chown '${user}:${group}' /dev/tap$(< "/sys/class/net/${id}/ifindex")
       '') macvtapInterfaces;
 
       macvtap-down = ''
         set -ou pipefail
       '' + lib.concatMapStrings ({ id, ... }: ''
-        ${pkgs.iproute2}/bin/ip link delete '${id}'
+        ${lib.getExe' pkgs.iproute2 "ip"} link delete '${id}'
       '') macvtapInterfaces;
     }
   ) ];

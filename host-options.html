@@ -195,28 +195,6 @@ boolean</p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/host/options.nix">microvm.nix/nixos-modules/host/options.nix</a></li>
 </ul>
-<h2 id="microvmhosttapscript"><a class="header" href="#microvmhosttapscript">microvm.host.tapScript</a></h2>
-<p>Commands to run after creating a tap interface</p>
-<p>Defaults to bring the interface up.</p>
-<p>If you do not want the interface to be automatically created
-at all, just set
-<code>systemd.services."microvm-tap-interfaces@%i.service".enable = false</code></p>
-<p><em>Type:</em>
-strings concatenated with “\n”</p>
-<p><em>Default:</em></p>
-<pre><code>''
-  /nix/store/30yhi8slm1993fabx0052whmsv86x3zm-iproute2-6.11.0/bin/ip link set "$id" up
-''
-</code></pre>
-<p><em>Example:</em></p>
-<pre><code># Attach tap interface to bridge br0, and bring it up
-"/nix/store/30yhi8slm1993fabx0052whmsv86x3zm-iproute2-6.11.0/bin/ip link set \"$id\" master br0 up"
-
-</code></pre>
-<p><em>Declared by:</em></p>
-<ul>
-<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/host/options.nix">microvm.nix/nixos-modules/host/options.nix</a></li>
-</ul>
 <h2 id="microvmhostusenotifysockets"><a class="header" href="#microvmhostusenotifysockets">microvm.host.useNotifySockets</a></h2>
 <p>Enable if all your MicroVMs run with a Hypervisor that sends
 readiness notification over a VSOCK.</p>

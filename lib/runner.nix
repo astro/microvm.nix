@@ -6,7 +6,7 @@
 let
   inherit (pkgs) lib;
 
-  inherit (microvmConfig) hostName virtiofsdScripts tapScripts macvtapScripts;
+  inherit (microvmConfig) hostName virtiofsdScripts;
 
   inherit (import ./. { inherit lib; }) createVolumesScript makeMacvtap;
   inherit (makeMacvtap {

@@ -45,6 +45,14 @@ with more than one CPU core.
 When running MicroVMs through the `host` module, the tap network
 interfaces are created through a systemd service dependency.
 
+Extend the generated script in the guest configuration like this:
+
+```nix
+microvm.binScripts.tap-up = lib.mkAfter ''
+  ${lib.getExe' pkgs.iproute2 "ip"} link set dev 'vm-ixp-as11201p' master 'ixp-peering'
+'';
+```
+
 ## `type = "macvtap"`
 
 *MACVTAP* interfaces attach to a host's physical network interface,

@@ -22,29 +22,6 @@
       '';
     };
 
-    host.tapScript = mkOption {
-      description = ''
-        Commands to run after creating a tap interface
-
-        Defaults to bring the interface up.
-
-        If you do not want the interface to be automatically created
-        at all, just set
-        `systemd.services."microvm-tap-interfaces@%i.service".enable = false`
-      '';
-      example = lib.literalExpression ''
-        # Attach tap interface to bridge br0, and bring it up
-        "${pkgs.iproute2}/bin/ip link set \"$id\" master br0 up"
-      '';
-      type = types.lines;
-      default = ''
-        ${pkgs.iproute2}/bin/ip link set "$id" up
-      '';
-      defaultText = ''
-        ${pkgs.iproute2}/bin/ip link set "$id" up
-      '';
-    };
-
     vms = mkOption {
       type = with types; attrsOf (submodule ({ config, name, ... }: {
         options = {

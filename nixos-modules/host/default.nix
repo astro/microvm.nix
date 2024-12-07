@@ -287,16 +287,16 @@ in
 
         for dir in ${stateDir}/*; do
           if [ -e $dir/current/share/microvm/virtiofs ] &&
-             [ ! -e $dir/bin/virtiofsd-run ]; then
+             [ ! -e $dir/current/bin/virtiofsd-run ]; then
             _outdated_microvms="$_outdated_microvms $(basename $dir)"
           elif [ -e $dir/current/share/microvm/tap-interfaces ] &&
-             [ ! -e $dir/bin/tap-up ]; then
+             [ ! -e $dir/current/bin/tap-up ]; then
             _outdated_microvms="$_outdated_microvms $(basename $dir)"
           elif [ -e $dir/current/share/microvm/macvtap-interfaces ] &&
-             [ ! -e $dir/bin/macvtap-up ]; then
+             [ ! -e $dir/current/bin/macvtap-up ]; then
             _outdated_microvms="$_outdated_microvms $(basename $dir)"
           elif [ -e $dir/current/share/microvm/pci-devices ] &&
-             [ ! -e $dir/bin/pci-setup ]; then
+             [ ! -e $dir/current/bin/pci-setup ]; then
             _outdated_microvms="$_outdated_microvms $(basename $dir)"
           fi
         done

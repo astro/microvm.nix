@@ -95,7 +95,8 @@ in
           ''
           # Make sure that the sources of the shares can be accessed.
           # Also ignore failures of each command for now
-          + builtins.foldl' (acc: share: acc + ''
+          + builtins.foldl' (acc: share:
+            acc + lib.optionalString (share.source != "/nix/store") ''
             # Initialize permissions for share with mountPoint ${share.mountPoint}
             mkdir -p '${share.source}' || :
             chown -hR ${user}:${group} '${share.source}' || :

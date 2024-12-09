@@ -92,7 +92,14 @@ in
                     then updateFlake
                     else flake}' > flake
             chown -h ${user}:${group} flake
-          '';
+          ''
+          # Make sure that the sources of the shares can be accessed.
+          # Also ignore failures of each command for now
+          + builtins.foldl' (acc: share: acc + ''
+            # Initialize permissions for share with mountPoint ${share.mountPoint}
+            mkdir -p '${share.source}' || :
+            chown -hR ${user}:${group} '${share.source}' || :
+          '') "" guestConfig.microvm.shares;
         serviceConfig.SyslogIdentifier = "install-microvm-${name}";
       };
       "microvm@${name}" = {

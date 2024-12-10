@@ -57,6 +57,14 @@ in
           "-Efragments"
           "-Ededupe"
         ];
+      defaultText = lib.literalExpression ''
+        [ "-zlz4hc" ]
+          ++ lib.optional (kernelAtLeast "5.16") "-Eztailpacking"
+          ++ lib.optionals (kernelAtLeast "6.1") [
+          "-Efragments"
+          "-Ededupe"
+        ]
+        '';
     };
 
     storeDiskSquashfsFlags = mkOption {

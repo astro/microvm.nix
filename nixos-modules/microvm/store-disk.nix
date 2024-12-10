@@ -29,6 +29,12 @@ let
 
   writeClosure = pkgs.writeClosure or pkgs.writeReferencesToFile;
 
+  storeDiskContents = writeClosure (
+    [ config.system.build.toplevel ]
+    ++
+    lib.optional config.nix.enable regInfo
+  );
+
 in
 {
   options.microvm = with lib; {
@@ -84,6 +90,8 @@ in
 
       microvm.storeDisk = pkgs.runCommandLocal "microvm-store-disk.${config.microvm.storeDiskType}" {
         nativeBuildInputs = [
+          pkgs.buildPackages.time
+          pkgs.buildPackages.bubblewrap
           {
             squashfs = [ pkgs.buildPackages.squashfs-tools-ng ];
             erofs = [ erofs-utils ];
@@ -93,22 +101,14 @@ in
           inherit regInfo;
         };
       } ''
-        echo Copying a /nix/store
         mkdir store
-        for d in $(sort -u ${
-          lib.concatMapStringsSep " " writeClosure (
-            lib.optionals config.microvm.storeOnDisk (
-              [ config.system.build.toplevel ]
-              ++
-              lib.optional config.nix.enable regInfo
-            )
-          )
-        }); do
-          cp -a $d store
+        BWRAP_ARGS="--dev-bind / / --chdir $(pwd)"
+        for d in $(sort -u ${storeDiskContents}); do
+          BWRAP_ARGS="$BWRAP_ARGS --ro-bind $d $(pwd)/store/$(basename $d)"
         done
 
         echo Creating a ${config.microvm.storeDiskType}
-        time ${{
+        bwrap $BWRAP_ARGS -- time ${{
           squashfs = "gensquashfs ${squashfsFlags} -D store --all-root -q $out";
           erofs = "mkfs.erofs ${erofsFlags} -T 0 --all-root -L nix-store --mount-point=/nix/store $out store";
         }.${config.microvm.storeDiskType}}

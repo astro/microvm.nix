@@ -7,6 +7,23 @@ let
 
   kernelAtLeast = lib.versionAtLeast config.boot.kernelPackages.kernel.version;
 
+  erofs-utils =
+    # Are any extended options specified?
+    if lib.any (with lib; flip elem ["-Ededupe" "-Efragments"]) config.microvm.storeDiskErofsFlags
+    then
+      # If extended options are present,
+      # stick to the single-threaded erofs-utils
+      # to not scare anyone with warning messages.
+      pkgs.buildPackages.erofs-utils
+    else
+      # If no extended options are configured,
+      # rebuild mkfs.erofs with multi-threading.
+      pkgs.buildPackages.erofs-utils.overrideAttrs (attrs: {
+        configureFlags = attrs.configureFlags ++ [
+          "--enable-multithreading"
+        ];
+      });
+
   erofsFlags = builtins.concatStringsSep " " config.microvm.storeDiskErofsFlags;
   squashfsFlags = builtins.concatStringsSep " " config.microvm.storeDiskSquashfsFlags;
 
@@ -25,23 +42,20 @@ in
     storeDiskErofsFlags = mkOption {
       type = with types; listOf str;
       default =
-        [
-          "-zlz4hc"
-        ]
-        # ++
-        # lib.optional (kernelAtLeast "5.13") "-C1048576"
+        [ "-zlz4hc" ]
         ++
         lib.optional (kernelAtLeast "5.16") "-Eztailpacking"
         ++
         lib.optionals (kernelAtLeast "6.1") [
+          # not implemented with multi-threading
           "-Efragments"
-          # "-Ededupe"
+          "-Ededupe"
         ];
     };
 
     storeDiskSquashfsFlags = mkOption {
       type = with types; listOf str;
-      default = [ "-c" "zstd" ];
+      default = [ "-c" "zstd" "-j" "$NIX_BUILD_CORES" ];
     };
 
     storeDisk = mkOption {
@@ -69,10 +83,12 @@ in
       ];
 
       microvm.storeDisk = pkgs.runCommandLocal "microvm-store-disk.${config.microvm.storeDiskType}" {
-        nativeBuildInputs = with pkgs.buildPackages; [ {
-          squashfs = [ squashfs-tools-ng ];
-          erofs = [ erofs-utils ];
-        }.${config.microvm.storeDiskType} ];
+        nativeBuildInputs = [
+          {
+            squashfs = [ pkgs.buildPackages.squashfs-tools-ng ];
+            erofs = [ erofs-utils ];
+          }.${config.microvm.storeDiskType}
+        ];
         passthru = {
           inherit regInfo;
         };
@@ -92,8 +108,8 @@ in
         done
 
         echo Creating a ${config.microvm.storeDiskType}
-        ${{
-          squashfs = "gensquashfs -D store --all-root -q ${squashfsFlags} $out";
+        time ${{
+          squashfs = "gensquashfs ${squashfsFlags} -D store --all-root -q $out";
           erofs = "mkfs.erofs ${erofsFlags} -T 0 --all-root -L nix-store --mount-point=/nix/store $out store";
         }.${config.microvm.storeDiskType}}
       '';

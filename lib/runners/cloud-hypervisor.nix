@@ -107,7 +107,7 @@ in {
     rm -f notify.vsock notify.vsock_8888
 
     # Start socat to forward systemd notify socket over vsock
-    if [ -n "$NOTIFY_SOCKET" ]; then
+    if [ -n "''${NOTIFY_SOCKET:-}" ]; then
       # -T2 is required because cloud-hypervisor does not handle partial
       # shutdown of the stream, like systemd v256+ does.
       ${pkgs.socat}/bin/socat -T2 UNIX-LISTEN:notify.vsock_8888,fork UNIX-SENDTO:$NOTIFY_SOCKET &

@@ -7,18 +7,8 @@ let
 
   kernelAtLeast = lib.versionAtLeast config.boot.kernelPackages.kernel.version;
 
-  erofsFlags = builtins.concatStringsSep " " (
-    [ "-zlz4hc" "--force-uid=0" "--force-gid=0" ]
-    # ++
-    # lib.optional (kernelAtLeast "5.13") "-C1048576"
-    ++
-    lib.optional (kernelAtLeast "5.16") "-Eztailpacking"
-    ++
-    lib.optionals (kernelAtLeast "6.1") [
-      "-Efragments"
-      # "-Ededupe"
-    ]
-  );
+  erofsFlags = builtins.concatStringsSep " " config.microvm.storeDiskErofsFlags;
+  squashfsFlags = builtins.concatStringsSep " " config.microvm.storeDiskSquashfsFlags;
 
   writeClosure = pkgs.writeClosure or pkgs.writeReferencesToFile;
 
@@ -30,6 +20,28 @@ in
       description = ''
         Boot disk file system type: squashfs is smaller, erofs is supposed to be faster.
       '';
+    };
+
+    storeDiskErofsFlags = mkOption {
+      type = with types; listOf str;
+      default =
+        [
+          "-zlz4hc"
+        ]
+        # ++
+        # lib.optional (kernelAtLeast "5.13") "-C1048576"
+        ++
+        lib.optional (kernelAtLeast "5.16") "-Eztailpacking"
+        ++
+        lib.optionals (kernelAtLeast "6.1") [
+          "-Efragments"
+          # "-Ededupe"
+        ];
+    };
+
+    storeDiskSquashfsFlags = mkOption {
+      type = with types; listOf str;
+      default = [ "-c" "zstd" ];
     };
 
     storeDisk = mkOption {
@@ -81,8 +93,8 @@ in
 
         echo Creating a ${config.microvm.storeDiskType}
         ${{
-          squashfs = "gensquashfs -D store --all-root -c zstd -q $out";
-          erofs = "mkfs.erofs ${erofsFlags} -L nix-store --mount-point=/nix/store $out store";
+          squashfs = "gensquashfs -D store --all-root -q ${squashfsFlags} $out";
+          erofs = "mkfs.erofs ${erofsFlags} -T 0 --all-root -L nix-store --mount-point=/nix/store $out store";
         }.${config.microvm.storeDiskType}}
       '';
     })

@@ -146,6 +146,7 @@ let
     then "console=ttyAMA0"
     else "";
 
+  supportsNotifySocket = vsock.cid != null;
 
 in
 lib.warnIf (mem == 2048) ''
@@ -154,7 +155,16 @@ lib.warnIf (mem == 2048) ''
   <https://github.com/astro/microvm.nix/issues/171>
 ''
 {
-  inherit tapMultiQueue;
+  inherit tapMultiQueue supportsNotifySocket;
+
+  preStart = ''
+    ${microvmConfig.preStart}
+  '' + lib.optionalString supportsNotifySocket ''
+    # Start socat to forward systemd notify socket over vsock
+    if [ -n "''${NOTIFY_SOCKET-}" ]; then
+      ${pkgs.socat}/bin/socat VSOCK-LISTEN:8888,fork UNIX-SENDTO:$NOTIFY_SOCKET &
+    fi
+  '';
 
   command = lib.escapeShellArgs (
     [
@@ -300,6 +310,11 @@ lib.warnIf (mem == 2048) ''
     lib.optionals (vsock.cid != null) [
       "-device"
       "vhost-vsock-${devType},guest-cid=${toString vsock.cid}"
+      # We are *supposed* to use SMBIOS here. But somehow, no matter how much I
+      # tried, SMBIOS Type 11 entries simply don't work. It looks like it might
+      # be broken on QEMU side. Why? I don't know.
+      "-fw_cfg"
+      "name=opt/io.systemd.credentials/vmm.notify_socket,string=vsock-stream:2:8888"
     ]
     ++
     extraArgs

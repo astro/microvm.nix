@@ -147,6 +147,7 @@ let
     else "";
 
   supportsNotifySocket = vsock.cid != null;
+  vsockHostPortOffset = 600000;
 
 in
 lib.warnIf (mem == 2048) ''
@@ -160,9 +161,13 @@ lib.warnIf (mem == 2048) ''
   preStart = ''
     ${microvmConfig.preStart}
   '' + lib.optionalString supportsNotifySocket ''
+    # Clean up temporary files.
+    ${pkgs.coreutils}/bin/rm -f ./socat.log ./notify_socket.cred
+    # Default value: for running without systemd.
+    NOTIFY_VSOCK_PORT=${toString (vsockHostPortOffset + vsock.cid)}
     # Start socat to forward systemd notify socket over vsock
     if [ -n "''${NOTIFY_SOCKET-}" ]; then
-      ${pkgs.socat}/bin/socat VSOCK-LISTEN:8888,fork UNIX-SENDTO:$NOTIFY_SOCKET &
+        ${pkgs.socat}/bin/socat -d -d VSOCK-LISTEN:$NOTIFY_VSOCK_PORT,fork UNIX-SENDTO:$NOTIFY_SOCKET 2> ./socat.log &
     fi
   '';
 
@@ -314,7 +319,7 @@ lib.warnIf (mem == 2048) ''
       # tried, SMBIOS Type 11 entries simply don't work. It looks like it might
       # be broken on QEMU side. Why? I don't know.
       "-fw_cfg"
-      "name=opt/io.systemd.credentials/vmm.notify_socket,string=vsock-stream:2:8888"
+      "name=opt/io.systemd.credentials/vmm.notify_socket,string=vsock-stream:2:${toString (vsockHostPortOffset + vsock.cid)}"
     ]
     ++
     extraArgs

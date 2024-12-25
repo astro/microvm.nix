@@ -65,7 +65,7 @@ let
 
   accel =
     if microvmConfig.cpu == null
-    then "kvm:tcg"
+    then "kvm"
     else "tcg";
 
   # PCI required by vfio-pci for PCI passthrough

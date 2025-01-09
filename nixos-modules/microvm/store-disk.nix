@@ -37,47 +37,11 @@ let
 
 in
 {
-  options.microvm = with lib; {
-    storeDiskType = mkOption {
-      type = types.enum [ "squashfs" "erofs" ];
-      description = ''
-        Boot disk file system type: squashfs is smaller, erofs is supposed to be faster.
-      '';
-    };
-
-    storeDiskErofsFlags = mkOption {
-      type = with types; listOf str;
-      default =
-        [ "-zlz4hc" ]
-        ++
-        lib.optional (kernelAtLeast "5.16") "-Eztailpacking"
-        ++
-        lib.optionals (kernelAtLeast "6.1") [
-          # not implemented with multi-threading
-          "-Efragments"
-          "-Ededupe"
-        ];
-      defaultText = lib.literalExpression ''
-        [ "-zlz4hc" ]
-          ++ lib.optional (kernelAtLeast "5.16") "-Eztailpacking"
-          ++ lib.optionals (kernelAtLeast "6.1") [
-          "-Efragments"
-          "-Ededupe"
-        ]
-        '';
-    };
-
-    storeDiskSquashfsFlags = mkOption {
-      type = with types; listOf str;
-      default = [ "-c" "zstd" "-j" "$NIX_BUILD_CORES" ];
-    };
-
-    storeDisk = mkOption {
-      type = types.path;
-      description = ''
-        Generated
-      '';
-    };
+  options.microvm.storeDisk = with lib; mkOption {
+    type = types.path;
+    description = ''
+      Generated
+    '';
   };
 
   config = lib.mkMerge [

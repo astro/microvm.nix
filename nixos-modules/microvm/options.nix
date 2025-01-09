@@ -17,6 +17,23 @@ in
       '';
     };
 
+    optimize.enable = lib.mkOption {
+      description = ''
+        Enables some optimizations by default to closure size and startup time:
+          - defaults documentation to off
+          - defaults to using systemd in initrd
+          - use systemd-networkd
+          - disables systemd-network-wait-online
+          - disables NixOS system switching if the host store is not mounted
+
+        This takes a few hundred MB off the closure size, including qemu,
+        allowing for putting MicroVMs inside Docker containers.
+      '';
+
+      type = lib.types.bool;
+      default = true;
+    };
+
     cpu = mkOption {
       type = with types; nullOr str;
       default = null;
@@ -519,13 +536,54 @@ in
       defaultText = literalExpression ''"config.microvm.runner.''${config.microvm.hypervisor}"'';
     };
 
-    # TODO: microvm-* as well?
     binScripts = mkOption {
       description = ''
         Script snippets that end up in the runner package's bin/ directory
       '';
       default = {};
       type = with types; attrsOf lines;
+    };
+
+    storeDiskType = mkOption {
+      type = types.enum [ "squashfs" "erofs" ];
+      description = ''
+        Boot disk file system type: squashfs is smaller, erofs is supposed to be faster.
+
+        Defaults to erofs, unless the NixOS hardened profile is detected.
+      '';
+    };
+
+    storeDiskErofsFlags = mkOption {
+      type = with types; listOf str;
+      description = ''
+        Flags to pass to mkfs.erofs
+
+        Omit `"-Efragments"` and `"-Ededupe"` to enable multi-threading.
+      '';
+      default =
+        [ "-zlz4hc" ]
+        ++
+        lib.optional (kernelAtLeast "5.16") "-Eztailpacking"
+        ++
+        lib.optionals (kernelAtLeast "6.1") [
+          # not implemented with multi-threading
+          "-Efragments"
+          "-Ededupe"
+        ];
+      defaultText = lib.literalExpression ''
+        [ "-zlz4hc" ]
+          ++ lib.optional (kernelAtLeast "5.16") "-Eztailpacking"
+          ++ lib.optionals (kernelAtLeast "6.1") [
+          "-Efragments"
+          "-Ededupe"
+        ]
+        '';
+    };
+
+    storeDiskSquashfsFlags = mkOption {
+      type = with types; listOf str;
+      description = "Flags to pass to gensquashfs";
+      default = [ "-c" "zstd" "-j" "$NIX_BUILD_CORES" ];
     };
   };
 

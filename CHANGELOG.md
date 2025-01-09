@@ -24,6 +24,10 @@
 * Fixes for the stratovirt VMM
 * New volume image files will be created with `truncate` instead of
   `fallocate`, saving disk space.
+* Building the `microvm.storeDisk` is now faster as the system closure
+  is no longer first copied into the build directory. A mount
+  namespace is setup with bubblewrap instead. mkfs.erofs can now run
+  multi-threaded.
 
 ## 0.5.0 (2024-04-06)
 

@@ -897,6 +897,25 @@ signed integer</p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
 </ul>
+<h2 id="microvmoptimizeenable"><a class="header" href="#microvmoptimizeenable">microvm.optimize.enable</a></h2>
+<p>Enables some optimizations by default to closure size and startup time:</p>
+<ul>
+<li>defaults documentation to off</li>
+<li>defaults to using systemd in initrd</li>
+<li>use systemd-networkd</li>
+<li>disables systemd-network-wait-online</li>
+<li>disables NixOS system switching if the host store is not mounted</li>
+</ul>
+<p>This takes a few hundred MB off the closure size, including qemu,
+allowing for putting MicroVMs inside Docker containers.</p>
+<p><em>Type:</em>
+boolean</p>
+<p><em>Default:</em>
+<code>true</code></p>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
 <h2 id="microvmprestart"><a class="header" href="#microvmprestart">microvm.preStart</a></h2>
 <p>Commands to run before starting the hypervisor</p>
 <p><em>Type:</em>
@@ -1036,6 +1055,49 @@ string</p>
 null or string</p>
 <p><em>Default:</em>
 <code>"${hostName}.sock"</code></p>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
+<h2 id="microvmstorediskerofsflags"><a class="header" href="#microvmstorediskerofsflags">microvm.storeDiskErofsFlags</a></h2>
+<p>Flags to pass to mkfs.erofs</p>
+<p>Omit <code>"-Efragments"</code> and <code>"-Ededupe"</code> to enable multi-threading.</p>
+<p><em>Type:</em>
+list of string</p>
+<p><em>Default:</em></p>
+<pre><code>[ "-zlz4hc" ]
+  ++ lib.optional (kernelAtLeast "5.16") "-Eztailpacking"
+  ++ lib.optionals (kernelAtLeast "6.1") [
+  "-Efragments"
+  "-Ededupe"
+]
+
+</code></pre>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
+<h2 id="microvmstoredisksquashfsflags"><a class="header" href="#microvmstoredisksquashfsflags">microvm.storeDiskSquashfsFlags</a></h2>
+<p>Flags to pass to gensquashfs</p>
+<p><em>Type:</em>
+list of string</p>
+<p><em>Default:</em></p>
+<pre><code>[
+  "-c"
+  "zstd"
+  "-j"
+  "$NIX_BUILD_CORES"
+]
+</code></pre>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
+<h2 id="microvmstoredisktype"><a class="header" href="#microvmstoredisktype">microvm.storeDiskType</a></h2>
+<p>Boot disk file system type: squashfs is smaller, erofs is supposed to be faster.</p>
+<p>Defaults to erofs, unless the NixOS hardened profile is detected.</p>
+<p><em>Type:</em>
+one of “squashfs”, “erofs”</p>
 <p><em>Declared by:</em></p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>

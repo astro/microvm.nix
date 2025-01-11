@@ -90,7 +90,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="devices.html"><strong aria-hidden="true">2.4.</strong> Device pass-through</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.5.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.6.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.7.</strong> MicroVM options reference ⚙️</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.3.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.4.</strong> Host options reference ⚙️</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="devices.html"><strong aria-hidden="true">2.4.</strong> Device pass-through</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.5.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.6.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.7.</strong> MicroVM options reference ⚙️</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> Network setup</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.1.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="routed-network.html"><strong aria-hidden="true">4.1.3.</strong> Routed network setup</a></li></ol></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.2.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.3.</strong> Host options reference ⚙️</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -1471,38 +1471,136 @@ an external Ethernet port, eliminating the <code>br0</code> bridge.</p>
 for PCI passthru into MicroVMs.</p>
 </li>
 </ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="a-simple-network-setup-1"><a class="header" href="#a-simple-network-setup-1">A simple network setup</a></h1>
+<p>While networking infrastructure is out of scope for the <strong>microvm.nix</strong>
+flake, here is some guidance for providing the MicroVMs on your NixOS
+machine with internet access.</p>
+<p>Use this for your local LAN where IP addresses are free and
+plentiful. If not, head over to the
+<a href="./advanced-network.html">advanced networking</a> page.</p>
+<p>Because we already use systemd for MicroVM startup, let's pick
+<code>systemd-networkd</code>:</p>
+<pre><code class="language-nix">networking.useNetworkd = true;
+</code></pre>
+<h2 id="a-bridge-to-link-tap-interfaces-1"><a class="header" href="#a-bridge-to-link-tap-interfaces-1">A bridge to link TAP interfaces</a></h2>
+<p>To make your MicroVM reachable, the host will place its Ethernet port (<code>eno1</code>)
+on a bridge (<code>br0</code>). This bridge will have the MicroVM's TAP interface attached
+to it - directly placing the MicroVM on your local network.</p>
+<p>Note that the addresses provided below are examples and you must adjust these
+for your network settings. Also note that the <code>eno1</code> must be attached to the
+bridge with the <code>vm-*</code> TAP interfaces that you will specify in the MicroVM
+definition.</p>
+<pre><code class="language-nix">systemd.network.enable = true;
+
+systemd.network.networks."10-lan" = {
+  matchConfig.Name = ["eno1" "vm-*"];
+  networkConfig = {
+    Bridge = "br0";
+  };
+};
+
+systemd.network.netdevs."br0" = {
+  netdevConfig = {
+    Name = "br0";
+    Kind = "bridge";
+  };
+};
+
+systemd.network.networks."10-lan-bridge" = {
+  matchConfig.Name = "br0";
+  networkConfig = {
+    Address = ["192.168.1.2/24" "2001:db8::a/64"];
+    Gateway = "192.168.1.1";
+    DNS = ["192.168.1.1"];
+    IPv6AcceptRA = true;
+  };
+  linkConfig.RequiredForOnline = "routable";
+};
+</code></pre>
+<p>Now that the host is configured, you can define a MicroVM to have a static IP
+address with:</p>
+<pre><code class="language-nix">microvm = {
+  #...add additional MicroVM configuration here
+  interfaces = [
+    {
+      type = "tap";
+      id = "vm-test1";
+      mac = "02:00:00:00:00:01";
+    }
+  ];
+};
+
+systemd.network.enable = true;
+
+systemd.network.networks."20-lan" = {
+  matchConfig.Type = "ether";
+  networkConfig = {
+    Address = ["192.168.1.3/24" "2001:db8::b/64"];
+    Gateway = "192.168.1.1";
+    DNS = ["192.168.1.1"];
+    IPv6AcceptRA = true;
+    DHCP = "no";
+  };
+};
+</code></pre>
+<h2 id="docker-and-systemd-network-1"><a class="header" href="#docker-and-systemd-network-1">Docker and systemd-network</a></h2>
+<p>If you use the above <code>systemd.network</code> bridge config and wish to run
+Docker containers inside your microvms using <code>virtualisation.docker</code>,
+you may need to add the following snippet to stop <code>systemd-networkd</code> from
+managing the bridged <code>veth*</code> interfaces Docker creates for each container.
+Without this, network access inside the containers will be broken.</p>
+<pre><code class="language-nix">systemd.network.networks."19-docker" = {
+  matchConfig.Name = "veth*";
+  linkConfig = {
+    Unmanaged = true;
+  };
+};
+</code></pre>
+<h2 id="advanced-improving-performance-1"><a class="header" href="#advanced-improving-performance-1">Advanced: Improving Performance</a></h2>
+<p>If you prioritize network performance over inter-VM communication on
+the virtual bridge, have a look into these alternatives:</p>
+<ul>
+<li>
+<p>Network interfaces with <code>type = "macvtap"</code> are supported in
+microvm.nix. While they're technically tap devices, they attach to
+an external Ethernet port, eliminating the <code>br0</code> bridge.</p>
+</li>
+<li>
+<p>Server Ethernet cards support SR-IOV: setup Virtual Function devices
+for PCI passthru into MicroVMs.</p>
+</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="advanced-network-setup"><a class="header" href="#advanced-network-setup">Advanced network setup</a></h1>
 <p>Renting a server in a datacenter usually gets you one IP address. You
-should not bridge your local VM traffic together with the physical
-Ethernet uplink port. Instead, setup a bridge only for the Virtual
-Machines, and provide them with Internet through NAT just like your
-plastic ADSL router at home.</p>
-<h2 id="a-bridge-to-link-tap-interfaces-1"><a class="header" href="#a-bridge-to-link-tap-interfaces-1">A bridge to link TAP interfaces</a></h2>
+must not bridge your local VM traffic together with the physical
+Ethernet uplink port. Instead, setup a host-internal bridge for the
+Virtual Machines, and provide them with Internet through NAT just like
+your plastic ADSL router at home.</p>
+<h2 id="a-bridge-to-link-tap-interfaces-2"><a class="header" href="#a-bridge-to-link-tap-interfaces-2">A bridge to link TAP interfaces</a></h2>
 <p>Instead of placing MicroVMs directly on a LAN, one can also use a TAP
 interface to get a virtual Ethernet interface on the host. Although it
-is possible to assign individual IP configuration to these individual
-interfaces, let us avoid the additional configuration effort and
-create a bridge instead:</p>
-<pre><code class="language-nix">systemd.network = {
-  netdevs."10-microvm".netdevConfig = {
-    Kind = "bridge";
-    Name = "microvm";
+is possible to <a href="./routed-network.html">assign individual IP
+configuration</a> to these individual interfaces,
+let us avoid the additional configuration effort and create a bridge
+instead:</p>
+<pre><code class="language-nix">systemd.network.netdevs."10-microvm".netdevConfig = {
+  Kind = "bridge";
+  Name = "microvm";
+};
+systemd.network.networks."10-microvm" = {
+  matchConfig.Name = "microvm";
+  networkConfig = {
+    DHCPServer = true;
+    IPv6SendRA = true;
   };
-  networks."10-microvm" = {
-    matchConfig.Name = "microvm";
-    networkConfig = {
-      DHCPServer = true;
-      IPv6SendRA = true;
-    };
-    addresses = [ {
-      addressConfig.Address = "10.0.0.1/24";
-    } {
-      addressConfig.Address = "fd12:3456:789a::1/64";
-    } ];
-    ipv6Prefixes = [ {
-      ipv6PrefixConfig.Prefix = "fd12:3456:789a::/64";
-    } ];
-  };
+  addresses = [ {
+    addressConfig.Address = "10.0.0.1/24";
+  } {
+    addressConfig.Address = "fd12:3456:789a::1/64";
+  } ];
+  ipv6Prefixes = [ {
+    ipv6PrefixConfig.Prefix = "fd12:3456:789a::/64";
+  } ];
 };
 
 # Allow inbound traffic for the DHCP server
@@ -1514,12 +1612,10 @@ opting for declarative, versioned configuration instead.</p>
 <p>Last, the TAP interfaces of MicroVMs shall be attached to this central
 bridge. Make sure your <code>matchConfig</code> matches just the interfaces you
 want!</p>
-<pre><code class="language-nix">systemd.network = {
-  networks."11-microvm" = {
-    matchConfig.Name = "vm-*";
-    # Attach to the bridge that was configured above
-    networkConfig.Bridge = "microvm";
-  };
+<pre><code class="language-nix">systemd.network.networks."11-microvm" = {
+  matchConfig.Name = "vm-*";
+  # Attach to the bridge that was configured above
+  networkConfig.Bridge = "microvm";
 };
 </code></pre>
 <h2 id="provide-internet-access-with-nat"><a class="header" href="#provide-internet-access-with-nat">Provide Internet Access with NAT</a></h2>
@@ -1530,9 +1626,13 @@ your internal virtual machines with <em>Network Address Translation</em>.</p>
 MicroVMs. NAT works for this address family, too!</p>
 <pre><code class="language-nix">networking.nat = {
   enable = true;
+  # NAT66 exists and works. But if you have a proper subnet in
+  # 2000::/3 you should route that and remove this setting:
   enableIPv6 = true;
+
   # Change this to the interface with upstream Internet access
   externalInterface = "eth0";
+  # The bridge where you want to provide Internet access
   internalInterfaces = [ "microvm" ];
 };
 </code></pre>
@@ -1559,6 +1659,142 @@ other hosts:</p>
     destination = my-addresses.https-reverse-proxy.ip4;
   } ];
 };
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="routed-network-setup"><a class="header" href="#routed-network-setup">Routed network setup</a></h1>
+<h2 id="motivation"><a class="header" href="#motivation">Motivation</a></h2>
+<p>In bridged setups the Virtual Machines share the same Ethernet
+segment. A compromised VM still has raw network access, allowing it to
+send a lot of funny packets that cause problems for other
+VMs. Examples:</p>
+<ul>
+<li>Forging MAC addresses</li>
+<li>Running rogue DHCP servers</li>
+<li>ARP/NDP spoofing</li>
+<li>Meddling with link-local multicast</li>
+</ul>
+<p>This can be avoided by unsharing the Ethernet segments, ie. removing
+the bridge.</p>
+<h2 id="addressing"><a class="header" href="#addressing">Addressing</a></h2>
+<p>Compared to one Ethernet where we assign a large subnet like
+<code>10.0.0.0/24</code>, we will now only deal with <em>Host Routes</em> where the
+prefix length is <code>/32</code> for IPv4 and <code>/128</code> for IPv6. Note that by
+doing this we no longer lose precious space to a subnet's network and
+broadcast addresses.</p>
+<h2 id="host-configuration"><a class="header" href="#host-configuration">Host configuration</a></h2>
+<p>Using systemd-networkd, a VM's tap interface is configured with static
+addresses and the corresponding host routes. We do this for up to
+<code>maxVMs</code>. Increasing this number will create as many <code>.network</code>
+configuration files, so it's relatively cheap.</p>
+<pre><code class="language-nix">{ lib, ... }:
+
+let
+  maxVMs = 64;
+
+in
+{
+  networking.useNetworkd = true;
+
+  systemd.network.networks = builtins.listToAttrs (
+    map (index: {
+      name = "30-vm${toString index}";
+      value = {
+        matchConfig.Name = "vm${toString index}";
+        # Host's addresses
+        address = [
+          "10.0.0.0/32"
+          "fec0::/128"
+        ];
+        # Setup routes to the VM
+        routes = [ {
+          Destination = "10.0.0.${toString index}/32";
+        } {
+          Destination = "fec0::${lib.toHexString index}/128";
+        } ];
+        # Enable routing
+        networkConfig = {
+          IPv4Forwarding = true;
+          IPv6Forwarding = true;
+        };
+      };
+    }) (lib.genList (i: i + 1) maxVMs)
+  );
+}
+</code></pre>
+<h2 id="nat"><a class="header" href="#nat">NAT</a></h2>
+<p>For NAT configuration on the host we're not going to specify each
+potential tap interface. That would create a lot of firewall rules. To
+avoid this additional complexity, use a single subnet that matches all
+your VMs' addresses:</p>
+<pre><code class="language-nix">{
+  networking.nat = {
+    enable = true;
+    internalIPs = [ "10.0.0.0/24" ];
+    # Change this to the interface with upstream Internet access
+    externalInterface = "enp0s3";
+  };
+}
+</code></pre>
+<h1 id="virtual-machine-configuration"><a class="header" href="#virtual-machine-configuration">Virtual Machine configuration</a></h1>
+<p>We no longer rely on DHCP for this non-standard setup. To produce IPv4
+and IPv6 addresses let's assign a number <code>index</code> to each MicroVM. Make
+sure that this number is <strong>not reused</strong> by two VMs!</p>
+<p>We suggest creating some sort of central configuration file that
+contains each VM's network <code>index</code> in one place. That should make
+reuses obvious. If that list becomes too long, write a NixOS
+assertion!</p>
+<pre><code class="language-nix">{ lib, ... }:
+
+let
+  # Change this by VM!
+  index = 5;
+
+  mac = "00:00:00:00:00:01";
+
+in
+{
+  microvm.interfaces = [ {
+    id = "vm${toString index}";
+    type = "tap";
+    inherit mac;
+  } ];
+
+  networking.useNetworkd = true;
+
+  systemd.network.networks."10-eth" = {
+    matchConfig.MACAddress = mac;
+    # Static IP configuration
+    address = [
+      "10.0.0.${toString index}/32"
+      "fec0::${lib.toHexString index}/128"
+    ];
+    routes = [ {
+      # A route to the host
+      Destination = "10.0.0.0/32";
+      GatewayOnLink = true;
+    } {
+      # Default route
+      Destination = "0.0.0.0/0";
+      Gateway = "10.0.0.0";
+      GatewayOnLink = true;
+    } {
+      # Default route
+      Destination = "::/0";
+      Gateway = "fec0::";
+      GatewayOnLink = true;
+    } ];
+    networkConfig = {
+      # DNS servers no longer come from DHCP nor Router
+      # Advertisements. Perhaps you want to change the defaults:
+      DNS = [
+        # Quad9.net
+        "9.9.9.9"
+        "149.112.112.112"
+        "2620:fe::fe"
+        "2620:fe::9"
+      ];
+    };
+  };
+}
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="systemd-services-on-a-microvm-host"><a class="header" href="#systemd-services-on-a-microvm-host">systemd services on a MicroVM host</a></h1>
 <p>The <code>host</code> nixosModule provides a few systemd services for additional

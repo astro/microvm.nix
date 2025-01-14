@@ -5,7 +5,7 @@ let
   };
 
   hostName = config.networking.hostName or "$HOSTNAME";
-
+  kernelAtLeast = lib.versionAtLeast config.boot.kernelPackages.kernel.version;
 in
 {
   options.microvm = with lib; {

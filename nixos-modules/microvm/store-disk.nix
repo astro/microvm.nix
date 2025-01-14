@@ -5,8 +5,6 @@ let
     rootPaths = [ config.system.build.toplevel ];
   };
 
-  kernelAtLeast = lib.versionAtLeast config.boot.kernelPackages.kernel.version;
-
   erofs-utils =
     # Are any extended options specified?
     if lib.any (with lib; flip elem ["-Ededupe" "-Efragments"]) config.microvm.storeDiskErofsFlags

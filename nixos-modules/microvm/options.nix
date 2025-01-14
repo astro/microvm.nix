@@ -3,6 +3,7 @@ let
   self-lib = import ../../lib {
     inherit lib;
   };
+  kernelAtLeast = lib.versionAtLeast config.boot.kernelPackages.kernel.version;
 
   hostName = config.networking.hostName or "$HOSTNAME";
 

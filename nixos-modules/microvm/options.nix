@@ -123,6 +123,15 @@ in
       type = types.int;
     };
 
+    deflateOnOOM = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Whether to enable automatic balloon deflation on out-of-memory.
+      '';
+    };
+
+
     forwardPorts = mkOption {
       type = types.listOf
         (types.submodule {

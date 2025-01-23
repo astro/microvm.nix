@@ -352,6 +352,7 @@ in
         } {
           bus = "pci";
           path = "0000:01:01.0";
+          deviceExtraArgs = "id=hostId,x-igd-opregion=on";
         } {
           # QEMU only
           bus = "usb";
@@ -370,6 +371,13 @@ in
             type = str;
             description = ''
               Identification of the device on its bus
+            '';
+          };
+          qemu.deviceExtraArgs = mkOption {
+            type =  with types; nullOr str;
+            default = null;
+            description = ''
+              Device additional arguments (optional)
             '';
           };
         };

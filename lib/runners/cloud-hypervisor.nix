@@ -5,7 +5,7 @@
 
 let
   inherit (pkgs) lib;
-  inherit (microvmConfig) vcpu mem balloonMem user interfaces volumes shares socket devices hugepageMem graphics storeDisk storeOnDisk kernel initrdPath;
+  inherit (microvmConfig) vcpu mem balloonMem deflateOnOOM user interfaces volumes shares socket devices hugepageMem graphics storeDisk storeOnDisk kernel initrdPath;
   inherit (microvmConfig.cloud-hypervisor) extraArgs;
 
   kernelPath = {
@@ -54,8 +54,9 @@ let
 
   balloonOps = opsMapped {
     size = "${toString balloonMem}M";
-    deflate_on_oom = "on";
     free_page_reporting = "on";
+  } // lib.optionalAttrs deflateOnOOM {
+    deflate_on_oom = "on";
   };
 
   tapMultiQueue = vcpu > 1;

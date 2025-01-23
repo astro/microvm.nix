@@ -39,7 +39,7 @@ let
   qemu = overrideQemu (if microvmConfig.cpu == null then
     pkgs.qemu_kvm else pkgs.buildPackages.qemu_full);
 
-  inherit (microvmConfig) hostName cpu vcpu mem balloonMem user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
+  inherit (microvmConfig) hostName cpu vcpu mem balloonMem deflateOnOOM user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
   inherit (microvmConfig.qemu) machine extraArgs serialConsole;
 
   inherit (import ../. { inherit (pkgs) lib; }) withDriveLetters;
@@ -208,7 +208,9 @@ lib.warnIf (mem == 2048) ''
     ] ++
     lib.optionals (user != null) [ "-user" user ] ++
     lib.optionals (socket != null) [ "-qmp" "unix:${socket},server,nowait" ] ++
-    lib.optionals (balloonMem > 0) [ "-device" "virtio-balloon,free-page-reporting=on,id=balloon0,deflate-on-oom=on" ] ++
+    lib.optionals (balloonMem > 0) [
+	 "-device" ("virtio-balloon,free-page-reporting=on,id=balloon0" + lib.optionalString (deflateOnOOM) ",deflate-on-oom=on")
+    ] ++
     builtins.concatMap ({ image, letter, serial, direct, readOnly, ... }:
       [ "-drive"
         "id=vd${letter},format=raw,file=${image},if=none,aio=io_uring,discard=unmap${

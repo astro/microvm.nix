@@ -52,12 +52,14 @@ let
     hugepages = "on";
   });
 
-  balloonOps = opsMapped {
+  balloonOps = opsMapped ({
     size = "${toString balloonMem}M";
     free_page_reporting = "on";
-  } // lib.optionalAttrs deflateOnOOM {
+  }
+  # enable deflating memory balloon on out-of-memory
+  // lib.optionals deflateOnOOM {
     deflate_on_oom = "on";
-  };
+  });
 
   tapMultiQueue = vcpu > 1;
 

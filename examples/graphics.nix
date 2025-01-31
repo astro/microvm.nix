@@ -69,7 +69,7 @@ nixpkgs.lib.nixosSystem {
           package != ""
         ) (lib.splitString " " packages));
 
-      hardware.opengl.enable = true;
+      hardware.graphics.enable = true;
     })
   ];
 }

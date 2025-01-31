@@ -58,7 +58,7 @@ nixpkgs.lib.nixosSystem {
         displayManager.autoLogin.user = "user";
       };
 
-      hardware.opengl.enable = true;
+      hardware.graphics.enable = true;
 
       environment.systemPackages = with pkgs; [
         xdg-utils # Required

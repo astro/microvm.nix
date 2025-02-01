@@ -631,6 +631,7 @@ list of (submodule)</p>
 } {
   bus = "pci";
   path = "0000:01:01.0";
+  deviceExtraArgs = "id=hostId,x-igd-opregion=on";
 } {
   # QEMU only
   bus = "usb";
@@ -654,6 +655,16 @@ one of “pci”, “usb”</p>
 <p>Identification of the device on its bus</p>
 <p><em>Type:</em>
 string</p>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
+<h2 id="microvmdevicesqemudeviceextraargs"><a class="header" href="#microvmdevicesqemudeviceextraargs">microvm.devices.*.qemu.deviceExtraArgs</a></h2>
+<p>Device additional arguments (optional)</p>
+<p><em>Type:</em>
+null or string</p>
+<p><em>Default:</em>
+<code>null</code></p>
 <p><em>Declared by:</em></p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>

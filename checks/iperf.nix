@@ -6,6 +6,8 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
     name = "vm-${hypervisor}-iperf";
     nodes.vm = {
       imports = [ self.nixosModules.host ];
+      # TODO: this is a farce of a flake. replace with declarative
+      # microvm.
       microvm.vms."${hypervisor}-iperf-server".flake = nixpkgs.legacyPackages.${system}.runCommand "${hypervisor}-iperf-server.flake" {
         passthru.nixosConfigurations."${hypervisor}-iperf-server" = nixpkgs.lib.nixosSystem {
           inherit system;
@@ -21,17 +23,19 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
                 } ];
               };
               networking.hostName = "${hypervisor}-microvm";
-              networking = {
-                interfaces.eth0 = {
-                  useDHCP = false;
-                  ipv4.addresses = [ {
-                    address = "10.0.0.1";
-                    prefixLength = 24;
-                  } ];
+              systemd.network = {
+                enable = true;
+                networks."10-eth" = {
+                  matchConfig.Type = "ether";
+                  address = [ "10.0.0.1/24" ];
                 };
-                firewall.enable = false;
               };
+              networking.firewall.enable = false;
               services.iperf3.enable = true;
+              # Hack for slow Github CI
+              systemd.extraConfig = ''
+                DefaultTimeoutStartSec=600
+              '';
             }
           ];
         };
@@ -50,6 +54,7 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
         # # keep the store paths built inside the VM across reboots
         # writableStoreUseTmpfs = false;
         qemu.options = [
+          "-M" "q35,accel=kvm"
           "-cpu"
           {
             "aarch64-linux" = "cortex-a72";
@@ -59,10 +64,19 @@ nixpkgs.lib.optionalAttrs (builtins.elem hypervisor self.lib.hypervisorsWithNetw
       };
     };
     testScript = ''
-      vm.wait_for_unit("microvm@${hypervisor}-iperf-server.service", timeout = 900)
+      import os
+
+      vm.wait_for_unit("microvm@${hypervisor}-iperf-server.service", timeout = 600)
       vm.succeed("ip addr add 10.0.0.2/24 dev microvm")
-      result = vm.wait_until_succeeds("iperf -c 10.0.0.1", timeout = 180)
+
+      result = vm.wait_until_succeeds("iperf -c 10.0.0.1 2>/dev/null", timeout = 1200)
       print(result)
+
+      path = "{}/summary.md".format(os.environ.get("out"))
+      with open(path, 'w') as file:
+        file.write("```\n")
+        file.write(result)
+        file.write("```\n")
     '';
     meta.timeout = 1800;
   }) { inherit system; pkgs = nixpkgs.legacyPackages.${system}; };

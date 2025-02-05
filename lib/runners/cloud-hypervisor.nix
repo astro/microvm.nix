@@ -230,7 +230,7 @@ in {
     then ''
         api() {
           ${pkgs.curl}/bin/curl -s \
-            --unix-socket ${socket} \
+            --unix-socket $(realpath -L "$(dirname $0)/../../${socket}") \
             $@
         }
 
@@ -252,7 +252,7 @@ in {
   setBalloonScript =
     if socket != null
     then ''
-      ${pkgs.cloud-hypervisor}/bin/ch-remote --api-socket ${socket} resize --balloon $SIZE"M"
+      ${pkgs.cloud-hypervisor}/bin/ch-remote --api-socket $(realpath -L "$(dirname $0)/../../${socket}") resize --balloon $SIZE"M"
     ''
     else null;
 

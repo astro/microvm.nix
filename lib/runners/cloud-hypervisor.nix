@@ -57,7 +57,7 @@ let
     free_page_reporting = "on";
   }
   # enable deflating memory balloon on out-of-memory
-  // lib.optionals deflateOnOOM {
+  // lib.optionalAttrs deflateOnOOM {
     deflate_on_oom = "on";
   });
 

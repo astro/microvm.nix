@@ -215,7 +215,7 @@ in {
         else throw "Unsupported interface type ${type} for Cloud-Hypervisor"
       ) interfaces)
       ++
-      arg "--device" (map ({ bus, path }: {
+      arg "--device" (map ({ bus, path, ... }: {
         pci = "path=/sys/bus/pci/devices/${path}";
         usb = throw "USB passthrough is not supported on cloud-hypervisor";
       }.${bus}) devices)

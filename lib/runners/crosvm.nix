@@ -134,7 +134,7 @@ in {
       #   "--net-vq-pairs" (toString vcpu)
       # ]
       ++
-      builtins.concatMap ({ bus, path }: {
+      builtins.concatMap ({ bus, path, ... }: {
         pci = [ "--vfio" "/sys/bus/pci/devices/${path},iommu=viommu" ];
         usb = throw "USB passthrough is not supported on crosvm";
       }.${bus}) devices

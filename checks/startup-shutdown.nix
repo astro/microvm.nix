@@ -34,6 +34,7 @@ let
                 crosvm = "reboot";
                 kvmtool = "reboot";
                 alioth = "poweroff";
+                stratovirt = "reboot";
               }.${config.microvm.hypervisor};
             in ''
               ${pkgs.coreutils}/bin/uname > /output/kernel-name

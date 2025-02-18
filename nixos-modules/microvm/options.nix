@@ -602,6 +602,18 @@ in
       description = "Flags to pass to gensquashfs";
       default = [ "-c" "zstd" "-j" "$NIX_BUILD_CORES" ];
     };
+
+    credentialFiles = mkOption {
+      type = with types; attrsOf path;
+      description = ''
+        Key-value pairs of credential files that will be loaded into the vm using systemd's io.systemd.credential feature.
+      '';
+      example = literalExpression /* nix */ ''
+        {
+          SOPS_AGE_KEY = "/run/secrets/guest_microvm_age_key";
+        }
+      '';
+    };
   };
 
   config = lib.mkMerge [ {

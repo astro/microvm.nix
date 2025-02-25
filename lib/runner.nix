@@ -30,7 +30,7 @@ let
     microvm-run = ''
       set -eou pipefail
       ${preStart}
-      ${createVolumesScript pkgs.buildPackages microvmConfig.volumes}
+      ${createVolumesScript pkgs microvmConfig.volumes}
       ${lib.optionalString (hypervisorConfig.requiresMacvtapAsFds or false) openMacvtapFds}
 
       exec ${execArg} ${command}

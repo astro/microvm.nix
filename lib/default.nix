@@ -55,7 +55,7 @@ rec {
               then lib.escapeShellArgs mkfsExtraArgs
               else " ";
       in (lib.optionalString autoCreate ''
-      PATH=$PATH:${with pkgs.buildPackages; lib.makeBinPath [ coreutils util-linux e2fsprogs xfsprogs dosfstools btrfs-progs ]}
+      PATH=$PATH:${with pkgs; lib.makeBinPath [ coreutils util-linux e2fsprogs xfsprogs dosfstools btrfs-progs ]}
 
       if [ ! -e '${image}' ]; then
         touch '${image}'

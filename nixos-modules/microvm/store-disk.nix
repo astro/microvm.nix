@@ -65,13 +65,15 @@ in
           pkgs.buildPackages.time
           pkgs.buildPackages.bubblewrap
           {
-            squashfs = [ pkgs.buildPackages.squashfs-tools-ng ];
-            erofs = [ erofs-utils ];
+            squashfs = pkgs.buildPackages.squashfs-tools-ng;
+            erofs = erofs-utils;
           }.${config.microvm.storeDiskType}
         ];
         passthru = {
           inherit regInfo;
         };
+        __structuredAttrs = true;
+        unsafeDiscardReferences.out = true;
       } ''
         mkdir store
         BWRAP_ARGS="--dev-bind / / --chdir $(pwd)"

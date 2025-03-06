@@ -602,6 +602,16 @@ in
       description = "Flags to pass to gensquashfs";
       default = [ "-c" "zstd" "-j" "$NIX_BUILD_CORES" ];
     };
+
+    systemSymlink = mkOption {
+      type = types.bool;
+      default = false;
+      example = false;
+      description = ''
+        Whether to inclcude a symlink of `config.system.build.toplevel` to `share/microvm/system`.
+        This is required for commands like `microvm -l` to function but removes reference to the uncompressed store content when using `storeDiskType = "erofs"`:
+      '';
+    };
   };
 
   config = lib.mkMerge [ {

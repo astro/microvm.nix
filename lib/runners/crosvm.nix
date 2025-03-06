@@ -4,7 +4,8 @@
 }:
 
 let
-  inherit (pkgs) lib system;
+  inherit (pkgs) lib;
+  inherit (pkgs.stdenv) system;
   inherit (microvmConfig)
     vcpu mem balloonMem user interfaces volumes shares
     socket devices vsock graphics

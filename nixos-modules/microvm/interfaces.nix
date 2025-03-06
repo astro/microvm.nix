@@ -1,8 +1,6 @@
 { config, lib, pkgs, ... }:
 
 let
-  inherit (config.networking) hostName;
-
   interfacesByType = wantedType:
     builtins.filter ({ type, ... }: type == wantedType)
       config.microvm.interfaces;
@@ -24,7 +22,7 @@ in
     lib.mkIf (tapInterfaces != []) {
       tap-up = ''
         set -eou pipefail
-      '' + lib.concatMapStrings ({ id, mac, ... }: ''
+      '' + lib.concatMapStrings ({ id, ... }: ''
         if [ -e /sys/class/net/${id} ]; then
           ${lib.getExe' pkgs.iproute2 "ip"} link delete '${id}'
         fi
@@ -35,7 +33,7 @@ in
 
       tap-down = ''
         set -ou pipefail
-      '' + lib.concatMapStrings ({ id, mac, ... }: ''
+      '' + lib.concatMapStrings ({ id, ... }: ''
         ${lib.getExe' pkgs.iproute2 "ip"} link delete '${id}'
       '') tapInterfaces;
     }

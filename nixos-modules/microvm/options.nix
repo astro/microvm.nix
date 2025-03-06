@@ -1,4 +1,4 @@
-{ config, options, lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 let
   self-lib = import ../../lib {
     inherit lib;
@@ -201,6 +201,7 @@ in
           :::
         '';
     };
+
     volumes = mkOption {
       description = "Disk images";
       default = [];

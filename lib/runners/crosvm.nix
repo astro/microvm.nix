@@ -7,26 +7,10 @@ let
   inherit (pkgs) lib;
   inherit (pkgs.stdenv) system;
   inherit (microvmConfig)
-    vcpu mem balloonMem user interfaces volumes shares
+    vcpu mem balloonMem user volumes shares
     socket devices vsock graphics
     kernel initrdPath storeDisk storeOnDisk;
   inherit (microvmConfig.crosvm) pivotRoot extraArgs;
-
-  inherit (macvtapFds) nextFreeFd;
-  inherit ((
-    builtins.foldl' ({ interfaceFds, nextFreeFd }: { type, id, ... }:
-      if type == "tap"
-      then {
-        interfaceFds = interfaceFds // {
-          ${id} = nextFreeFd;
-        };
-        nextFreeFd = nextFreeFd + 1;
-      }
-      else if type == "macvtap"
-      then { inherit interfaceFds nextFreeFd; }
-      else throw "Interface type not supported for crosvm: ${type}"
-    ) { interfaceFds = macvtapFds; inherit nextFreeFd; } interfaces
-  )) interfaceFds;
 
   kernelPath = {
     x86_64-linux = "${kernel.dev}/vmlinux";

@@ -106,9 +106,9 @@ nix run microvm#graphics neverball
 
 ## Commercial support
 
-Accelerate your operations and secure your infrastructure with support
-from the maker of microvm.nix and a team of virtualization
-experts. Contact Cyberus Technology: <https://www.cyberus-technology.de/contact>
+Accelerate your operations and secure your infrastructure with support from a
+team of virtualization experts. Contact Cyberus Technology:
+<https://www.cyberus-technology.de/contact>
 
 ---
 

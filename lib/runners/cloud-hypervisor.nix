@@ -144,7 +144,7 @@ in {
         "--serial" "tty"
         "--kernel" kernelPath
         "--initramfs" initrdPath
-        "--cmdline" "${kernelConsole} reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+        "--cmdline" "${kernelConsole} reboot=t panic=-1 ${builtins.unsafeDiscardStringContext (toString microvmConfig.kernelParams)}"
         "--seccomp" "true"
         "--memory" memOps
       ]

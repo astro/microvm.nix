@@ -14,7 +14,7 @@ MicroVM deployments using the information on this page.
 | `microvm.devices.*.path`     | `share/microvm/pci-devices`            | `microvm-pci-devices@.service`      | PCI devices that must be bound to the **vfio-pci** driver on the host                         |
 | `microvm.shares.*.source`    | `share/microvm/virtiofs/${tag}/source` | `microvm-virtiofsd@.service`        | Source directory of a **virtiofs** instance by tag                                            |
 | `microvm.shares.*.socket`    | `share/microvm/virtiofs/${tag}/socket` | `microvm-virtiofsd@.service`        | **virtiofsd** socket path by tag                                                              |
-|                              | `share/microvm/system`                 |                                     | `config.system.build.toplevel` symlink, used for comparing versions when running `microvm -l` |
+| `microvm.systemSymlink`      | `share/microvm/system`                 |                                     | `config.system.build.toplevel` symlink, used for comparing versions when running `microvm -l` |
 
 
 ## Generating custom operating system hypervisor packages

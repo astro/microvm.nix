@@ -6,7 +6,7 @@
 let
   inherit (pkgs) lib;
 
-  inherit (microvmConfig) hostName virtiofsdScripts;
+  inherit (microvmConfig) hostName;
 
   inherit (import ./. { inherit lib; }) createVolumesScript makeMacvtap;
   inherit (makeMacvtap {
@@ -72,7 +72,9 @@ pkgs.buildPackages.runCommand "microvm-${microvmConfig.hypervisor}-${hostName}"
   '') (builtins.attrNames binScriptPkgs)}
 
   mkdir -p $out/share/microvm
+  ${lib.optionalString microvmConfig.systemSymlink ''
   ln -s ${toplevel} $out/share/microvm/system
+  ''}
 
   echo vnet_hdr > $out/share/microvm/tap-flags
   ${lib.optionalString tapMultiQueue ''

@@ -183,10 +183,10 @@ lib.warnIf (mem == 2048) ''
     lib.optionals (system == "x86_64-linux") [
       "-device" "i8042"
 
-      "-append" "${kernelConsole} reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+      "-append" "${kernelConsole} reboot=t panic=-1 ${builtins.unsafeDiscardStringContext (toString microvmConfig.kernelParams)}"
     ] ++
     lib.optionals (system == "aarch64-linux") [
-      "-append" "${kernelConsole} reboot=t panic=-1 ${toString microvmConfig.kernelParams}"
+      "-append" "${kernelConsole} reboot=t panic=-1 ${builtins.unsafeDiscardStringContext (toString microvmConfig.kernelParams)}"
     ] ++
     lib.optionals storeOnDisk [
       "-drive" "id=store,format=raw,read-only=on,file=${storeDisk},if=none,aio=io_uring"

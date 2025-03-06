@@ -52,7 +52,7 @@ in {
         "-m" (toString (mem + balloonMem))
         "-c" (toString vcpu)
         "--serial" "type=stdout,console=true,stdin=true"
-        "-p" "console=ttyS0 reboot=k panic=1 ${toString microvmConfig.kernelParams}"
+        "-p" "console=ttyS0 reboot=k panic=1 ${builtins.unsafeDiscardStringContext (toString microvmConfig.kernelParams)}"
       ]
       ++
       lib.optionals storeOnDisk [

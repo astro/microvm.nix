@@ -21,7 +21,7 @@ in {
         "--num-cpu" (toString vcpu)
         "-k" (lib.escapeShellArg "${kernel}/${pkgs.stdenv.hostPlatform.linux-kernel.target}")
         "-i" initrdPath
-        "-c" (lib.escapeShellArg "console=ttyS0 reboot=k panic=1 ${toString microvmConfig.kernelParams}")
+        "-c" (lib.escapeShellArg "console=ttyS0 reboot=k panic=1 ${builtins.unsafeDiscardStringContext (toString microvmConfig.kernelParams)}")
         "--entropy"
       ]
       ++

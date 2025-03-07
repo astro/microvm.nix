@@ -93,13 +93,13 @@ in
     vcpu = mkOption {
       description = "Number of virtual CPU cores";
       default = 1;
-      type = types.int;
+      type = types.ints.positive;
     };
 
     mem = mkOption {
       description = "Amount of RAM in megabytes";
       default = 512;
-      type = types.int;
+      type = types.ints.positive;
     };
 
     hugepageMem = mkOption {

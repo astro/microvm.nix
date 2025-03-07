@@ -111,16 +111,47 @@ in
       '';
     };
 
-    balloonMem = mkOption {
+    hotplugMem = mkOption {
       description = ''
-        Amount of balloon memory in megabytes
+        Amount of hotplug memory in megabytes.
 
-        The way virtio-balloon works is that this is the memory size
-        that the host can request to be freed by the VM. Initial
-        booting of the VM allocates mem+balloonMem megabytes of RAM.
+        This describes the maximum amount of memory that can be dynamically added to the VM with virtio-mem.
       '';
       default = 0;
-      type = types.int;
+      type = types.ints.unsigned;
+    };
+
+    hotpluggedMem = mkOption {
+      description = ''
+        Amount of hotplugged memory in megabytes.
+
+        This basically describes the amount of hotplug memory the VM starts with.
+      '';
+      default = config.microvm.hotplugMem;
+      type = types.ints.unsigned;
+    };
+
+    balloon = mkOption {
+      description = ''
+        Whether to enable ballooning.
+
+        By "inflating" or increasing the balloon the host can reduce the VMs
+        memory amount and reclaim it for itself.
+        When "deflating" or decreasing the balloon the host can give the memory
+        back to the VM.
+
+        virtio-mem is recommended over ballooning if supported by the hypervisor.
+      '';
+      default = false;
+      type = types.bool;
+    };
+
+    initialBalloonMem = mkOption {
+      description = ''
+        Amount of initial balloon memory in megabytes.
+      '';
+      default = 0;
+      type = types.ints.unsigned;
     };
 
     deflateOnOOM = mkOption {
@@ -613,6 +644,10 @@ in
       '';
     };
   };
+
+  imports = [
+    (lib.mkRemovedOptionModule ["microvm" "balloonMem"] "The balloonMem option has been removed and replaced by the boolean option balloon")
+  ];
 
   config = lib.mkMerge [ {
     microvm.qemu.machine =

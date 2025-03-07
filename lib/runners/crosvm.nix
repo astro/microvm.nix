@@ -7,7 +7,7 @@ let
   inherit (pkgs) lib;
   inherit (pkgs.stdenv) system;
   inherit (microvmConfig)
-    vcpu mem balloonMem user volumes shares
+    vcpu mem balloon initialBalloonMem hotplugMem hotpluggedMem user volumes shares
     socket devices vsock graphics
     kernel initrdPath storeDisk storeOnDisk;
   inherit (microvmConfig.crosvm) pivotRoot extraArgs;
@@ -46,14 +46,22 @@ in {
   command =
     if user != null
     then throw "crosvm will not change user"
+    else if initialBalloonMem != 0
+    then throw "crosvm does not support initialBalloonMem"
+    else if hotplugMem != 0
+    then throw "crosvm does not support hotplugMem"
+    else if hotpluggedMem != 0
+    then throw "crosvm does not support hotpluggedMem"
     else lib.escapeShellArgs (
       [
         "${pkgs.crosvm}/bin/crosvm" "run"
-        "-m" (toString (mem + balloonMem))
+        "-m" (toString mem)
         "-c" (toString vcpu)
         "--serial" "type=stdout,console=true,stdin=true"
         "-p" "console=ttyS0 reboot=k panic=1 ${builtins.unsafeDiscardStringContext (toString microvmConfig.kernelParams)}"
       ]
+      ++
+      lib.optional (!balloon) "--no-balloon"
       ++
       lib.optionals storeOnDisk [
         "-r" storeDisk

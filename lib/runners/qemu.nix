@@ -39,7 +39,7 @@ let
   qemu = overrideQemu (if microvmConfig.cpu == null then
     pkgs.qemu_kvm else pkgs.buildPackages.qemu_full);
 
-  inherit (microvmConfig) hostName cpu vcpu mem balloonMem deflateOnOOM user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
+  inherit (microvmConfig) hostName vcpu mem balloon initialBalloonMem deflateOnOOM hotplugMem hotpluggedMem user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
   inherit (microvmConfig.qemu) machine extraArgs serialConsole;
 
   inherit (import ../. { inherit (pkgs) lib; }) withDriveLetters;
@@ -156,12 +156,18 @@ lib.warnIf (mem == 2048) ''
 {
   inherit tapMultiQueue;
 
-  command = lib.escapeShellArgs (
+  command = if initialBalloonMem != 0
+  then throw "qemu does not support initialBalloonMem"
+  else if hotplugMem != 0
+  then throw "qemu does not support hotplugMem"
+  else if hotpluggedMem != 0
+  then throw "qemu does not support hotpluggedMem"
+  else lib.escapeShellArgs (
     [
       "${qemu}/bin/qemu-system-${arch}"
       "-name" hostName
       "-M" machineConfig
-      "-m" (toString (mem + balloonMem))
+      "-m" (toString mem)
       "-smp" (toString vcpu)
       "-nodefaults" "-no-user-config"
       # qemu just hangs after shutdown, allow to exit by rebooting
@@ -208,7 +214,7 @@ lib.warnIf (mem == 2048) ''
     ] ++
     lib.optionals (user != null) [ "-user" user ] ++
     lib.optionals (socket != null) [ "-qmp" "unix:${socket},server,nowait" ] ++
-    lib.optionals (balloonMem > 0) [
+    lib.optionals balloon [
 	 "-device" ("virtio-balloon,free-page-reporting=on,id=balloon0" + lib.optionalString (deflateOnOOM) ",deflate-on-oom=on")
     ] ++
     builtins.concatMap ({ image, letter, serial, direct, readOnly, ... }:
@@ -224,7 +230,7 @@ lib.warnIf (mem == 2048) ''
     ) volumes ++
     lib.optionals (shares != []) (
       [
-        "-object" "memory-backend-memfd,id=mem,size=${toString (mem + balloonMem)}M,share=on"
+        "-object" "memory-backend-memfd,id=mem,size=${toString mem}M,share=on"
         "-numa" "node,memdev=mem"
       ] ++
       builtins.concatMap ({ proto, index, socket, source, tag, securityModel, ... }: {

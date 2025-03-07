@@ -7,7 +7,7 @@ let
   inherit (pkgs) lib system;
   inherit (microvmConfig)
     hostName user socket preStart
-    vcpu mem
+    vcpu mem balloon initialBalloonMem hotplugMem hotpluggedMem
     interfaces volumes shares devices
     kernel initrdPath
     storeDisk;
@@ -72,6 +72,14 @@ in {
     then throw "9p/virtiofs shares not implemented for Firecracker"
     else if devices != []
     then throw "devices passthrough not implemented for Firecracker"
+    else if balloon
+    then throw "balloon not implemented for Firecracker"
+    else if initialBalloonMem != 0
+    then throw "initialBalloonMem not implemented for Firecracker"
+    else if hotplugMem != 0
+    then throw "hotplugMem not implemented for Firecracker"
+    else if hotpluggedMem != 0
+    then throw "hotpluggedMem not implemented for Firecracker"
     else lib.escapeShellArgs [
       "${pkgs.firecracker}/bin/firecracker"
       "--config-file" configFile

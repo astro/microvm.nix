@@ -7,7 +7,7 @@ let
   inherit (pkgs) lib;
   inherit (microvmConfig)
     hostName preStart user
-    vcpu mem balloonMem interfaces volumes shares devices vsock
+    vcpu mem balloon initialBalloonMem hotplugMem hotpluggedMem interfaces volumes shares devices vsock
     kernel initrdPath
     storeDisk storeOnDisk;
 in {
@@ -19,11 +19,17 @@ in {
   command =
     if user != null
     then throw "kvmtool will not change user"
+    else if initialBalloonMem != 0
+    then throw "kvmtool does not support initialBalloonMem"
+    else if hotplugMem != 0
+    then throw "kvmtool does not support hotplugMem"
+    else if hotpluggedMem != 0
+    then throw "kvmtool does not support hotpluggedMem"
     else builtins.concatStringsSep " " (
       [
         "${pkgs.kvmtool}/bin/lkvm" "run"
         "--name" (lib.escapeShellArg hostName)
-        "-m" (toString (mem + balloonMem))
+        "-m" (toString mem)
         "-c" (toString vcpu)
         "--console" "serial"
         "--rng"
@@ -36,9 +42,9 @@ in {
         "-d" (lib.escapeShellArg "${storeDisk},ro")
       ]
       ++
-      lib.optionals (balloonMem > 0) [ "--balloon" ]
+      lib.optionals balloon [ "--balloon" ]
       ++
-      builtins.concatMap ({ image, serial, direct, readOnly, ... }:
+      builtins.concatMap ({ serial, direct, readOnly, ... }:
         lib.warnIf (serial != null) ''
           Volume serial is not supported for kvmtool
         ''

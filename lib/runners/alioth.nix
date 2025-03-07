@@ -7,13 +7,21 @@ let
   inherit (pkgs) lib;
   inherit (microvmConfig)
     user
-    vcpu mem interfaces volumes shares devices vsock
+    vcpu mem balloon initialBalloonMem hotplugMem hotpluggedMem interfaces volumes shares devices vsock
     kernel initrdPath
     storeDisk storeOnDisk;
 in {
   command =
     if user != null
     then throw "alioth will not change user"
+    else if balloon
+    then throw "balloon not implemented for alioth"
+    else if initialBalloonMem != 0
+    then throw "initialBalloonMem not implemented for alioth"
+    else if hotplugMem != 0
+    then throw "alioth does not support hotplugMem"
+    else if hotpluggedMem != 0
+    then throw "alioth does not support hotpluggedMem"
     else builtins.concatStringsSep " " (
       [
         "${pkgs.alioth}/bin/alioth" "run"

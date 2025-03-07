@@ -138,7 +138,7 @@ let
   '';
 
   kernelConsole =
-    if microvmConfig.qemu.serialConsole == false
+    if !microvmConfig.qemu.serialConsole
     then ""
     else if system == "x86_64-linux"
     then "earlyprintk=ttyS0 console=ttyS0"

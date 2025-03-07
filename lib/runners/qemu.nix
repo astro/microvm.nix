@@ -39,7 +39,7 @@ let
   qemu = overrideQemu (if microvmConfig.cpu == null then
     pkgs.qemu_kvm else pkgs.buildPackages.qemu_full);
 
-  inherit (microvmConfig) hostName cpu vcpu mem balloonMem deflateOnOOM user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
+  inherit (microvmConfig) hostName cpu vcpu mem balloonMem deflateOnOOM user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk credentialFiles;
   inherit (microvmConfig.qemu) machine extraArgs serialConsole;
 
   inherit (import ../. { inherit (pkgs) lib; }) withDriveLetters;
@@ -146,6 +146,8 @@ let
     then "console=ttyAMA0"
     else "";
 
+  systemdCredentialStrings = lib.mapAttrsToList (name: path: "name=opt/io.systemd.credentials/${name},file=${path}" ) credentialFiles;
+  fwCfgOptions = systemdCredentialStrings;
 
 in
 lib.warnIf (mem == 2048) ''
@@ -172,6 +174,9 @@ lib.warnIf (mem == 2048) ''
 
       "-chardev" "stdio,id=stdio,signal=off"
       "-device" "virtio-rng-${devType}"
+    ] ++
+    lib.optionals (fwCfgOptions != [])  [
+      "-fw_cfg" (lib.concatStringsSep "," fwCfgOptions)
     ] ++
     lib.optionals serialConsole [
       "-serial" "chardev:stdio"

@@ -48,7 +48,7 @@ in
 
         - Evaluate this MicroVM to a derivation
         - Copy the derivation to the target host
-        - Build the MicroVM runner on the taret host
+        - Build the MicroVM runner on the target host
         - Install/update the MicroVM on the target host
 
         Can be followed by either:

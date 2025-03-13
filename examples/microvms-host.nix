@@ -35,7 +35,7 @@ nixpkgs.lib.nixosSystem {
 
       in {
         networking.hostName = "microvms-host";
-        system.stateVersion = config.system.nixos.version;
+        system.stateVersion = lib.trivial.release;
         users.users.root.password = "";
         users.motd = ''
           Once nested MicroVMs have booted you can look up DHCP leases:
@@ -66,7 +66,7 @@ nixpkgs.lib.nixosSystem {
         # Nested MicroVMs (a *host* option)
         microvm.vms = builtins.mapAttrs (hypervisor: mac: {
           config = {
-            system.stateVersion = config.system.nixos.version;
+            system.stateVersion = lib.trivial.release;
             networking.hostName = "${hypervisor}-microvm";
 
             microvm = {

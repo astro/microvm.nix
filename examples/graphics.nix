@@ -22,7 +22,7 @@ nixpkgs.lib.nixosSystem {
       };
 
       networking.hostName = "graphical-microvm";
-      system.stateVersion = config.system.nixos.version;
+      system.stateVersion = lib.trivial.release;
       nixpkgs.overlays = [ self.overlay ];
 
       services.getty.autologinUser = "user";

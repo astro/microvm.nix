@@ -6,7 +6,7 @@
 let
   inherit (pkgs) lib;
   inherit (microvmConfig) vcpu mem balloonMem deflateOnOOM user interfaces volumes shares socket devices hugepageMem graphics storeDisk storeOnDisk kernel initrdPath;
-  inherit (microvmConfig.cloud-hypervisor) extraArgs;
+  inherit (microvmConfig.cloud-hypervisor) platformOEMStrings extraPlatformOpts extraArgs;
 
   kernelPath = {
     x86_64-linux = "${kernel.dev}/vmlinux";
@@ -94,6 +94,9 @@ let
 
   supportsNotifySocket = true;
 
+  oemStringValues = (lib.optionals supportsNotifySocket ["io.systemd.credential:vmm.notify_socket=vsock-stream:2:8888"]) ++ platformOEMStrings;
+  oemStringOptions = lib.optionals  (oemStringValues != [])  ["oem_strings=[${lib.concatStringsSep "," oemStringValues}]"];
+  platformOps = lib.concatStringsSep "," (oemStringOptions ++ extraPlatformOpts);
 in {
   inherit tapMultiQueue;
 
@@ -147,10 +150,10 @@ in {
         "--cmdline" "${kernelConsole} reboot=t panic=-1 ${builtins.unsafeDiscardStringContext (toString microvmConfig.kernelParams)}"
         "--seccomp" "true"
         "--memory" memOps
+        "--platform" platformOps
       ]
       ++
       lib.optionals supportsNotifySocket [
-        "--platform" "oem_strings=[io.systemd.credential:vmm.notify_socket=vsock-stream:2:8888]"
         "--vsock" "cid=3,socket=notify.vsock"
       ]
       ++

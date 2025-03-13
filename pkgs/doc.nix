@@ -1,4 +1,4 @@
-{ nixpkgs, lib, pkgs, runCommand, mdbook, nixosOptionsDoc }:
+{ lib, pkgs, runCommand, mdbook, nixosOptionsDoc }:
 
 let
   makeOptionsDoc = module: nixosOptionsDoc {
@@ -7,9 +7,11 @@ let
         module
         ({ lib, ... }: {
           # Provide `pkgs` arg to all modules
-          config._module.args.pkgs = pkgs;
-          # Hide NixOS `_module.args` from nixosOptionsDoc to remain
-          # specific to microvm.nix
+          config._module = {
+            args.pkgs = pkgs;
+            check = false;
+          };
+          # Hide NixOS `_module.args` from nixosOptionsDoc to remain specific to microvm.nix
           options._module.args = lib.mkOption {
             internal = true;
           };

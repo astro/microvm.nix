@@ -56,7 +56,7 @@ settings:
           };
           environment.systemPackages = with pkgs; [ cowsay htop ];
           services.getty.autologinUser = "root";
-          system.stateVersion = "23.11";
+          system.stateVersion = "24.11";
         }
       ];
     };

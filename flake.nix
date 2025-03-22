@@ -155,10 +155,10 @@
         overlays.default = self.overlay;
 
         nixosModules = {
-          microvm = import ./nixos-modules/microvm;
-          host = import ./nixos-modules/host;
+          microvm = ./nixos-modules/microvm;
+          host = ./nixos-modules/host;
           # Just the generic microvm options
-          microvm-options = import ./nixos-modules/microvm/options.nix;
+          microvm-options = ./nixos-modules/microvm/options.nix;
         };
 
         defaultTemplate = self.templates.microvm;

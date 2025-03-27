@@ -5,7 +5,7 @@
 
 let
   inherit (pkgs) lib;
-  inherit (microvmConfig) vcpu mem balloonMem deflateOnOOM user interfaces volumes shares socket devices hugepageMem graphics storeDisk storeOnDisk kernel initrdPath;
+  inherit (microvmConfig) vcpu mem balloon initialBalloonMem deflateOnOOM hotplugMem hotpluggedMem user interfaces volumes shares socket devices hugepageMem graphics storeDisk storeOnDisk kernel initrdPath;
   inherit (microvmConfig.cloud-hypervisor) extraArgs;
 
   kernelPath = {
@@ -20,8 +20,7 @@ let
     then "console=ttyAMA0"
     else "";
 
-  # balloon
-  useBallooning = balloonMem > 0;
+  useHotPlugMemory = hotplugMem > 0;
 
   useVirtiofs = builtins.any ({ proto, ... }: proto == "virtiofs") shares;
 
@@ -41,11 +40,11 @@ let
     shared = if useVirtiofs || graphics.enable then "on" else "off";
   }
   # add ballooning options and override 'size' key
-  // lib.optionalAttrs useBallooning {
-    size = "${toString (mem + balloonMem)}M";
+  // lib.optionalAttrs useHotPlugMemory {
+    size = "${toString (mem + hotplugMem)}M";
     hotplug_method = "virtio-mem";
-    hotplug_size = "${toString balloonMem}M";
-    hotplugged_size = "${toString balloonMem}M";
+    hotplug_size = "${toString hotplugMem}M";
+    hotplugged_size = "${toString hotpluggedMem}M";
   }
   # enable hugepages (shared option is ignored by CHV)
   // lib.optionalAttrs hugepageMem {
@@ -53,7 +52,7 @@ let
   });
 
   balloonOps = opsMapped ({
-    size = "${toString balloonMem}M";
+    size = "${toString initialBalloonMem}M";
     free_page_reporting = "on";
   }
   # enable deflating memory balloon on out-of-memory
@@ -158,7 +157,7 @@ in {
         "--gpu" "socket=${graphics.socket}"
       ]
       ++
-      lib.optionals useBallooning [ "--balloon" balloonOps ]
+      lib.optionals balloon [ "--balloon" balloonOps ]
       ++
       arg "--disk" (
         lib.optional storeOnDisk (opsMapped ({

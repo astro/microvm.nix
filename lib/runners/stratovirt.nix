@@ -8,7 +8,7 @@ let
 
   inherit (microvmConfig)
     hostName
-    vcpu mem interfaces shares socket forwardPorts devices
+    vcpu mem balloon initialBalloonMem hotplugMem hotpluggedMem interfaces shares socket forwardPorts devices
     kernel initrdPath
     storeOnDisk storeDisk;
 
@@ -70,7 +70,15 @@ let
 in {
   inherit tapMultiQueue;
 
-  command = lib.escapeShellArgs (
+  command = if balloon
+    then throw "balloon not implemented for stratovirt"
+    else if initialBalloonMem != 0
+    then throw "initialBalloonMem not implemented for stratovirt"
+    else if hotplugMem != 0
+    then throw "stratovirt does not support hotplugMem"
+    else if hotpluggedMem != 0
+    then throw "stratovirt does not support hotpluggedMem"
+    else lib.escapeShellArgs (
     [
       "${pkgs.expect}/bin/unbuffer"
       "${pkgs.stratovirt}/bin/stratovirt"

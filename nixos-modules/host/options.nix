@@ -25,6 +25,15 @@
     vms = mkOption {
       type = with types; attrsOf (submodule ({ config, name, ... }: {
         options = {
+          evaluatedConfig = mkOption {
+            description = ''
+              The evaluated configuration of this MicroVM, as a NixOS
+              module, for building **with** a flake.
+            '';
+            default = null;
+            type = nullOr types.unspecified;
+          };
+
           config = mkOption {
             description = ''
               A specification of the desired configuration of this MicroVM,

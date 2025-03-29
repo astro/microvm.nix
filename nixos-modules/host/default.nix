@@ -58,7 +58,9 @@ in
         isFlake = flake != null;
         guestConfig = if isFlake
                       then flake.nixosConfigurations.${name}.config
-                      else microvmConfig.config.config;
+                      else if microvmConfig.evaluatedConfig != null
+                        then microvmConfig.evaluatedConfig.config
+                        else microvmConfig.config.config;
         runner = guestConfig.microvm.declaredRunner;
       in
     {

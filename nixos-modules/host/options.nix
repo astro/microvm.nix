@@ -25,6 +25,15 @@
     vms = mkOption {
       type = with types; attrsOf (submodule ({ config, name, ... }: {
         options = {
+          evaluatedConfig = mkOption {
+            description = ''
+              An already evaluated configuration of this MicroVM.
+              Allows supplying an already evaluated configuration or an alternative configuration evaluation function instead of NixOS's default eval-config.
+            '';
+            default = null;
+            type = nullOr types.unspecified;
+          };
+
           config = mkOption {
             description = ''
               A specification of the desired configuration of this MicroVM,

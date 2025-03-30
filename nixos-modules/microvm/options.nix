@@ -646,6 +646,7 @@ in
 
     credentialFiles = mkOption {
       type = with types; attrsOf path;
+      default = {};
       description = ''
         Key-value pairs of credential files that will be loaded into the vm using systemd's io.systemd.credential feature.
       '';

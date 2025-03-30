@@ -115,6 +115,37 @@ let
         imports = [ "${modulesPath}/profiles/hardened.nix" ];
       }) ];
     } ]
+
+    [ {
+      # no
+      id = null;
+    } {
+      id = "credentials";
+      modules = [ ({ config, pkgs, ... }: {
+        # This is the guest vm config
+        microvm.credentialFiles.SECRET_BOOTSRAP_KEY = "/etc/microvm-bootstrap.secret";
+        microvm.testing.enableTest = builtins.elem config.microvm.hypervisor [
+          # Hypervisors that support systemd credentials
+          "qemu"
+        ];
+        # TODO: need to somehow have the test harness check for the success or failure of this service.
+        systemd.services.test-secret-availability = {
+          serviceConfig = {
+            ImportCredential = "SECRET_BOOTSRAP_KEY";
+            Restart = "no";
+          };
+          path = [ pkgs.gnugrep pkgs.coreutils ];
+          script = ''
+            cat $CREDENTIALS_DIRECTORY/SECRET_BOOTSRAP_KEY | grep -q "i am super secret"
+            if [ $? -ne 0 ]; then
+              echo "Secret not found at $CREDENTIALS_DIRECTORY/SECRET_BOOTSRAP_KEY"
+              exit 1
+            fi
+          '';
+        };
+      }) ];
+    } ]
+
   ];
 
   allVariants =

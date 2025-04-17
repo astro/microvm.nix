@@ -22,6 +22,8 @@ in
       }
     ]) (builtins.attrNames config.microvm.vms);
 
+    boot.kernelModules = [ "tun" ];
+
     system.activationScripts.microvm-host = ''
       mkdir -p ${stateDir}
       chown ${user}:${group} ${stateDir}

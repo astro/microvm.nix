@@ -40,6 +40,7 @@ lib.mkIf config.microvm.guest.enable {
         fsType = storeDiskType;
         options = [ "x-systemd.requires=systemd-modules-load.service" ];
         neededForBoot = true;
+        noCheck = true;
       };
     }
   ) (
@@ -67,6 +68,7 @@ lib.mkIf config.microvm.guest.enable {
         fsType = storeDiskType;
         options = [ "x-systemd.requires=systemd-modules-load.service" ];
         neededForBoot = true;
+        noCheck = true;
       };
     }
   ) (

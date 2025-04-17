@@ -174,15 +174,17 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="microvmballoonmem"><a class="header" href="#microvmballoonmem">microvm.balloonMem</a></h2>
-<p>Amount of balloon memory in megabytes</p>
-<p>The way virtio-balloon works is that this is the memory size
-that the host can request to be freed by the VM. Initial
-booting of the VM allocates mem+balloonMem megabytes of RAM.</p>
+                        <h2 id="microvmballoon"><a class="header" href="#microvmballoon">microvm.balloon</a></h2>
+<p>Whether to enable ballooning.</p>
+<p>By “inflating” or increasing the balloon the host can reduce the VMs
+memory amount and reclaim it for itself.
+When “deflating” or decreasing the balloon the host can give the memory
+back to the VM.</p>
+<p>virtio-mem is recommended over ballooning if supported by the hypervisor.</p>
 <p><em>Type:</em>
-signed integer</p>
+boolean</p>
 <p><em>Default:</em>
-<code>0</code></p>
+<code>false</code></p>
 <p><em>Declared by:</em></p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
@@ -439,6 +441,28 @@ boolean</p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
 </ul>
+<h2 id="microvmhotplugmem"><a class="header" href="#microvmhotplugmem">microvm.hotplugMem</a></h2>
+<p>Amount of hotplug memory in megabytes.</p>
+<p>This describes the maximum amount of memory that can be dynamically added to the VM with virtio-mem.</p>
+<p><em>Type:</em>
+unsigned integer, meaning &gt;=0</p>
+<p><em>Default:</em>
+<code>0</code></p>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
+<h2 id="microvmhotpluggedmem"><a class="header" href="#microvmhotpluggedmem">microvm.hotpluggedMem</a></h2>
+<p>Amount of hotplugged memory in megabytes.</p>
+<p>This basically describes the amount of hotplug memory the VM starts with.</p>
+<p><em>Type:</em>
+unsigned integer, meaning &gt;=0</p>
+<p><em>Default:</em>
+<code>0</code></p>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
 <h2 id="microvmhugepagemem"><a class="header" href="#microvmhugepagemem">microvm.hugepageMem</a></h2>
 <p>Whether to use hugepages as memory backend.
 (Currently only respected if using cloud-hypervisor)</p>
@@ -457,6 +481,16 @@ boolean</p>
 one of “qemu”, “cloud-hypervisor”, “firecracker”, “crosvm”, “kvmtool”, “stratovirt”, “alioth”</p>
 <p><em>Default:</em>
 <code>"qemu"</code></p>
+<p><em>Declared by:</em></p>
+<ul>
+<li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
+</ul>
+<h2 id="microvminitialballoonmem"><a class="header" href="#microvminitialballoonmem">microvm.initialBalloonMem</a></h2>
+<p>Amount of initial balloon memory in megabytes.</p>
+<p><em>Type:</em>
+unsigned integer, meaning &gt;=0</p>
+<p><em>Default:</em>
+<code>0</code></p>
 <p><em>Declared by:</em></p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
@@ -552,7 +586,7 @@ list of string</p>
 <h2 id="microvmmem"><a class="header" href="#microvmmem">microvm.mem</a></h2>
 <p>Amount of RAM in megabytes</p>
 <p><em>Type:</em>
-signed integer</p>
+positive integer, meaning &gt;0</p>
 <p><em>Default:</em>
 <code>512</code></p>
 <p><em>Declared by:</em></p>
@@ -798,7 +832,7 @@ null or string</p>
 <h2 id="microvmvcpu"><a class="header" href="#microvmvcpu">microvm.vcpu</a></h2>
 <p>Number of virtual CPU cores</p>
 <p><em>Type:</em>
-signed integer</p>
+positive integer, meaning &gt;0</p>
 <p><em>Default:</em>
 <code>1</code></p>
 <p><em>Declared by:</em></p>

@@ -27,6 +27,12 @@ let
   erofsFlags = builtins.concatStringsSep " " config.microvm.storeDiskErofsFlags;
   squashfsFlags = builtins.concatStringsSep " " config.microvm.storeDiskSquashfsFlags;
 
+  mkfsCommand =
+    {
+      squashfs = "gensquashfs ${squashfsFlags} -D store --all-root -q $out";
+      erofs = "mkfs.erofs ${erofsFlags} -T 0 --all-root -L nix-store --mount-point=/nix/store $out store";
+    }.${config.microvm.storeDiskType};
+
   writeClosure = pkgs.writeClosure or pkgs.writeReferencesToFile;
 
   storeDiskContents = writeClosure (
@@ -82,10 +88,12 @@ in
         done
 
         echo Creating a ${config.microvm.storeDiskType}
-        bwrap $BWRAP_ARGS -- time ${{
-          squashfs = "gensquashfs ${squashfsFlags} -D store --all-root -q $out";
-          erofs = "mkfs.erofs ${erofsFlags} -T 0 --all-root -L nix-store --mount-point=/nix/store $out store";
-        }.${config.microvm.storeDiskType}}
+        bwrap $BWRAP_ARGS -- time ${mkfsCommand} || \
+          (
+            echo "Bubblewrap failed. Falling back to copying...">&2
+            cp -a $(sort -u ${storeDiskContents}) store/
+            time ${mkfsCommand}
+          )
       '';
     })
 

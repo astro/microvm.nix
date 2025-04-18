@@ -30,7 +30,11 @@ lib.mkIf (cfg.guest.enable && cfg.optimize.enable) {
         ]);
       tpm2.enable = lib.mkDefault false;
     };
-    swraid.enable = false;
+    kernelParams = [
+      # we only need one serial console
+      "8250.nr_uarts=1"
+    ];
+    swraid.enable = lib.mkDefault false;
   };
 
   nixpkgs.overlays = [

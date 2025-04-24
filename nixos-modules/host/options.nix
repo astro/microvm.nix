@@ -9,6 +9,11 @@
         Whether to enable the microvm.nix host module.
       '';
     };
+    host.startupTimeout = mkOption {
+      description = "Maximum allowed startup time (secs) for the vms";
+      type = int;
+      default = 150;
+    };
 
     host.useNotifySockets = mkOption {
       type = types.bool;
@@ -112,6 +117,7 @@
             type = bool;
             default = true;
           };
+
 
           restartIfChanged = mkOption {
             type = types.bool;

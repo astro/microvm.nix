@@ -11,7 +11,7 @@
     };
     host.startupTimeout = mkOption {
       description = "Maximum allowed startup time (secs) for the vms";
-      type = int;
+      type = types.int;
       default = 150;
     };
 

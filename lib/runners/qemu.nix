@@ -295,25 +295,25 @@ lib.warnIf (mem == 2048) ''
       "-device" "qemu-xhci"
     ]
     ++
-    builtins.concatMap ({ bus, path, qemu,... }: {
-      pci = [
-        "-device" "vfio-pci,host=${path},multifunction=on${
-          # Allow to pass additional arguments to pci device
-          lib.optionalString (qemu.deviceExtraArgs != null) ",${qemu.deviceExtraArgs}"
-        }"
-      ];
-      usb = [
-        "-device" "usb-host,${path}"
-      ];
-    }.${bus}) devices
-    ++
     lib.optionals (vsock.cid != null) [
       "-device"
       "vhost-vsock-${devType},guest-cid=${toString vsock.cid}"
     ]
     ++
     extraArgs
-  );
+  )
+  + " " + # Move vfio-pci outside of
+  (lib.concatMapStringsSep " " ({ bus, path, qemu,... }: {
+    pci = [
+      "-device" "vfio-pci,host=${path},multifunction=on${
+        # Allow to pass additional arguments to pci device
+        lib.optionalString (qemu.deviceExtraArgs != null) ",${qemu.deviceExtraArgs}"
+      }"
+    ];
+    usb = [
+      "-device" "usb-host,${path}"
+    ];
+  }.${bus}) devices);
 
   canShutdown = socket != null;
 

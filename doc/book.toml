@@ -4,3 +4,6 @@ language = "en"
 multilingual = false
 src = "src"
 title = "microvm.nix"
+
+[output.html]
+git-repository-url = "https://github.com/astro/microvm.nix"

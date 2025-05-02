@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light" dir="ltr">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -26,26 +26,29 @@
         <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
-    </head>
-    <body class="sidebar-visible no-js">
-    <div id="body-container">
-        <!-- Provide site root to javascript -->
-        <script>
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
-        </script>
 
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
 
                 if (theme.startsWith('"') && theme.endsWith('"')) {
                     localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
@@ -59,24 +62,22 @@
 
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script>
-            var theme;
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            var html = document.querySelector('html');
+            const html = document.documentElement;
             html.classList.remove('light')
             html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
+            html.classList.add("js");
         </script>
 
         <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var body = document.querySelector('body');
-            var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
@@ -84,45 +85,25 @@
                 sidebar = 'hidden';
             }
             sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="declaring.html"><strong aria-hidden="true">2.</strong> Declaring MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="options.html"><strong aria-hidden="true">2.1.</strong> Configuration options</a></li><li class="chapter-item expanded "><a href="interfaces.html"><strong aria-hidden="true">2.2.</strong> Network interfaces</a></li><li class="chapter-item expanded "><a href="shares.html"><strong aria-hidden="true">2.3.</strong> Shared directories</a></li><li class="chapter-item expanded "><a href="devices.html"><strong aria-hidden="true">2.4.</strong> Device pass-through</a></li><li class="chapter-item expanded "><a href="cpu-emulation.html"><strong aria-hidden="true">2.5.</strong> CPU emulation</a></li><li class="chapter-item expanded "><a href="output-options.html"><strong aria-hidden="true">2.6.</strong> Output options</a></li><li class="chapter-item expanded "><a href="microvm-options.html"><strong aria-hidden="true">2.7.</strong> MicroVM options reference ⚙️</a></li></ol></li><li class="chapter-item expanded "><a href="packages.html"><strong aria-hidden="true">3.</strong> Running a MicroVM as a package</a></li><li class="chapter-item expanded "><a href="host.html"><strong aria-hidden="true">4.</strong> Preparing a host for declarative MicroVMs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.</strong> Network setup</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="simple-network.html"><strong aria-hidden="true">4.1.1.</strong> A simple network setup</a></li><li class="chapter-item expanded "><a href="advanced-network.html"><strong aria-hidden="true">4.1.2.</strong> Advanced network setup</a></li><li class="chapter-item expanded "><a href="routed-network.html"><strong aria-hidden="true">4.1.3.</strong> Routed network setup</a></li></ol></li><li class="chapter-item expanded "><a href="host-systemd.html"><strong aria-hidden="true">4.2.</strong> Host systemd services</a></li><li class="chapter-item expanded "><a href="host-options.html"><strong aria-hidden="true">4.3.</strong> Host options reference ⚙️</a></li></ol></li><li class="chapter-item expanded "><a href="declarative.html"><strong aria-hidden="true">5.</strong> Declarative MicroVMs</a></li><li class="chapter-item expanded "><a href="microvm-command.html"><strong aria-hidden="true">6.</strong> Imperative MicroVM management</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ssh-deploy.html"><strong aria-hidden="true">6.1.</strong> Deploy via SSH</a></li></ol></li><li class="chapter-item expanded "><a href="conventions.html"><strong aria-hidden="true">7.</strong> Conventions</a></li><li class="chapter-item expanded "><a href="faq.html"><strong aria-hidden="true">8.</strong> Frequently Asked Questions</a></li></ol>
-            </div>
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
             </div>
         </nav>
 
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
-
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
                         <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
@@ -132,6 +113,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
@@ -148,6 +130,9 @@
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/astro/microvm.nix" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
 
                     </div>
@@ -857,7 +842,7 @@ unsigned integer, meaning &gt;=0</p>
 <h2 id="microvminitrdpath"><a class="header" href="#microvminitrdpath">microvm.initrdPath</a></h2>
 <p>Path to the initrd file in the initrd package</p>
 <p><em>Type:</em>
-path</p>
+absolute path</p>
 <p><em>Default:</em>
 <code>"${config.system.build.initialRamdisk}/${config.system.boot.loader.initrdFile}"</code></p>
 <p><em>Declared by:</em></p>
@@ -1053,7 +1038,7 @@ list of (submodule)</p>
 <h2 id="microvmsharesmountpoint"><a class="header" href="#microvmsharesmountpoint">microvm.shares.*.mountPoint</a></h2>
 <p>Where to mount the share inside the container</p>
 <p><em>Type:</em>
-path</p>
+absolute path</p>
 <p><em>Declared by:</em></p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
@@ -1304,7 +1289,7 @@ list of string</p>
 <h2 id="microvmvolumesmountpoint"><a class="header" href="#microvmvolumesmountpoint">microvm.volumes.*.mountPoint</a></h2>
 <p>If and where to mount the volume inside the container</p>
 <p><em>Type:</em>
-null or path</p>
+null or absolute path</p>
 <p><em>Declared by:</em></p>
 <ul>
 <li><a href="https://github.com/astro/microvm.nix/tree/main/nixos-modules/microvm/options.nix">microvm.nix/nixos-modules/microvm/options.nix</a></li>
@@ -1537,112 +1522,13 @@ an external Ethernet port, eliminating the <code>br0</code> bridge.</p>
 for PCI passthru into MicroVMs.</p>
 </li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="a-simple-network-setup-1"><a class="header" href="#a-simple-network-setup-1">A simple network setup</a></h1>
-<p>While networking infrastructure is out of scope for the <strong>microvm.nix</strong>
-flake, here is some guidance for providing the MicroVMs on your NixOS
-machine with internet access.</p>
-<p>Use this for your local LAN where IP addresses are free and
-plentiful. If not, head over to the
-<a href="./advanced-network.html">advanced networking</a> page.</p>
-<p>Because we already use systemd for MicroVM startup, let's pick
-<code>systemd-networkd</code>:</p>
-<pre><code class="language-nix">networking.useNetworkd = true;
-</code></pre>
-<h2 id="a-bridge-to-link-tap-interfaces-1"><a class="header" href="#a-bridge-to-link-tap-interfaces-1">A bridge to link TAP interfaces</a></h2>
-<p>To make your MicroVM reachable, the host will place its Ethernet port (<code>eno1</code>)
-on a bridge (<code>br0</code>). This bridge will have the MicroVM's TAP interface attached
-to it - directly placing the MicroVM on your local network.</p>
-<p>Note that the addresses provided below are examples and you must adjust these
-for your network settings. Also note that the <code>eno1</code> must be attached to the
-bridge with the <code>vm-*</code> TAP interfaces that you will specify in the MicroVM
-definition.</p>
-<pre><code class="language-nix">systemd.network.enable = true;
-
-systemd.network.networks."10-lan" = {
-  matchConfig.Name = ["eno1" "vm-*"];
-  networkConfig = {
-    Bridge = "br0";
-  };
-};
-
-systemd.network.netdevs."br0" = {
-  netdevConfig = {
-    Name = "br0";
-    Kind = "bridge";
-  };
-};
-
-systemd.network.networks."10-lan-bridge" = {
-  matchConfig.Name = "br0";
-  networkConfig = {
-    Address = ["192.168.1.2/24" "2001:db8::a/64"];
-    Gateway = "192.168.1.1";
-    DNS = ["192.168.1.1"];
-    IPv6AcceptRA = true;
-  };
-  linkConfig.RequiredForOnline = "routable";
-};
-</code></pre>
-<p>Now that the host is configured, you can define a MicroVM to have a static IP
-address with:</p>
-<pre><code class="language-nix">microvm = {
-  #...add additional MicroVM configuration here
-  interfaces = [
-    {
-      type = "tap";
-      id = "vm-test1";
-      mac = "02:00:00:00:00:01";
-    }
-  ];
-};
-
-systemd.network.enable = true;
-
-systemd.network.networks."20-lan" = {
-  matchConfig.Type = "ether";
-  networkConfig = {
-    Address = ["192.168.1.3/24" "2001:db8::b/64"];
-    Gateway = "192.168.1.1";
-    DNS = ["192.168.1.1"];
-    IPv6AcceptRA = true;
-    DHCP = "no";
-  };
-};
-</code></pre>
-<h2 id="docker-and-systemd-network-1"><a class="header" href="#docker-and-systemd-network-1">Docker and systemd-network</a></h2>
-<p>If you use the above <code>systemd.network</code> bridge config and wish to run
-Docker containers inside your microvms using <code>virtualisation.docker</code>,
-you may need to add the following snippet to stop <code>systemd-networkd</code> from
-managing the bridged <code>veth*</code> interfaces Docker creates for each container.
-Without this, network access inside the containers will be broken.</p>
-<pre><code class="language-nix">systemd.network.networks."19-docker" = {
-  matchConfig.Name = "veth*";
-  linkConfig = {
-    Unmanaged = true;
-  };
-};
-</code></pre>
-<h2 id="advanced-improving-performance-1"><a class="header" href="#advanced-improving-performance-1">Advanced: Improving Performance</a></h2>
-<p>If you prioritize network performance over inter-VM communication on
-the virtual bridge, have a look into these alternatives:</p>
-<ul>
-<li>
-<p>Network interfaces with <code>type = "macvtap"</code> are supported in
-microvm.nix. While they're technically tap devices, they attach to
-an external Ethernet port, eliminating the <code>br0</code> bridge.</p>
-</li>
-<li>
-<p>Server Ethernet cards support SR-IOV: setup Virtual Function devices
-for PCI passthru into MicroVMs.</p>
-</li>
-</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="advanced-network-setup"><a class="header" href="#advanced-network-setup">Advanced network setup</a></h1>
 <p>Renting a server in a datacenter usually gets you one IP address. You
 must not bridge your local VM traffic together with the physical
 Ethernet uplink port. Instead, setup a host-internal bridge for the
 Virtual Machines, and provide them with Internet through NAT just like
 your plastic ADSL router at home.</p>
-<h2 id="a-bridge-to-link-tap-interfaces-2"><a class="header" href="#a-bridge-to-link-tap-interfaces-2">A bridge to link TAP interfaces</a></h2>
+<h2 id="a-bridge-to-link-tap-interfaces-1"><a class="header" href="#a-bridge-to-link-tap-interfaces-1">A bridge to link TAP interfaces</a></h2>
 <p>Instead of placing MicroVMs directly on a LAN, one can also use a TAP
 interface to get a virtual Ethernet interface on the host. Although it
 is possible to <a href="./routed-network.html">assign individual IP
@@ -1930,7 +1816,7 @@ boolean</p>
 <h2 id="microvmstatedir"><a class="header" href="#microvmstatedir">microvm.stateDir</a></h2>
 <p>Directory that contains the MicroVMs</p>
 <p><em>Type:</em>
-path</p>
+absolute path</p>
 <p><em>Default:</em>
 <code>"/var/lib/microvms"</code></p>
 <p><em>Declared by:</em></p>
@@ -1971,7 +1857,7 @@ null or (Toplevel NixOS config)</p>
 <h2 id="microvmvmsnameflake"><a class="header" href="#microvmvmsnameflake">microvm.vms.&lt;name&gt;.flake</a></h2>
 <p>Source flake for declarative build</p>
 <p><em>Type:</em>
-null or path</p>
+null or absolute path</p>
 <p><em>Default:</em>
 <code>flakeInputs.my-infra</code></p>
 <p><em>Declared by:</em></p>
@@ -1984,7 +1870,7 @@ specified.</p>
 <p>The nixpkgs path to use for the MicroVM. Defaults to the
 host’s nixpkgs.</p>
 <p><em>Type:</em>
-path</p>
+absolute path</p>
 <p><em>Default:</em>
 <code>pkgs.path</code></p>
 <p><em>Declared by:</em></p>

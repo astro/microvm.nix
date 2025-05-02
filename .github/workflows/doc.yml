@@ -15,7 +15,6 @@ jobs:
       - name: Create production theme
         run: |
           echo >> doc/book.toml
-          echo "[output.html]" >> doc/book.toml
           echo 'theme="theme"' >> doc/book.toml
           mkdir doc/theme
           echo '<script defer data-domain="astro.github.io" src="https://p.spaceboyz.net/js/script.js"></script>' > doc/theme/head.hbs

@@ -9,13 +9,14 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    flake-compat.url = "https://git.lix.systems/api/v1/repos/lix-project/flake-compat/archive/main.tar.gz";
     spectrum = {
       url = "git+https://spectrum-os.org/git/spectrum";
       flake = false;
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, spectrum }:
+  outputs = { self, nixpkgs, flake-utils, spectrum, flake-compat }:
     let
       systems = [
         "x86_64-linux"

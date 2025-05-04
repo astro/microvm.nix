@@ -5,14 +5,14 @@ available for customization. These are the most important ones:
 
 | Option                         | Purpose                                                                                             |
 |--------------------------------|-----------------------------------------------------------------------------------------------------|
-| `microvm.hypervisor`           | Hypervisor to use by default in `microvm.declaredRunner`                                            |
+| `microvm.hypervisor`           | VMM to use by default in `microvm.declaredRunner`                                                   |
 | `microvm.vcpu`                 | Number of Virtual CPU cores                                                                         |
 | `microvm.mem`                  | RAM allocation in MB                                                                                |
 | `microvm.interfaces`           | Network interfaces                                                                                  |
 | `microvm.volumes`              | Block device images                                                                                 |
 | `microvm.shares`               | Shared filesystem directories                                                                       |
 | `microvm.devices`              | PCI/USB devices for host-to-vm passthrough                                                          |
-| `microvm.socket`               | Control socket for the Hypervisor so that a MicroVM can be shutdown cleanly                         |
+| `microvm.socket`               | Control socket for the VMM so that a MicroVM can be shutdown cleanly                                |
 | `microvm.user`                 | (qemu only) User account which Qemu will switch to when started as root                             |
 | `microvm.forwardPorts`         | (qemu user-networking only) TCP/UDP port forwarding                                                 |
 | `microvm.kernelParams`         | Like `boot.kernelParams` but will not end up in `system.build.toplevel`, saving you rebuilds        |

@@ -15,12 +15,12 @@
   <img src="doc/src/demo.gif" alt="Demo GIF">
 </p>
 
-A Nix Flake to build NixOS and run it on one of several Type-2
-Hypervisors on NixOS/Linux. The project is intended to provide a more
-isolated alternative to `nixos-container`. You can either build and
-run MicroVMs like Nix packages, or alternatively install them as
-systemd services declaratively in your host's Nix Flake or
-imperatively with the provided `microvm` command.
+A Nix Flake to build NixOS and run it virtualized by one of several
+Virtual Machine Monitors (VMMs) on NixOS/Linux (kvm). The project is intended
+to provide a more isolated alternative to `nixos-container`s. You can either
+build and run MicroVMs like Nix packages, or alternatively install them as
+systemd services declaratively in your host's Nix Flake or imperatively with 
+the provided `microvm` command.
 
 [Project Presentation (video)](https://media.ccc.de/v/nixcon-2023-34861-microvm-nix)
 
@@ -28,8 +28,8 @@ imperatively with the provided `microvm` command.
 
 - MicroVMs are Virtual Machines but use special device interfaces
   (virtio) for high performance.
-- This project runs them on NixOS hosts.
-- You can choose one of five hypervisors for each MicroVM.
+- This project runs them on NixOS (Linux/KVM) hosts.
+- You can choose one of five VMMs for each MicroVM.
 - MicroVMs have a fixed RAM allocation (default: 512 MB) but can be
   shrunk using `microvm-balloon`
 - MicroVMs have a read-only root disk with either a prepopulated
@@ -45,9 +45,12 @@ imperatively with the provided `microvm` command.
   attached to a MicroVM. `qemu` and `kvmtool` also support *user*
   networking which requires no additional setup on the host.
 
-## Hypervisors
+## Virtual Machine Monitors (VMM) ("Hypervisors")
 
-| Hypervisor                                                              | Language | Restrictions                             |
+_Hypervisor refer to the kernel part of a virtualization stack, such as KVM.
+A VMM refers to the user-space part. Some also call them device managers._
+
+| VMM (leveraging KVM)                                                    | Language | Restrictions                             |
 |-------------------------------------------------------------------------|----------|------------------------------------------|
 | [qemu](https://www.qemu.org/)                                           | C        |                                          |
 | [cloud-hypervisor](https://www.cloudhypervisor.org/)                    | Rust     | no 9p shares                             |
@@ -89,7 +92,7 @@ nix run microvm#kvmtool-example
 nix run microvm#stratovirt-example
 ```
 
-### Run a MicroVM example with nested MicroVMs on 5 different Hypervisors
+### Run a MicroVM example with nested MicroVMs on 5 different VMMs
 
 ```shell
 nix run microvm#vm

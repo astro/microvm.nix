@@ -98,9 +98,9 @@ nixpkgs.lib.nixosSystem {
             matchConfig.Name = "virbr0";
 
             addresses = [ {
-              addressConfig.Address = "10.0.0.1/24";
+              Address = "10.0.0.1/24";
             } {
-              addressConfig.Address = "fd12:3456:789a::1/64";
+              Address = "fd12:3456:789a::1/64";
             } ];
             # Hand out IP addresses to MicroVMs.
             # Use `networkctl status virbr0` to see leases.
@@ -110,14 +110,12 @@ nixpkgs.lib.nixosSystem {
             };
             # Let DHCP assign a statically known address to the VMs
             dhcpServerStaticLeases = lib.imap0 (i: hypervisor: {
-              dhcpServerStaticLeaseConfig = {
-                MACAddress = hypervisorMacAddrs.${hypervisor};
-                Address = hypervisorIPv4Addrs.${hypervisor};
-              };
+              MACAddress = hypervisorMacAddrs.${hypervisor};
+              Address = hypervisorIPv4Addrs.${hypervisor};
             }) hypervisors;
             # IPv6 SLAAC
             ipv6Prefixes = [ {
-              ipv6PrefixConfig.Prefix = "fd12:3456:789a::/64";
+              Prefix = "fd12:3456:789a::/64";
             } ];
           };
           networks.microvm-eth0 = {

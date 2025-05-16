@@ -36,8 +36,7 @@ let
     ++ lib.optional microvmConfig.optimize.enable minimizeQemuClosureSize
   );
 
-  qemu = overrideQemu (if microvmConfig.cpu == null then
-    pkgs.qemu_kvm else pkgs.buildPackages.qemu_full);
+  qemu = overrideQemu pkgs.qemu_kvm;
 
   inherit (microvmConfig) hostName vcpu mem balloon initialBalloonMem deflateOnOOM hotplugMem hotpluggedMem user interfaces shares socket forwardPorts devices vsock graphics storeOnDisk kernel initrdPath storeDisk;
   inherit (microvmConfig.qemu) machine extraArgs serialConsole;

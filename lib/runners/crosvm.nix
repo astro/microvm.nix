@@ -127,11 +127,6 @@ in {
       #   "--net-vq-pairs" (toString vcpu)
       # ]
       ++
-      builtins.concatMap ({ bus, path, ... }: {
-        pci = [ "--vfio" "/sys/bus/pci/devices/${path},iommu=viommu" ];
-        usb = throw "USB passthrough is not supported on crosvm";
-      }.${bus}) devices
-      ++
       lib.optionals (vsock.cid != null) [
         "--vsock" (toString vsock.cid)
       ]
@@ -140,9 +135,13 @@ in {
         "--initrd" initrdPath
         kernelPath
       ]
-      ++
-      extraArgs
-    );
+    )
+    + " " + # Move vfio-pci outside of
+      (lib.concatMapStringsSep " " ({ bus, path, ... }: {
+        pci = [ "--vfio" "/sys/bus/pci/devices/${path},iommu=viommu" ];
+        usb = throw "USB passthrough is not supported on crosvm";
+      }.${bus}) devices)
+    + " " + lib.escapeShellArgs extraArgs;
 
   canShutdown = socket != null;
 

@@ -213,14 +213,14 @@ in {
         })
         else throw "Unsupported interface type ${type} for Cloud-Hypervisor"
       ) interfaces)
-      ++
-      arg "--device" (map ({ bus, path, ... }: {
+    ) 
+    + " " + # Move vfio-pci outside of
+    (lib.concatMapStringsSep " "
+      ({ bus, path, ... }: {
         pci = "path=/sys/bus/pci/devices/${path}";
         usb = throw "USB passthrough is not supported on cloud-hypervisor";
       }.${bus}) devices)
-      ++
-      extraArgs
-    );
+    + " " + lib.escapeShellArgs extraArgs;
 
   canShutdown = socket != null;
 

@@ -119,7 +119,6 @@
               ignoreCollisions = true;
             };
             waypipe = overrideWaypipe pkgs;
-            alioth = pkgs.callPackage ./pkgs/alioth.nix {};
           } //
           # wrap self.nixosConfigurations in executable packages
           builtins.foldl' (result: systemName:
@@ -150,7 +149,6 @@
         overlay = final: prev: {
           cloud-hypervisor-graphics = prev.callPackage (spectrum + "/pkgs/cloud-hypervisor") {};
           waypipe = overrideWaypipe prev;
-          alioth = prev.callPackage ./pkgs/alioth.nix {};
         };
         overlays.default = self.overlay;
 

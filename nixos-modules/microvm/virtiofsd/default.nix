@@ -24,8 +24,7 @@ in
 
           "eventlistener:notify" = {
             command = pkgs.writers.writePython3 "supervisord-event-handler" { } (
-              pkgs.substituteAll {
-                src = ./supervisord-event-handler.py;
+              pkgs.replaceVars  ./supervisord-event-handler.py {
                 virtiofsdCount = builtins.length virtiofsShares;
               }
             );

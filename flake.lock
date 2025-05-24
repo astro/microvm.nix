@@ -1,5 +1,18 @@
 {
   "nodes": {
+    "flake-compat": {
+      "locked": {
+        "lastModified": 1714705744,
+        "narHash": "sha256-SsaS620K6QZVCOUqcWU/sHEkipnsJcqslfrU9oko+f4=",
+        "rev": "5adafc5bfbb5b1df965df8ade18b1b0ce00a418e",
+        "type": "tarball",
+        "url": "https://git.lix.systems/api/v1/repos/lix-project/flake-compat/archive/5adafc5bfbb5b1df965df8ade18b1b0ce00a418e.tar.gz?rev=5adafc5bfbb5b1df965df8ade18b1b0ce00a418e"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://git.lix.systems/api/v1/repos/lix-project/flake-compat/archive/main.tar.gz"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -36,6 +49,7 @@
     },
     "root": {
       "inputs": {
+        "flake-compat": "flake-compat",
         "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs",
         "spectrum": "spectrum"

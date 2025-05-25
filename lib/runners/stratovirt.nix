@@ -89,7 +89,7 @@ in {
 
       "-kernel" "${kernel}/bzImage"
       "-initrd" initrdPath
-      "-append" "console=${console} edd=off reboot=t panic=-1 verbose ${builtins.unsafeDiscardStringContext (toString microvmConfig.kernelParams)}"
+      "-append" "console=${console} edd=off reboot=t panic=-1 ${builtins.unsafeDiscardStringContext (toString microvmConfig.kernelParams)}"
 
       "-serial" "stdio"
       "-object" "rng-random,id=rng,filename=/dev/random"

@@ -22,7 +22,7 @@ let
     boot-source = {
       kernel_image_path = kernelPath;
       initrd_path = initrdPath;
-      boot_args = "console=ttyS0 noapic acpi=off reboot=k panic=1 verbose i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd ${builtins.unsafeDiscardStringContext (toString microvmConfig.kernelParams)}";
+      boot_args = "console=ttyS0 noapic acpi=off reboot=k panic=1 i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd ${builtins.unsafeDiscardStringContext (toString microvmConfig.kernelParams)}";
     };
     machine-config = {
       vcpu_count = vcpu;

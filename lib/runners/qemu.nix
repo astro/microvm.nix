@@ -303,7 +303,7 @@ lib.warnIf (mem == 2048) ''
     extraArgs
   )
   + " " + # Move vfio-pci outside of
-  (lib.concatMapStringsSep " " ({ bus, path, qemu,... }: {
+  lib.concatStringsSep " " (lib.concatMap ({ bus, path, qemu,... }: {
     pci = [
       "-device" "vfio-pci,host=${path},multifunction=on${
         # Allow to pass additional arguments to pci device

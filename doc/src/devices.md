@@ -1,7 +1,7 @@
 # Device pass-through
 
 PCI and USB pass-through is supported on some hypervisors. Permission
-setup is automatic for declared `"pci'` devices, but manual for
+setup is automatic for declared `"pci"` devices, but manual for
 `"usb"` devices.
 
 ## Example PCI pass-through

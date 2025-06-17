@@ -21,22 +21,6 @@
         "x86_64-linux"
         "aarch64-linux"
       ];
-
-      # https://github.com/NixOS/nixpkgs/pull/296538
-      # TODO: remove entirely after NixOS 24.05
-      overrideWaypipe = pkgs:
-        if builtins.compareVersions pkgs.waypipe.version "0.9" >= 0
-        then pkgs.waypipe
-        else pkgs.waypipe.overrideAttrs (attrs: rec {
-          version = "0.9.0";
-          src = pkgs.fetchFromGitLab {
-            domain = "gitlab.freedesktop.org";
-            owner = "mstoeckl";
-            repo = "waypipe";
-            rev = "v${version}";
-            hash = "sha256-zk5IzZiFff9EeJn24/QmE1ybcBkxpaz6Owp77CfCwV0=";
-          };
-        });
     in
       flake-utils.lib.eachSystem systems (system: {
 
@@ -84,7 +68,7 @@
             waypipe-client = {
               type = "app";
               program = toString (pkgs.writeShellScript "waypipe-client" ''
-                exec ${self.packages.${system}.waypipe}/bin/waypipe --vsock -s 6000 client
+                exec ${pkgs.waypipe}/bin/waypipe --vsock -s 6000 client
               '');
             };
           };
@@ -118,7 +102,6 @@
               extraOutputsToInstall = [ "dev" ];
               ignoreCollisions = true;
             };
-            waypipe = overrideWaypipe pkgs;
           } //
           # wrap self.nixosConfigurations in executable packages
           builtins.foldl' (result: systemName:
@@ -148,7 +131,6 @@
 
         overlay = final: prev: {
           cloud-hypervisor-graphics = prev.callPackage (spectrum + "/pkgs/cloud-hypervisor") {};
-          waypipe = overrideWaypipe prev;
         };
         overlays.default = self.overlay;
 

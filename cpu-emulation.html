@@ -196,7 +196,7 @@ here</a>.</p>
   };
 
   outputs = { self, nixpkgs, microvm }: {
-    emulated-dev = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.emulated-dev = nixpkgs.lib.nixosSystem {
       # host system
       system = "x86_64-linux";
       modules = let
@@ -207,9 +207,9 @@ here</a>.</p>
           crossSystem.config = guestSystem;
         };
       in [
-        {nixpkgs.crossSystem.config = guestSystem;}
         microvm.nixosModules.microvm
         {
+          nixpkgs.crossSystem.config = guestSystem;
           microvm = {
             # you can choose what CPU will be emulated by qemu
             cpu = "cortex-a53";
@@ -224,7 +224,7 @@ here</a>.</p>
   };
 }
 </code></pre>
-<p>You can run the example with <code>nix run .#emulated-dev.config.microvm.declaredRunner</code>.</p>
+<p>You can run the example with <code>nix run .#nixosConfigurations.emulated-dev.config.microvm.declaredRunner</code>.</p>
 <p>As shown in this example, you can use system packages on the guest
 system by using nixpkgs with a proper <code>crossSystem</code> configuration.</p>
 

@@ -1,7 +1,7 @@
 # CPU emulation
 
 It's possible to emulate a CPU if desired. This feature is only
-supported by the qemu hypervisor.
+supported by the qemu VMM.
 
 **Note:** this feature has a significant performance impact.
 
@@ -17,7 +17,7 @@ settings:
   environment.
 
 - Set `microvm.hypervisor` to `qemu`, given this is the only
-  hypervisor that supports this feature.
+  VMM that supports this feature.
 
 - Set `microvm.cpu` to the desired emulated CPU. You can find a [list
   of the available systems

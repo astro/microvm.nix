@@ -26,11 +26,22 @@ let
   execArg = lib.optionalString microvmConfig.prettyProcnames
     ''-a "microvm@${hostName}"'';
 
+  vmHostPackages =
+    if microvmConfig.cpu == null
+    then
+      # When cross-compiling for a target host, select packages for
+      # the target:
+      pkgs.hostPackages
+    else
+      # When cross-compiling for CPU emulation in qemu, select
+      # packages for the host:
+      pkgs.buildPackages;
+
   binScripts = microvmConfig.binScripts // {
     microvm-run = ''
       set -eou pipefail
       ${preStart}
-      ${createVolumesScript pkgs microvmConfig.volumes}
+      ${createVolumesScript vmHostPackages microvmConfig.volumes}
       ${lib.optionalString (hypervisorConfig.requiresMacvtapAsFds or false) openMacvtapFds}
 
       exec ${execArg} ${command}

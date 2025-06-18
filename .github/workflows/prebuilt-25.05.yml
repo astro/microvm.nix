@@ -1,4 +1,4 @@
-name: "prebuilt-24.05"
+name: "prebuilt-25.05"
 
 on:
   workflow_dispatch: # allows manual triggering
@@ -18,4 +18,4 @@ jobs:
       with:
         name: microvm
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - run: nix build -L .#prebuilt --override-input nixpkgs github:nixos/nixpkgs/release-24.05
+    - run: nix build -L .#prebuilt --override-input nixpkgs github:nixos/nixpkgs/release-25.05

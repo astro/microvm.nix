@@ -31,7 +31,7 @@ let
     then
       # When cross-compiling for a target host, select packages for
       # the target:
-      pkgs.hostPackages
+      pkgs
     else
       # When cross-compiling for CPU emulation in qemu, select
       # packages for the host:

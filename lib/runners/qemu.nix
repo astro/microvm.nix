@@ -40,7 +40,7 @@ let
     if microvmConfig.cpu == null
     then
       # When cross-compiling for a target host, select qemu for the target:
-      pkgs.hostPackages.qemu_kvm
+      pkgs.qemu_kvm
     else
       # When cross-compiling for CPU emulation, select qemu for the host:
       pkgs.buildPackages.qemu;

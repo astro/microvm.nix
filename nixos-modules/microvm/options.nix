@@ -1,4 +1,4 @@
-{ config, lib, pkgs, options, ... }:
+{ config, lib, pkgs, ... }:
 let
   self-lib = import ../../lib {
     inherit lib;
@@ -485,7 +485,8 @@ in
 
     vmHostPackages = mkOption {
       description = "If set, overrides the default host package.";
-      type = types.nullOr options.nixpkgs.pkgs.type;
+      example = "nixpkgs.legacyPackages.aarch64-darwin.pkgs";
+      type = types.nullOr types.pkgs;
       default = null;
     };
 

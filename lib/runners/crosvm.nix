@@ -137,7 +137,7 @@ in {
       ]
     )
     + " " + # Move vfio-pci outside of
-      (lib.concatMapStringsSep " " ({ bus, path, ... }: {
+      lib.concatStringsSep " " (lib.concatMap ({ bus, path, ... }: {
         pci = [ "--vfio" "/sys/bus/pci/devices/${path},iommu=viommu" ];
         usb = throw "USB passthrough is not supported on crosvm";
       }.${bus}) devices)

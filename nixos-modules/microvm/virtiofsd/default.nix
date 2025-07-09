@@ -53,6 +53,9 @@ in
                   ${lib.optionalString (config.microvm.virtiofsd.inodeFileHandles != null)
                     "--inode-file-handles=${config.microvm.virtiofsd.inodeFileHandles}"
                   } \
+                  ${lib.optionalString (config.microvm.hypervisor == "crosvm")
+                    "--tag=${tag}"
+                  } \
                   ${lib.concatStringsSep " " config.microvm.virtiofsd.extraArgs}
               '';
             };

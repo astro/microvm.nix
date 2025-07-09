@@ -97,16 +97,14 @@ in {
         ]
       ) volumes
       ++
-      builtins.concatMap ({ proto, tag, source, ... }:
-        let
-          type = {
-            "9p" = "p9";
-            "virtiofs" = "fs";
-          }.${proto};
-        in [
-          "--shared-dir" "${source}:${tag}:type=${type}"
-        ]
-      ) shares
+      builtins.concatMap ({ proto, tag, source, socket, ... }: {
+        "virtiofs" = [
+          "--vhost-user" "type=fs,socket=${socket}"
+        ];
+        "9p" = [
+          "--shared-dir" "${source}:${tag}:type=p9"
+        ];
+      }.${proto}) shares
       ++
       (builtins.concatMap ({ id, type, mac, ... }: [
         "--net"

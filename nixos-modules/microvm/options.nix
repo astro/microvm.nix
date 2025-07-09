@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, options, ... }:
 let
   self-lib = import ../../lib {
     inherit lib;
@@ -481,6 +481,12 @@ in
       description = ''
         Path of vhost-user socket
       '';
+    };
+
+    vmHostPackages = mkOption {
+      description = "If set, overrides the default host package.";
+      type = types.nullOr options.nixpkgs.pkgs.type;
+      default = null;
     };
 
     qemu.machine = mkOption {

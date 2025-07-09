@@ -14,7 +14,7 @@ let
   }) openMacvtapFds macvtapFds;
 
   hypervisorConfig = import (./runners + "/${microvmConfig.hypervisor}.nix") {
-    inherit pkgs microvmConfig macvtapFds;
+    inherit microvmConfig macvtapFds pkgs vmHostPackages;
   };
 
   inherit (hypervisorConfig) command canShutdown shutdownCommand;
@@ -27,7 +27,8 @@ let
     ''-a "microvm@${hostName}"'';
 
   vmHostPackages =
-    if microvmConfig.cpu == null
+    if microvmConfig.vmHostPackages != null then microvmConfig.vmHostPackages else
+    (if microvmConfig.cpu == null
     then
       # When cross-compiling for a target host, select packages for
       # the target:
@@ -35,7 +36,7 @@ let
     else
       # When cross-compiling for CPU emulation in qemu, select
       # packages for the host:
-      pkgs.buildPackages;
+      pkgs.buildPackages);
 
   binScripts = microvmConfig.binScripts // {
     microvm-run = ''
@@ -63,11 +64,11 @@ let
   };
 
   binScriptPkgs = lib.mapAttrs (scriptName: lines:
-    pkgs.writeShellScript "microvm-${hostName}-${scriptName}" lines
+    vmHostPackages.writeShellScript "microvm-${hostName}-${scriptName}" lines
   ) binScripts;
 in
 
-pkgs.buildPackages.runCommand "microvm-${microvmConfig.hypervisor}-${hostName}"
+vmHostPackages.buildPackages.runCommand "microvm-${microvmConfig.hypervisor}-${hostName}"
 {
   # for `nix run`
   meta.mainProgram = "microvm-run";

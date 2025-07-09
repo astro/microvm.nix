@@ -9,7 +9,7 @@ host.
 In `microvm.shares` elements the `proto` field allows either of two
 values:
 
-- `9p` (default) is built into many hypervisors, allowing you to
+- `9p` (default) is built into many VMMs, allowing you to
   quickly share a directory tree
 
 - `virtiofs` requires a separate virtiofsd service which is started as

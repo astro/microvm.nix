@@ -17,10 +17,10 @@ MicroVM deployments using the information on this page.
 | `microvm.systemSymlink`      | `share/microvm/system`                 |                                     | `config.system.build.toplevel` symlink, used for comparing versions when running `microvm -l` |
 
 
-## Generating custom operating system hypervisor packages
+## Generating custom operating system VMM packages
 
 Because a microvm.nix runner package completely defines how to run the
-Hypervisor, it is possible to define independent packages that
+VMM, it is possible to define independent packages that
 virtualize other operating systems than NixOS.
 
 - Your NixOS configurations should export their runner package as

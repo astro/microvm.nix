@@ -57,7 +57,7 @@ Once your MicroVM's journal data is visible in the
 `/var/log/journal/$machineId/` directories, `journalctl` can pick it
 up using the `-m`/`--merge` switch.
 
-## Can I build with hypervisors from the host's nixpkgs instead of the MicroVM's?
+## Can I build with VMMs from the host's nixpkgs instead of the MicroVM's?
 
 Yes. This scenario is enabled through the flake's `lib.buildRunner`
 function. See the [`nix run

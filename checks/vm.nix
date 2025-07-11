@@ -17,6 +17,8 @@
       # Must be big enough for the store overlay volume
       virtualisation.diskSize = 4096;
 
+      environment.etc."microvm-bootstrap.secret".text  = "i am super secret";
+
       microvm.vms."${system}-${hypervisor}-example".flake = self;
     };
     testScript = ''

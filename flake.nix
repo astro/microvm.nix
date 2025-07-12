@@ -130,7 +130,7 @@
         lib = import ./lib { inherit (nixpkgs) lib; };
 
         overlay = final: super: {
-          cloud-hypervisor-graphics = import "${spectrum}/pkgs/cloud-hypervisor" { inherit final super; }; 
+          cloud-hypervisor-graphics = import "${spectrum}/pkgs/cloud-hypervisor" { inherit final super; };
         };
         overlays.default = self.overlay;
 

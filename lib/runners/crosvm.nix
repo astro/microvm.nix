@@ -1,6 +1,7 @@
 { pkgs
 , microvmConfig
 , macvtapFds
+, ...
 }:
 
 let

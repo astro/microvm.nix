@@ -1,4 +1,16 @@
 { lib }:
+let
+  fsTypeToUtil = pkgs: fs: with pkgs;{
+    "ext2" = e2fsprogs;
+    "ext3" = e2fsprogs;
+    "ext4" = e2fsprogs;
+    "xfs"= xfsprogs;
+    "btrfs" = btrfs-progs;
+    "vfat" = dosfstools;
+  }.${fs};
+  collectFsTypes = volumes: map (v: v.fsType) volumes;
+  collectFsUtils = volumes: pkgs: map (fsType: fsTypeToUtil pkgs fsType) (collectFsTypes volumes);
+in
 rec {
   hypervisors = [
     "qemu"
@@ -32,7 +44,7 @@ rec {
   createVolumesScript = pkgs: volumes:
     lib.optionalString (volumes != []) (
       lib.optionalString (lib.any (v: v.autoCreate) volumes) ''
-        PATH=$PATH:${with pkgs.buildPackages; lib.makeBinPath [ coreutils util-linux e2fsprogs xfsprogs dosfstools btrfs-progs ]}
+        PATH=$PATH:${with pkgs.buildPackages; lib.makeBinPath ([ coreutils ] ++ (collectFsUtils volumes pkgs))}
       '' +
       pkgs.lib.concatMapStringsSep "\n" (
         { image

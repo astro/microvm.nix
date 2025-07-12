@@ -483,6 +483,13 @@ in
       '';
     };
 
+    vmHostPackages = mkOption {
+      description = "If set, overrides the default host package.";
+      example = "nixpkgs.legacyPackages.aarch64-darwin.pkgs";
+      type = types.nullOr types.pkgs;
+      default = null;
+    };
+
     qemu.machine = mkOption {
       type = types.str;
       description = ''
